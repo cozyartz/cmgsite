@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, ChevronDown } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -20,7 +21,7 @@ const Header = () => {
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center space-x-3">
+          <Link to="/" className="flex items-center space-x-3">
             <img 
               src="/cmgLogo.png" 
               alt="Cozyartz Media Group" 
@@ -30,19 +31,20 @@ const Header = () => {
               <h1 className="text-xl font-bold">COZYARTZ</h1>
               <p className="text-xs text-teal-300 tracking-wider">MEDIA GROUP</p>
             </div>
-          </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <a href="#home" className="text-white hover:text-teal-300 transition-colors">Home</a>
+            <Link to="/" className="text-white hover:text-teal-300 transition-colors">Home</Link>
             <div className="relative group">
               <button className="flex items-center text-white hover:text-teal-300 transition-colors">
                 Services <ChevronDown className="ml-1 h-4 w-4" />
               </button>
               <div className="absolute top-full left-0 mt-2 w-64 bg-slate-800 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                <a href="#web-design" className="block px-4 py-3 text-white hover:bg-teal-600 rounded-t-lg">Web & Graphic Design</a>
-                <a href="#instructional" className="block px-4 py-3 text-white hover:bg-teal-600">Instructional Design</a>
-                <a href="#multimedia" className="block px-4 py-3 text-white hover:bg-teal-600 rounded-b-lg">Multimedia Production</a>
+                <Link to="/web-graphic-design-services" className="block px-4 py-3 text-white hover:bg-teal-600 rounded-t-lg">Web & Graphic Design</Link>
+                <Link to="/instructional-design-services" className="block px-4 py-3 text-white hover:bg-teal-600">Instructional Design</Link>
+                <Link to="/multimedia-services" className="block px-4 py-3 text-white hover:bg-teal-600">Multimedia Services</Link>
+                <Link to="/drone-services" className="block px-4 py-3 text-white hover:bg-teal-600 rounded-b-lg">Drone Services</Link>
               </div>
             </div>
             <a href="#portfolio" className="text-white hover:text-teal-300 transition-colors">Portfolio</a>
@@ -65,10 +67,11 @@ const Header = () => {
         {isMenuOpen && (
           <nav className="md:hidden mt-4 pb-4 border-t border-slate-700">
             <div className="flex flex-col space-y-4 pt-4">
-              <a href="#home" className="text-white hover:text-teal-300 transition-colors">Home</a>
-              <a href="#web-design" className="text-white hover:text-teal-300 transition-colors">Web & Graphic Design</a>
-              <a href="#instructional" className="text-white hover:text-teal-300 transition-colors">Instructional Design</a>
-              <a href="#multimedia" className="text-white hover:text-teal-300 transition-colors">Multimedia Production</a>
+              <Link to="/" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>Home</Link>
+              <Link to="/web-graphic-design-services" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>Web & Graphic Design</Link>
+              <Link to="/instructional-design-services" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>Instructional Design</Link>
+              <Link to="/multimedia-services" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>Multimedia Services</Link>
+              <Link to="/drone-services" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>Drone Services</Link>
               <a href="#portfolio" className="text-white hover:text-teal-300 transition-colors">Portfolio</a>
               <a href="#about" className="text-white hover:text-teal-300 transition-colors">About</a>
               <a href="#contact" className="bg-teal-500 hover:bg-teal-600 text-white px-6 py-2 rounded-full transition-colors text-center">
