@@ -31,14 +31,24 @@ const About = () => {
       position: "Co-Founder & CTO",
       company: "Cozyartz Media Group",
       image: "/AndreaProfile.jpeg",
-      description: "Andrea is a certified commercial drone pilot and creative technologist who leads Cozyartz's technical and production direction. With expertise in drone cinematography, web development, video editing, and graphic design, she fuses technology with storytelling to deliver high-impact visual content."
+      description: "Andrea is a certified commercial drone pilot and creative technologist who leads Cozyartz's technical and production direction. With expertise in drone cinematography, web development, video editing, and graphic design, she fuses technology with storytelling to deliver high-impact visual content.",
+      links: [
+        { url: "https://www.linkedin.com/in/andrea-cozart-lundin/", text: "LinkedIn" },
+        { url: "https://github.com/cozyartz", text: "GitHub" },
+        { url: "https://andreacozart.me", text: "Portfolio" }
+      ]
     },
     {
       name: "Amy Cozart-Lundin",
       position: "Co-Founder & CEO",
       company: "Cozyartz Media Group",
       image: "/C3FE986E-EA23-4996-A5D2-8CEEF3C2C4FB_4_5005_c.jpeg",
-      description: "Amy is an instructional designer and corporate learning expert with an M.Ed. in eLearning and instructional design. As CEO, she guides Cozyartz's strategic vision — combining educational depth with creative media to craft experiences that inform, engage, and inspire."
+      description: "Amy is an instructional designer and corporate learning expert with an M.Ed. in eLearning and instructional design. As CEO, she guides Cozyartz's strategic vision — combining educational depth with creative media to craft experiences that inform, engage, and inspire.",
+      links: [
+        { url: "https://github.com/grammar-nerd", text: "GitHub" },
+        { url: "https://www.linkedin.com/in/amycozartlundin/", text: "LinkedIn" },
+        { url: "https://amylundin.me", text: "Portfolio" }
+      ]
     }
   ];
 
@@ -127,9 +137,22 @@ const About = () => {
                 <h4 className="text-2xl font-bold text-slate-900 mb-2">{member.name}</h4>
                 <p className="text-teal-600 font-semibold text-lg mb-2">{member.position}</p>
                 <p className="text-gray-500 font-medium mb-4">{member.company}</p>
-                <p className="text-gray-600 leading-relaxed max-w-md mx-auto">
+                <p className="text-gray-600 leading-relaxed max-w-md mx-auto mb-4">
                   {member.description}
                 </p>
+                <div className="flex justify-center space-x-4">
+                  {member.links.map((link, linkIndex) => (
+                    <a
+                      key={linkIndex}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-teal-600 hover:text-teal-700 font-medium transition-colors duration-300"
+                    >
+                      {link.text}
+                    </a>
+                  ))}
+                </div>
               </div>
             ))}
           </div>

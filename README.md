@@ -10,7 +10,7 @@
 
 ## 🌟 About Cozyartz Media Group
 
-**Established 2016** | **Kalamazoo, Michigan**
+**Established 2016** | **Battle Creek, Michigan**
 
 Cozyartz Media Group is a full-service creative agency that transforms ideas into compelling digital experiences. We specialize in crafting beautiful, functional websites and multimedia content that drives results for businesses of all sizes.
 
@@ -120,7 +120,7 @@ This site is optimized for **Cloudflare Pages** deployment:
 
 - 📧 **Email**: hello@cozyartzmedia.com
 - 📱 **Phone**: (269) 261-0069
-- 📍 **Location**: Kalamazoo, Michigan
+- 📍 **Location**: Battle Creek, Michigan
 - 🌐 **Website**: [cozyartzmedia.com](https://cozyartzmedia.com)
 
 ---
@@ -131,7 +131,7 @@ This repository contains the source code for Cozyartz Media Group's website. For
 
 ## 📄 License
 
-© 2024 Cozyartz Media Group. All rights reserved.
+© 2025 Cozyartz Media Group. All rights reserved.
 
 ---
 

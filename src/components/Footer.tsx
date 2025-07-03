@@ -1,5 +1,6 @@
 import React from 'react';
-import { Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
+import { Mail, Phone, MapPin, Facebook, Linkedin, Github } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
@@ -24,17 +25,14 @@ const Footer = () => {
               innovative design, multimedia production, and instructional excellence.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="bg-slate-800 p-3 rounded-full hover:bg-teal-500 transition-colors">
+              <a href="https://www.facebook.com/cozyartzmedia/" target="_blank" rel="noopener noreferrer" className="bg-slate-800 p-3 rounded-full hover:bg-teal-500 transition-colors">
                 <Facebook className="h-5 w-5" />
               </a>
-              <a href="#" className="bg-slate-800 p-3 rounded-full hover:bg-teal-500 transition-colors">
-                <Twitter className="h-5 w-5" />
-              </a>
-              <a href="#" className="bg-slate-800 p-3 rounded-full hover:bg-teal-500 transition-colors">
-                <Instagram className="h-5 w-5" />
-              </a>
-              <a href="#" className="bg-slate-800 p-3 rounded-full hover:bg-teal-500 transition-colors">
+              <a href="https://www.linkedin.com/company/cozyartzmediagroup" target="_blank" rel="noopener noreferrer" className="bg-slate-800 p-3 rounded-full hover:bg-teal-500 transition-colors">
                 <Linkedin className="h-5 w-5" />
+              </a>
+              <a href="https://github.com/cozyartz/cmgsite" target="_blank" rel="noopener noreferrer" className="bg-slate-800 p-3 rounded-full hover:bg-teal-500 transition-colors">
+                <Github className="h-5 w-5" />
               </a>
             </div>
           </div>
@@ -43,11 +41,10 @@ const Footer = () => {
           <div>
             <h4 className="text-lg font-semibold mb-6">Services</h4>
             <ul className="space-y-3">
-              <li><a href="#web-design" className="text-gray-300 hover:text-teal-300 transition-colors">Web Design</a></li>
-              <li><a href="#graphic-design" className="text-gray-300 hover:text-teal-300 transition-colors">Graphic Design</a></li>
-              <li><a href="#instructional" className="text-gray-300 hover:text-teal-300 transition-colors">Instructional Design</a></li>
-              <li><a href="#video" className="text-gray-300 hover:text-teal-300 transition-colors">Video Production</a></li>
-              <li><a href="#aerial" className="text-gray-300 hover:text-teal-300 transition-colors">Aerial Photography</a></li>
+              <li><Link to="/web-graphic-design-services" className="text-gray-300 hover:text-teal-300 transition-colors">Web & Graphic Design</Link></li>
+              <li><Link to="/instructional-design-services" className="text-gray-300 hover:text-teal-300 transition-colors">Instructional Design</Link></li>
+              <li><Link to="/multimedia-services" className="text-gray-300 hover:text-teal-300 transition-colors">Multimedia Services</Link></li>
+              <li><Link to="/drone-services" className="text-gray-300 hover:text-teal-300 transition-colors">Drone Services</Link></li>
             </ul>
           </div>
 

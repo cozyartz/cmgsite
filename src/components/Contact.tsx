@@ -13,7 +13,24 @@ const Contact = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission here
+    
+    // Create mailto link with both recipients
+    const subject = encodeURIComponent(`New Contact Form Submission from ${formData.name}`);
+    const body = encodeURIComponent(`
+Name: ${formData.name}
+Email: ${formData.email}
+Company: ${formData.company}
+Service of Interest: ${formData.service}
+
+Message:
+${formData.message}
+    `);
+    
+    const mailtoLink = `mailto:andrea@cozyartzmedia.com,amy@cozyartzmedia.com?subject=${subject}&body=${body}`;
+    
+    // Open mail client
+    window.location.href = mailtoLink;
+    
     setIsSubmitted(true);
     setTimeout(() => setIsSubmitted(false), 3000);
   };
