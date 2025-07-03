@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, Target, Lightbulb, Award } from 'lucide-react';
+import { Users, Target, Lightbulb, Award, Linkedin, Github, ExternalLink } from 'lucide-react';
 
 const About = () => {
   const values = [
@@ -33,9 +33,9 @@ const About = () => {
       image: "/AndreaProfile.jpeg",
       description: "Andrea is a certified commercial drone pilot and creative technologist who leads Cozyartz's technical and production direction. With expertise in drone cinematography, web development, video editing, and graphic design, she fuses technology with storytelling to deliver high-impact visual content.",
       links: [
-        { url: "https://www.linkedin.com/in/andrea-cozart-lundin/", text: "LinkedIn" },
-        { url: "https://github.com/cozyartz", text: "GitHub" },
-        { url: "https://andreacozart.me", text: "Portfolio" }
+        { url: "https://www.linkedin.com/in/andrea-cozart-lundin/", text: "LinkedIn", icon: Linkedin },
+        { url: "https://github.com/cozyartz", text: "GitHub", icon: Github },
+        { url: "https://andreacozart.me", text: "Portfolio", icon: ExternalLink }
       ]
     },
     {
@@ -45,9 +45,9 @@ const About = () => {
       image: "/C3FE986E-EA23-4996-A5D2-8CEEF3C2C4FB_4_5005_c.jpeg",
       description: "Amy is an instructional designer and corporate learning expert with an M.Ed. in eLearning and instructional design. As CEO, she guides Cozyartz's strategic vision — combining educational depth with creative media to craft experiences that inform, engage, and inspire.",
       links: [
-        { url: "https://github.com/grammar-nerd", text: "GitHub" },
-        { url: "https://www.linkedin.com/in/amycozartlundin/", text: "LinkedIn" },
-        { url: "https://amylundin.me", text: "Portfolio" }
+        { url: "https://github.com/grammar-nerd", text: "GitHub", icon: Github },
+        { url: "https://www.linkedin.com/in/amycozartlundin/", text: "LinkedIn", icon: Linkedin },
+        { url: "https://amylundin.me", text: "Portfolio", icon: ExternalLink }
       ]
     }
   ];
@@ -127,32 +127,36 @@ const About = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-4xl mx-auto">
             {teamMembers.map((member, index) => (
               <div key={index} className="text-center group">
-                <div className="w-64 h-64 mx-auto mb-6 rounded-full overflow-hidden shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+                <div className="w-64 h-64 mx-auto mb-4 rounded-full overflow-hidden shadow-lg group-hover:shadow-xl transition-shadow duration-300 relative">
                   <img
                     src={member.image}
                     alt={member.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>
+                <div className="flex justify-center space-x-3 mb-6">
+                  {member.links.map((link, linkIndex) => {
+                    const Icon = link.icon;
+                    return (
+                      <a
+                        key={linkIndex}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-slate-100 hover:bg-teal-500 text-slate-600 hover:text-white p-3 rounded-full transition-colors duration-300"
+                        title={link.text}
+                      >
+                        <Icon className="h-5 w-5" />
+                      </a>
+                    );
+                  })}
+                </div>
                 <h4 className="text-2xl font-bold text-slate-900 mb-2">{member.name}</h4>
                 <p className="text-teal-600 font-semibold text-lg mb-2">{member.position}</p>
                 <p className="text-gray-500 font-medium mb-4">{member.company}</p>
-                <p className="text-gray-600 leading-relaxed max-w-md mx-auto mb-4">
+                <p className="text-gray-600 leading-relaxed max-w-md mx-auto">
                   {member.description}
                 </p>
-                <div className="flex justify-center space-x-4">
-                  {member.links.map((link, linkIndex) => (
-                    <a
-                      key={linkIndex}
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-teal-600 hover:text-teal-700 font-medium transition-colors duration-300"
-                    >
-                      {link.text}
-                    </a>
-                  ))}
-                </div>
               </div>
             ))}
           </div>
