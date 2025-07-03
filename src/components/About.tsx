@@ -76,8 +76,8 @@ const About = () => {
                 <div className="text-sm text-gray-600">Enhanced Message Relevance</div>
               </div>
               <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <div className="text-3xl font-bold text-blue-600 mb-2">50%</div>
-                <div className="text-sm text-gray-600">Learning Improvement</div>
+                <div className="text-3xl font-bold text-blue-600 mb-2">85%</div>
+                <div className="text-sm text-gray-600">SEO Improvement</div>
               </div>
             </div>
           </div>
