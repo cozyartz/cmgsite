@@ -40,8 +40,8 @@ const Hero = () => {
             isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
           }`}>
             <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-              We combine creativity with data-driven strategies to amplify your business growth through 
-              innovative design, multimedia production, and instructional excellence.
+              Founded in 2016 as an instructional design firm, we've evolved into a comprehensive creative 
+              agency that combines educational expertise with innovative technology to deliver exceptional results.
             </p>
           </div>
 

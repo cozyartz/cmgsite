@@ -43,7 +43,7 @@ const About = () => {
       position: "Co-Founder & CEO",
       company: "Cozyartz Media Group",
       image: "/C3FE986E-EA23-4996-A5D2-8CEEF3C2C4FB_4_5005_c.jpeg",
-      description: "Amy is an instructional designer and corporate learning expert with an M.Ed. in eLearning and instructional design. As CEO, she guides Cozyartz's strategic vision — combining educational depth with creative media to craft experiences that inform, engage, and inspire.",
+      description: "Amy is an instructional designer and corporate learning expert with a Master's degree in Instructional Design and Education. As CEO and founding partner, she established Cozyartz in 2016 as an instructional design firm and continues to guide our strategic vision — combining educational depth with creative media to craft experiences that inform, engage, and inspire.",
       links: [
         { url: "https://github.com/grammar-nerd", text: "GitHub", icon: Github },
         { url: "https://www.linkedin.com/in/amycozartlundin/", text: "LinkedIn", icon: Linkedin },
@@ -64,19 +64,21 @@ const About = () => {
             
             <div className="space-y-6 text-gray-600 leading-relaxed">
               <p className="text-lg">
-                We believe in a unique, innovative approach that combines creativity with data-driven 
-                strategies, amplifying your business growth.
+                <strong>Founded in 2016 as an instructional design firm</strong>, we've evolved into a comprehensive 
+                creative agency that combines educational expertise with innovative technology to deliver 
+                exceptional results for our clients.
               </p>
               
               <p>
-                At Cozyartz Media Group, we don't believe in one-size-fits-all solutions. We understand 
-                that every business has a unique story, unique goals, and unique customers. And that's why 
-                our strategies are as diverse as our clients.
+                Our foundation in instructional design and corporate learning sets us apart. We understand 
+                how people learn, engage, and make decisions - insights that inform everything we create, 
+                from training programs to websites to multimedia content.
               </p>
               
               <p>
-                We take the time to understand your business from the inside out, enabling us to create 
-                tailored strategies that resonate with your target audience and drive meaningful engagement.
+                At Cozyartz Media Group, we don't believe in one-size-fits-all solutions. We take the time 
+                to understand your business from the inside out, enabling us to create tailored strategies 
+                that resonate with your target audience and drive meaningful engagement.
               </p>
             </div>
 

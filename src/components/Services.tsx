@@ -31,20 +31,20 @@ const Services = () => {
 
   const services = [
     {
+      icon: BookOpen,
+      title: "Instructional Design",
+      number: "01.",
+      description: "Our foundational expertise since 2016. We create high-impact learning experiences and training programs that drive measurable results. Led by Amy's Master's degree in Instructional Design and Education, we specialize in adult learning and corporate training solutions.",
+      features: ["E-Learning Development", "Corporate Training Programs", "Assessment Design", "Learning Management Systems", "Educational Content Strategy"],
+      benefits: ["50% improvement in learning outcomes", "Higher completion rates", "Measurable ROI", "Engaging, retention-focused content"]
+    },
+    {
       icon: Monitor,
       title: "Web & Graphic Design",
-      number: "01.",
+      number: "02.",
       description: "Our web and graphic design services combine creativity and functionality to create visually stunning digital experiences that captivate audiences and drive engagement.",
       features: ["Responsive Web Design", "Brand Identity", "UI/UX Design", "Print Materials"],
       benefits: ["Increased user engagement", "Professional brand image", "Mobile-optimized experience", "Conversion-focused design"]
-    },
-    {
-      icon: BookOpen,
-      title: "Instructional Design",
-      number: "02.",
-      description: "Our instructional design services leverage industry expertise and practical understanding to create high-impact and effective training programs tailored to the unique needs of adult professionals.",
-      features: ["E-Learning Development", "Training Programs", "Assessment Design", "Learning Analytics"],
-      benefits: ["50% improvement in learning", "Higher completion rates", "Measurable outcomes", "Engaging content delivery"]
     },
     {
       icon: Video,
@@ -64,8 +64,8 @@ const Services = () => {
             Our <span className="text-teal-500">Services</span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            We offer comprehensive solutions that combine creativity with strategic thinking 
-            to deliver exceptional results for your business.
+            Founded as an instructional design firm in 2016, we've expanded to offer comprehensive 
+            creative solutions that combine educational expertise with innovative design and technology.
           </p>
         </div>
 

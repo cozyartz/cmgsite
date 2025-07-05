@@ -12,13 +12,14 @@
 
 **Established 2016** | **Battle Creek, Michigan**
 
-Cozyartz Media Group is a full-service creative agency that transforms ideas into compelling digital experiences. We specialize in crafting beautiful, functional websites and multimedia content that drives results for businesses of all sizes.
+Cozyartz Media Group began in 2016 as an instructional design firm and has evolved into a comprehensive creative agency. Founded by Amy Cozart-Lundin, who holds a Master's degree in Instructional Design and Education, we combine educational expertise with innovative technology to transform ideas into compelling digital experiences. Our foundation in corporate learning and instructional design informs everything we create, from training programs to websites to multimedia content.
 
 ### 🎯 Our Services
-- **🌐 Web Design & Development** - Custom websites that convert
-- **🎨 Graphic Design** - Brand identity and visual communications
-- **📚 Instructional Design** - Educational content and training materials
-- **🎬 Video Production** - Professional video content creation
+
+- **📚 Instructional Design** - Our foundational expertise: e-learning, corporate training, and educational content strategy
+- **🌐 Web Design & Development** - Custom websites that convert visitors into customers
+- **🎨 Graphic Design** - Brand identity and visual communications that tell your story
+- **🎬 Video Production** - Professional video content creation and storytelling
 - **🚁 Aerial Photography** - Stunning drone photography and videography
 
 ---
@@ -49,23 +50,26 @@ npm run dev
 ## 🏗 Technology Stack
 
 ### Frontend Framework
-- **React 18.3.1** with TypeScript for type safety
-- **Vite** for lightning-fast development and builds
-- **React Router DOM** for seamless navigation
+
+- **React 18.3.1** with TypeScript for type safety and better developer experience
+- **Vite** for lightning-fast development builds and hot module replacement
+- **Modern React patterns** with hooks and functional components
 
 ### Styling & Design
+
 - **Tailwind CSS** for utility-first styling
 - **PostCSS** for CSS processing
 - **Lucide React** for beautiful, consistent icons
 
 ### SEO & Performance
+
 - **react-helmet-async** for comprehensive meta tag management
 - **Schema.org structured data** for enhanced search visibility
 - **Performance optimizations** with preconnect and dns-prefetch
 
 ## 📁 Project Structure
 
-```
+```text
 src/
 ├── 📄 App.tsx              # Main application component
 ├── 🧩 components/          # React components
@@ -84,21 +88,25 @@ src/
 ## ✨ Key Features
 
 ### 🎭 Interactive Animations
+
 - Scroll-triggered animations using Intersection Observer API
 - Smooth transitions and hover effects
 - Performance-optimized animation patterns
 
 ### 📱 Responsive Design
+
 - Mobile-first approach with Tailwind breakpoints
 - Optimized for all device sizes
 - Touch-friendly navigation and interactions
 
 ### 🔍 SEO Optimized
+
 - Comprehensive meta tags and structured data
 - Social media optimization (Open Graph, Twitter Cards)
 - Local business schema markup for better local search visibility
 
 ### 🎨 Design System
+
 - Consistent color palette with teal and slate themes
 - Thoughtful typography hierarchy
 - Accessible design patterns
@@ -120,8 +128,10 @@ This site is optimized for **Cloudflare Pages** deployment:
 
 - 📧 **Email**: hello@cozyartzmedia.com
 - 📱 **Phone**: (269) 261-0069
-- 📍 **Location**: Battle Creek, Michigan
-- 🌐 **Website**: [cozyartzmedia.com](https://cozyartzmedia.com)
+- 📍 **Location**: Battle Creek, Michigan 49015
+- 🌐 **Website**: <https://cozyartzmedia.com>
+
+*We're passionate about creating digital experiences that make a difference. Let's discuss your next project!*
 
 ---
 
@@ -139,6 +149,6 @@ This repository contains the source code for Cozyartz Media Group's website. For
 
 **Built with ❤️ by Cozyartz Media Group**
 
-*Transforming ideas into digital reality since 2016*
+**Transforming ideas into digital reality since 2016**
 
 </div>
