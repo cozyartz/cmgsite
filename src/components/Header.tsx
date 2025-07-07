@@ -42,6 +42,7 @@ const Header = () => {
               </button>
               <div className="absolute top-full left-0 mt-2 w-64 bg-slate-800 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                 <Link to="/web-graphic-design-services" className="block px-4 py-3 text-white hover:bg-teal-600 rounded-t-lg">Web & Graphic Design</Link>
+                <Link to="/seo-services" className="block px-4 py-3 text-white hover:bg-teal-600">SEO Services</Link>
                 <Link to="/instructional-design-services" className="block px-4 py-3 text-white hover:bg-teal-600">Instructional Design</Link>
                 <Link to="/multimedia-services" className="block px-4 py-3 text-white hover:bg-teal-600">Multimedia Services</Link>
                 <Link to="/drone-services" className="block px-4 py-3 text-white hover:bg-teal-600 rounded-b-lg">Drone Services</Link>
@@ -69,6 +70,7 @@ const Header = () => {
             <div className="flex flex-col space-y-4 pt-4">
               <Link to="/" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>Home</Link>
               <Link to="/web-graphic-design-services" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>Web & Graphic Design</Link>
+              <Link to="/seo-services" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>SEO Services</Link>
               <Link to="/instructional-design-services" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>Instructional Design</Link>
               <Link to="/multimedia-services" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>Multimedia Services</Link>
               <Link to="/drone-services" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>Drone Services</Link>

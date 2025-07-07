@@ -5,6 +5,7 @@ import InstructionalDesignServices from './pages/InstructionalDesignServices';
 import DroneServices from './pages/DroneServices';
 import MultimediaServices from './pages/MultimediaServices';
 import WebGraphicDesignServices from './pages/WebGraphicDesignServices';
+import SEOServices from './pages/SEOServices';
 import Header from './components/Header';
 import Footer from './components/Footer';
 
@@ -38,6 +39,13 @@ function App() {
           <>
             <Header />
             <WebGraphicDesignServices />
+            <Footer />
+          </>
+        } />
+        <Route path="/seo-services" element={
+          <>
+            <Header />
+            <SEOServices />
             <Footer />
           </>
         } />
