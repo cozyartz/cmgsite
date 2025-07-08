@@ -70,7 +70,9 @@ const InstructionalDesignServices = () => {
               </div>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <a 
-                  href="mailto:amy@cozyartzmedia.com" 
+                  href="https://link.amylundin.me" 
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="bg-teal-500 hover:bg-teal-600 text-white px-8 py-3 rounded-full font-semibold transition-colors inline-flex items-center justify-center gap-2"
                 >
                   Start Your Project
@@ -137,7 +139,9 @@ const InstructionalDesignServices = () => {
                   
                   <div className="mt-8">
                     <a 
-                      href="mailto:amy@cozyartzmedia.com" 
+                      href="https://link.amylundin.me" 
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="bg-teal-500 hover:bg-teal-600 text-white px-8 py-3 rounded-full font-semibold transition-colors inline-flex items-center gap-2"
                     >
                       Connect with Amy
@@ -163,7 +167,7 @@ const InstructionalDesignServices = () => {
                     </div>
                     <div className="flex items-center justify-between p-4 bg-slate-600 rounded-lg">
                       <span className="text-white font-semibold">Contact</span>
-                      <a href="mailto:amy@cozyartzmedia.com" className="text-teal-400 hover:text-teal-300">amy@cozyartzmedia.com</a>
+                      <a href="https://link.amylundin.me" target="_blank" rel="noopener noreferrer" className="text-teal-400 hover:text-teal-300">link.amylundin.me</a>
                     </div>
                   </div>
                 </div>
@@ -396,7 +400,9 @@ const InstructionalDesignServices = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <a 
-                  href="mailto:amy@cozyartzmedia.com" 
+                  href="https://link.amylundin.me" 
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="bg-white text-teal-600 hover:bg-slate-100 px-8 py-3 rounded-full font-semibold transition-colors inline-flex items-center justify-center gap-2"
                 >
                   Contact Amy Directly
