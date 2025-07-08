@@ -10,9 +10,9 @@ const AIServices = () => {
   return (
     <>
       <SEO
-        title="AI Services | Business Automation & Workflow Optimization"
-        description="Transform your business with AI-powered automation, intelligent workflows, and custom AI solutions. Expert AI implementation services for modern businesses."
-        keywords="AI services, artificial intelligence, business automation, workflow optimization, AI integration, machine learning, intelligent systems, process automation, AI consulting"
+        title="AI Services | Business Automation & Workflow Optimization | Cozyartz Media Group"
+        description="Transform your business with AI-powered automation, intelligent workflows, and custom AI solutions. 10x faster content creation, 95% accuracy, 40% cost savings. Expert AI implementation services for modern businesses."
+        keywords="AI services, artificial intelligence, business automation, workflow optimization, AI integration, machine learning, intelligent systems, process automation, AI consulting, ChatGPT business solutions, Claude AI implementation"
         businessName="Cozyartz Media Group"
         phone="+1 (269) 261-0069"
         email="hello@cozyartzmedia.com"
@@ -27,6 +27,11 @@ const AIServices = () => {
           longitude: -85.1797
         }}
         canonical="https://cozyartzmedia.com/ai-services"
+        ogUrl="https://cozyartzmedia.com/ai-services"
+        ogTitle="AI Services - Transform Your Business with Intelligent Automation"
+        ogDescription="10x faster content creation • 95% process automation accuracy • 40% cost savings • Expert AI implementation for modern businesses"
+        ogImage="https://cozyartzmedia.com/ai-services-og.jpg"
+        twitterImage="https://cozyartzmedia.com/ai-services-twitter.jpg"
         businessType="ProfessionalService"
         services={[
           "AI Business Automation",

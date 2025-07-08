@@ -79,8 +79,9 @@ const SEO: React.FC<Props> = ({
   // Defaults
   const defaultOgTitle = ogTitle || title;
   const defaultOgDescription = ogDescription || description;
-  const defaultOgImage = ogImage || `${ogUrl || canonical}/og-image.jpg`;
-  const defaultTwitterImage = twitterImage || `${ogUrl || canonical}/twitter-image.jpg`;
+  const baseUrl = ogUrl || canonical || 'https://cozyartzmedia.com';
+  const defaultOgImage = ogImage || `${baseUrl}/og-image.jpg`;
+  const defaultTwitterImage = twitterImage || `${baseUrl}/twitter-image.jpg`;
   const currentYear = new Date().getFullYear();
   const businessCopyrightYear = copyrightYear || currentYear.toString();
   const businessFoundingDate = foundingDate;
@@ -231,14 +232,28 @@ const SEO: React.FC<Props> = ({
       <meta property="og:title" content={defaultOgTitle} />
       <meta property="og:description" content={defaultOgDescription} />
       <meta property="og:type" content="website" />
-      {ogUrl && <meta property="og:url" content={ogUrl} />}
+      <meta property="og:url" content={baseUrl} />
       <meta property="og:image" content={defaultOgImage} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta property="og:image:type" content="image/jpeg" />
+      <meta property="og:image:alt" content={defaultOgTitle} />
+      <meta property="og:site_name" content={businessName} />
+      <meta property="og:locale" content="en_US" />
 
       {/* Twitter Card Meta Tags */}
       <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:site" content="@cozyartzmedia" />
+      <meta name="twitter:creator" content="@cozyartzmedia" />
       <meta name="twitter:title" content={defaultOgTitle} />
       <meta name="twitter:description" content={defaultOgDescription} />
       <meta name="twitter:image" content={defaultTwitterImage} />
+      <meta name="twitter:image:alt" content={defaultOgTitle} />
+
+      {/* Additional Social Media Meta Tags */}
+      <meta property="fb:app_id" content="" />
+      <meta name="pinterest-rich-pin" content="true" />
+      <meta name="linkedin:owner" content="cozyartz-media-group" />
 
       {/* SEO Meta Tags */}
       <meta name="robots" content={robotsContent} />

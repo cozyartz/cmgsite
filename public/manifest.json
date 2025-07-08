@@ -1,0 +1,32 @@
+{
+  "name": "Cozyartz Media Group",
+  "short_name": "Cozyartz",
+  "description": "Creative Web Design & AI-Powered Digital Solutions",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#14b8a6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/cmgLogo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/cmgLogo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity", "design"],
+  "lang": "en-US",
+  "dir": "ltr",
+  "scope": "/",
+  "id": "cozyartz-media-group",
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  }
+}
