@@ -49,11 +49,11 @@ const Header = () => {
                 <Link to="/drone-services" className="block px-4 py-3 text-white hover:bg-teal-600 rounded-b-lg">Drone Services</Link>
               </div>
             </div>
-            <a href="#portfolio" className="text-white hover:text-teal-300 transition-colors">Portfolio</a>
-            <a href="#about" className="text-white hover:text-teal-300 transition-colors">About</a>
-            <a href="#contact" className="bg-teal-500 hover:bg-teal-600 text-white px-6 py-2 rounded-full transition-colors">
+            <Link to="/#portfolio" className="text-white hover:text-teal-300 transition-colors">Portfolio</Link>
+            <Link to="/#about" className="text-white hover:text-teal-300 transition-colors">About</Link>
+            <Link to="/#contact" className="bg-teal-500 hover:bg-teal-600 text-white px-6 py-2 rounded-full transition-colors">
               Contact
-            </a>
+            </Link>
           </nav>
 
           {/* Mobile Menu Button */}
@@ -76,11 +76,11 @@ const Header = () => {
               <Link to="/instructional-design-services" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>Instructional Design</Link>
               <Link to="/multimedia-services" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>Multimedia Services</Link>
               <Link to="/drone-services" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>Drone Services</Link>
-              <a href="#portfolio" className="text-white hover:text-teal-300 transition-colors">Portfolio</a>
-              <a href="#about" className="text-white hover:text-teal-300 transition-colors">About</a>
-              <a href="#contact" className="bg-teal-500 hover:bg-teal-600 text-white px-6 py-2 rounded-full transition-colors text-center">
+              <Link to="/#portfolio" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>Portfolio</Link>
+              <Link to="/#about" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>About</Link>
+              <Link to="/#contact" className="bg-teal-500 hover:bg-teal-600 text-white px-6 py-2 rounded-full transition-colors text-center" onClick={() => setIsMenuOpen(false)}>
                 Contact
-              </a>
+              </Link>
             </div>
           </nav>
         )}
