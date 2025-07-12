@@ -141,6 +141,45 @@ const Portfolio = () => {
           </div>
         </div>
 
+        {/* Client Logos Section */}
+        <div className={`text-center mb-16 transition-all duration-800 delay-600 ${
+          isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+        }`}>
+          <h3 className="text-2xl font-semibold text-white mb-8">
+            Trusted by <span className="text-teal-400">Industry Leaders</span>
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+            <div className="flex items-center justify-center p-4 bg-slate-800 rounded-lg hover:bg-slate-700 transition-colors duration-300">
+              <img 
+                src="/mongodb-logo.svg" 
+                alt="MongoDB" 
+                className="h-8 w-auto object-contain filter brightness-0 invert hover:brightness-100 hover:invert-0 transition-all duration-300"
+              />
+            </div>
+            <div className="flex items-center justify-center p-4 bg-slate-800 rounded-lg hover:bg-slate-700 transition-colors duration-300">
+              <img 
+                src="/unitedlex-logo.png" 
+                alt="UnitedLex" 
+                className="h-8 w-auto object-contain filter brightness-0 invert hover:brightness-100 hover:invert-0 transition-all duration-300"
+              />
+            </div>
+            <div className="flex items-center justify-center p-4 bg-slate-800 rounded-lg hover:bg-slate-700 transition-colors duration-300">
+              <img 
+                src="/cosan-logo.svg" 
+                alt="Cosan Group" 
+                className="h-8 w-auto object-contain filter brightness-0 invert hover:brightness-100 hover:invert-0 transition-all duration-300"
+              />
+            </div>
+            <div className="flex items-center justify-center p-4 bg-slate-800 rounded-lg hover:bg-slate-700 transition-colors duration-300">
+              <img 
+                src="/pfizer-logo.svg" 
+                alt="Pfizer" 
+                className="h-8 w-auto object-contain filter brightness-0 invert hover:brightness-100 hover:invert-0 transition-all duration-300"
+              />
+            </div>
+          </div>
+        </div>
+
         {/* Portfolio Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredItems.map((item, index) => {

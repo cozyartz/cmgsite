@@ -1,0 +1,21 @@
+# Netlify redirects file
+# Handle clean URLs by redirecting to the proper HTML files
+
+# Service page redirects to proper HTML files
+/ai-services             /ai-services.html             200
+/seo-services            /seo-services.html            200
+/instructional-design-services  /instructional-design-services.html  200
+/multimedia-services     /multimedia-services.html     200
+/drone-services          /drone-services.html          200
+/web-graphic-design-services  /web-graphic-design-services.html  200
+
+# Handle old URLs that might exist in the wild
+/ai-services/            /ai-services.html             301
+/seo-services/           /seo-services.html            301
+/instructional-design-services/  /instructional-design-services.html  301
+/multimedia-services/    /multimedia-services.html     301
+/drone-services/         /drone-services.html          301
+/web-graphic-design-services/  /web-graphic-design-services.html  301
+
+# Fallback for SPA behavior on 404
+/*                       /index.html                   200

@@ -8,7 +8,7 @@ const Footer = () => {
       <div className="container mx-auto px-6 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
-          <div className="lg:col-span-2">
+          <div>
             <div className="flex items-center space-x-3 mb-6">
               <img 
                 src="/cmgLogo.png" 
@@ -20,10 +20,11 @@ const Footer = () => {
                 <p className="text-sm text-teal-300 tracking-wider">MEDIA GROUP</p>
               </div>
             </div>
-            <p className="text-gray-300 mb-6 max-w-md">
+            <p className="text-gray-300 mb-6">
               We combine creativity with data-driven strategies to amplify your business growth through 
               innovative design, multimedia production, and instructional excellence.
             </p>
+            
             <div className="flex space-x-4">
               <a href="https://www.facebook.com/cozyartzmedia/" target="_blank" rel="noopener noreferrer" className="bg-slate-800 p-3 rounded-full hover:bg-teal-500 transition-colors">
                 <Facebook className="h-5 w-5" />
@@ -64,6 +65,21 @@ const Footer = () => {
                 <MapPin className="h-5 w-5 text-teal-400" />
                 <span className="text-gray-300">Remote & On-site in Michigan</span>
               </div>
+            </div>
+          </div>
+
+          {/* Certification */}
+          <div>
+            <h4 className="text-lg font-semibold mb-6">Certification</h4>
+            <div className="flex flex-col items-start">
+              <img 
+                src="/wosb-badge.png" 
+                alt="Women-Owned Small Business (WOSB) Certified" 
+                className="h-20 w-auto object-contain mb-4"
+              />
+              <p className="text-gray-300 text-sm">
+                Certified Women-Owned Small Business (WOSB)
+              </p>
             </div>
           </div>
         </div>

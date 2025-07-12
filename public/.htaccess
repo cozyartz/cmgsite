@@ -1,0 +1,30 @@
+# Apache .htaccess for clean URLs and proper redirects
+
+RewriteEngine On
+
+# Force HTTPS
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Handle service page URLs
+RewriteRule ^ai-services/?$ /ai-services.html [L]
+RewriteRule ^seo-services/?$ /seo-services.html [L]
+RewriteRule ^instructional-design-services/?$ /instructional-design-services.html [L]
+RewriteRule ^multimedia-services/?$ /multimedia-services.html [L]
+RewriteRule ^drone-services/?$ /drone-services.html [L]
+RewriteRule ^web-graphic-design-services/?$ /web-graphic-design-services.html [L]
+
+# Handle file caching
+<FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg)$">
+    ExpiresActive On
+    ExpiresDefault "access plus 1 year"
+</FilesMatch>
+
+# Security headers
+Header always set X-Content-Type-Options nosniff
+Header always set X-Frame-Options DENY
+Header always set X-XSS-Protection "1; mode=block"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+# Fallback to index.html for SPA routes not handled above
+FallbackResource /index.html

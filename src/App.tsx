@@ -7,6 +7,7 @@ import MultimediaServices from './pages/MultimediaServices';
 import WebGraphicDesignServices from './pages/WebGraphicDesignServices';
 import SEOServices from './pages/SEOServices';
 import AIServices from './pages/AIServices';
+import NotFound from './pages/NotFound';
 import Header from './components/Header';
 import Footer from './components/Footer';
 
@@ -57,6 +58,7 @@ function App() {
             <Footer />
           </>
         } />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
   );

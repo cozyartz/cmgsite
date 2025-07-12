@@ -7,4 +7,17 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
+  build: {
+    rollupOptions: {
+      input: {
+        main: './index.html',
+        'ai-services': './ai-services.html',
+        'seo-services': './seo-services.html', 
+        'instructional-design-services': './instructional-design-services.html',
+        'multimedia-services': './multimedia-services.html',
+        'drone-services': './drone-services.html',
+        'web-graphic-design-services': './web-graphic-design-services.html'
+      }
+    }
+  }
 });
