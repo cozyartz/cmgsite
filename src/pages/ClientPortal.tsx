@@ -15,8 +15,13 @@ const ClientPortal: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
 
+  // Debug logging
+  console.log('ClientPortal render:', { user, client, loading });
+
   useEffect(() => {
+    console.log('ClientPortal useEffect:', { user, client, loading });
     if (!loading && !user) {
+      console.log('Redirecting to auth');
       navigate('/auth');
     }
   }, [user, loading, navigate]);
@@ -33,7 +38,15 @@ const ClientPortal: React.FC = () => {
   }
 
   if (!user || !client) {
-    return null;
+    console.log('ClientPortal: user or client not available, showing loading');
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-teal-500 mx-auto"></div>
+          <p className="text-white mt-4">Loading dashboard...</p>
+        </div>
+      </div>
+    );
   }
 
   const renderContent = () => {

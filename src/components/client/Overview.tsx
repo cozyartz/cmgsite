@@ -54,10 +54,23 @@ const Overview: React.FC = () => {
     totalLeads: 0
   });
 
+  console.log('Overview component render:', { client });
+
   useEffect(() => {
     // Fetch dashboard metrics
     fetchMetrics();
   }, []);
+
+  // Show loading state if client is not loaded yet
+  if (!client) {
+    return (
+      <div className="p-6 space-y-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-teal-500"></div>
+        </div>
+      </div>
+    );
+  }
 
   const fetchMetrics = async () => {
     try {

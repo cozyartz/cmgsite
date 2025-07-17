@@ -367,6 +367,113 @@ async function handleAuth(request, env, path) {
     }
   }
 
+  // Google OAuth login
+  if (path === '/api/auth/google' && request.method === 'GET') {
+    const redirectUri = env.ENVIRONMENT === 'development' 
+      ? `http://localhost:8787/api/auth/google/callback`
+      : `${new URL(request.url).origin}/api/auth/google/callback`;
+    const scope = 'profile email';
+    const state = crypto.randomUUID();
+    
+    // Store state in session for security
+    const googleUrl = `https://accounts.google.com/oauth2/v2/auth?client_id=${env.GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code&state=${state}`;
+    
+    return Response.redirect(googleUrl, 302);
+  }
+
+  // Google OAuth callback
+  if (path === '/api/auth/google/callback' && request.method === 'GET') {
+    const url = new URL(request.url);
+    const code = url.searchParams.get('code');
+    const state = url.searchParams.get('state');
+    
+    if (!code) {
+      return Response.redirect(`${new URL(request.url).origin}/?error=google_auth_failed`, 302);
+    }
+
+    try {
+      // Exchange code for access token
+      const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          client_id: env.GOOGLE_CLIENT_ID,
+          client_secret: env.GOOGLE_CLIENT_SECRET,
+          code: code,
+          grant_type: 'authorization_code',
+          redirect_uri: env.ENVIRONMENT === 'development' 
+            ? `http://localhost:8787/api/auth/google/callback`
+            : `${new URL(request.url).origin}/api/auth/google/callback`,
+        }),
+      });
+
+      const tokenData = await tokenResponse.json();
+      
+      if (tokenData.error) {
+        throw new Error(tokenData.error_description || 'Google OAuth failed');
+      }
+
+      // Get user info from Google
+      const userResponse = await fetch('https://www.googleapis.com/oauth2/v1/userinfo', {
+        headers: {
+          'Authorization': `Bearer ${tokenData.access_token}`,
+        },
+      });
+
+      const googleUser = await userResponse.json();
+      
+      // Check if user exists in database
+      let user = await env.DB.prepare('SELECT * FROM users WHERE provider = ? AND provider_id = ?')
+        .bind('google', googleUser.id).first();
+      
+      if (!user) {
+        // Check if user exists with same email
+        user = await env.DB.prepare('SELECT * FROM users WHERE email = ?')
+          .bind(googleUser.email).first();
+        
+        if (user) {
+          // Link Google account to existing user
+          await env.DB.prepare('UPDATE users SET provider = ?, provider_id = ?, avatar_url = ? WHERE id = ?')
+            .bind('google', googleUser.id, googleUser.picture, user.id).run();
+        } else {
+          // Create new user
+          const userId = crypto.randomUUID();
+          await env.DB.prepare('INSERT INTO users (id, email, name, avatar_url, provider, provider_id) VALUES (?, ?, ?, ?, ?, ?)')
+            .bind(userId, googleUser.email, googleUser.name, googleUser.picture, 'google', googleUser.id).run();
+          
+          // Create default client for new user
+          const clientId = crypto.randomUUID();
+          await env.DB.prepare('INSERT INTO clients (id, name, owner_id, subscription_tier, ai_calls_limit, ai_calls_used, status) VALUES (?, ?, ?, ?, ?, ?, ?)')
+            .bind(clientId, `${googleUser.name}'s Company`, userId, 'starter', 100, 0, 'active').run();
+          
+          // Add user to client
+          await env.DB.prepare('INSERT INTO client_users (client_id, user_id, role) VALUES (?, ?, ?)')
+            .bind(clientId, userId, 'owner').run();
+          
+          // Get the newly created user
+          user = await env.DB.prepare('SELECT * FROM users WHERE id = ?').bind(userId).first();
+        }
+      }
+
+      // Get client info
+      const clientUser = await env.DB.prepare('SELECT c.*, cu.role FROM clients c JOIN client_users cu ON c.id = cu.client_id WHERE cu.user_id = ?')
+        .bind(user.id).first();
+      
+      // Generate JWT token
+      const token = await generateJWT(user.id, env.JWT_SECRET);
+      
+      // Redirect to frontend with token
+      const frontendUrl = `${new URL(request.url).origin}/client-portal?token=${token}`;
+      return Response.redirect(frontendUrl, 302);
+      
+    } catch (error) {
+      console.error('Google OAuth error:', error);
+      return Response.redirect(`${new URL(request.url).origin}/?error=google_auth_failed`, 302);
+    }
+  }
+
   return new Response('Not Found', { status: 404, headers: corsHeaders });
 }
 

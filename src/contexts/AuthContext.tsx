@@ -65,24 +65,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const checkSession = async () => {
+    console.log('AuthContext: checkSession called');
     try {
       const token = localStorage.getItem('auth_token');
+      console.log('AuthContext: token from localStorage:', token ? 'present' : 'not found');
       if (!token) {
+        console.log('AuthContext: no token, setting loading to false');
         setLoading(false);
         return;
       }
 
+      console.log('AuthContext: fetching /api/auth/verify');
       const response = await fetch('/api/auth/verify', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
 
+      console.log('AuthContext: verify response status:', response.status);
       if (response.ok) {
         const { user, client } = await response.json();
+        console.log('AuthContext: setting user and client', { user, client });
         setUser(user);
         setClient(client);
       } else {
+        console.log('AuthContext: verify failed, removing token');
         localStorage.removeItem('auth_token');
       }
     } catch (error) {
@@ -94,6 +101,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         localStorage.removeItem('auth_token');
       }
     } finally {
+      console.log('AuthContext: setting loading to false');
       setLoading(false);
     }
   };
