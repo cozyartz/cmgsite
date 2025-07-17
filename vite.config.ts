@@ -10,7 +10,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8787', // Cloudflare Workers dev server
+        target: 'http://localhost:8787', // Local Cloudflare Worker (run with: npm run worker:dev)
         changeOrigin: true,
         secure: false,
       },

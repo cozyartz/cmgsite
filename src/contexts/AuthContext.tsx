@@ -50,6 +50,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Check for token in URL params (from OAuth redirect)
+    const urlParams = new URLSearchParams(window.location.search);
+    const tokenParam = urlParams.get('token');
+    
+    if (tokenParam) {
+      // Store token and remove from URL
+      localStorage.setItem('auth_token', tokenParam);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    
     // Check for existing session on mount
     checkSession();
   }, []);
@@ -77,7 +87,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     } catch (error) {
       console.error('Session check failed:', error);
-      localStorage.removeItem('auth_token');
+      // Don't remove token on network errors, API might be down
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        console.warn('API appears to be unavailable, continuing without auth check');
+      } else {
+        localStorage.removeItem('auth_token');
+      }
     } finally {
       setLoading(false);
     }

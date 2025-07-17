@@ -1097,8 +1097,9 @@ export function formatCurrency(amountInCents) {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0
   }).format(amountInCents / 100);
+}
 
-  getTestingRequestTemplate(advisorName) {
+export function getTestingRequestTemplate(advisorName) {
     return `
 <!DOCTYPE html>
 <html>
@@ -1190,7 +1191,7 @@ export function formatCurrency(amountInCents) {
 </html>`;
   }
 
-  getTestingRequestText(advisorName) {
+export function getTestingRequestText(advisorName) {
     return `Exclusive Platform Testing Invitation
 
 Hi ${advisorName},
@@ -1244,7 +1245,7 @@ This is an exclusive invitation for business advisors and partners`;
   }
 
   // Domain Setup Email Templates
-  getDomainSetupTemplate(domainData) {
+export function getDomainSetupTemplate(domainData) {
     return `
 <!DOCTYPE html>
 <html>
@@ -1320,7 +1321,7 @@ This is an exclusive invitation for business advisors and partners`;
 </html>`;
   }
 
-  getDomainSetupText(domainData) {
+export function getDomainSetupText(domainData) {
     return `Domain Setup Complete - ${domainData.domain}
 
 Congratulations! Your domain has been successfully configured with SEO optimization.
@@ -1358,7 +1359,7 @@ Cozyartz Media Group | Battle Creek, MI | (269) 261-0069
 Domain Management Services`;
   }
 
-  getDomainRenewalTemplate(clientName, domainData) {
+export function getDomainRenewalTemplate(clientName, domainData) {
     const daysUntilExpiry = Math.ceil((new Date(domainData.expiresAt) - new Date()) / (1000 * 60 * 60 * 24));
     
     return `
@@ -1446,7 +1447,7 @@ Domain Management Services`;
 </html>`;
   }
 
-  getDomainRenewalText(clientName, domainData) {
+export function getDomainRenewalText(clientName, domainData) {
     const daysUntilExpiry = Math.ceil((new Date(domainData.expiresAt) - new Date()) / (1000 * 60 * 60 * 24));
     
     return `Domain Renewal Required - ${domainData.domain}
@@ -1485,7 +1486,7 @@ Best regards,
 Cozyartz Media Group | Battle Creek, MI | (269) 261-0069`;
   }
 
-  getDomainTransferTemplate(clientName, transferData) {
+export function getDomainTransferTemplate(clientName, transferData) {
     return `
 <!DOCTYPE html>
 <html>
@@ -1578,7 +1579,7 @@ Cozyartz Media Group | Battle Creek, MI | (269) 261-0069`;
 </html>`;
   }
 
-  getDomainTransferText(clientName, transferData) {
+export function getDomainTransferText(clientName, transferData) {
     return `Domain Transfer ${transferData.status} - ${transferData.domain}
 
 Hello ${clientName},
@@ -1621,4 +1622,3 @@ Questions? Contact domains@cozyartzmedia.com
 Best regards,
 Cozyartz Media Group | Battle Creek, MI | (269) 261-0069`;
   }
-}
