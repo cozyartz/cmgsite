@@ -1,12 +1,83 @@
-import React, { useEffect } from 'react';
-import { Search, TrendingUp, Target, Award, Globe, BarChart, CheckCircle, ArrowRight, Zap, Brain, Sparkles, Rocket, Users, FileText, Mail, RefreshCw, Bot, Shield, Star, Clock, DollarSign } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Search, TrendingUp, Target, Award, Globe, BarChart, CheckCircle, ArrowRight, Zap, Brain, Sparkles, Rocket, Users, FileText, Mail, RefreshCw, Bot, Shield, Star, Clock, DollarSign, X } from 'lucide-react';
 import SEO from '../components/SEO';
 import LegalDisclaimer from '../components/legal/LegalDisclaimer';
+import PayPalPayment from '../components/payment/PayPalPayment';
 
 const SEOServices = () => {
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [showPayment, setShowPayment] = useState(false);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  const pricingPlans = [
+    {
+      id: 'starter',
+      name: 'Starter',
+      price: 29,
+      priceInCents: 2900,
+      aiCredits: 100,
+      features: [
+        'AI Content Generator',
+        'Basic Keyword Research',
+        'SEO Analytics',
+        'Email Support'
+      ]
+    },
+    {
+      id: 'growth',
+      name: 'Growth',
+      price: 99,
+      priceInCents: 9900,
+      aiCredits: 500,
+      features: [
+        'Everything in Starter',
+        'Advanced Competitor Analysis',
+        'Email Optimization Tools',
+        'Priority Support',
+        'Monthly SEO Consultation'
+      ],
+      popular: true
+    },
+    {
+      id: 'enterprise',
+      name: 'Enterprise',
+      price: 299,
+      priceInCents: 29900,
+      aiCredits: 'unlimited',
+      features: [
+        'Everything in Growth',
+        'White-label Solutions',
+        'API Access',
+        'Dedicated Account Manager',
+        'Custom Integrations'
+      ]
+    }
+  ];
+
+  const handlePlanSelect = (planId: string) => {
+    setSelectedPlan(planId);
+    setShowPayment(true);
+  };
+
+  const handlePaymentSuccess = (paymentResult: any) => {
+    console.log('Payment successful:', paymentResult);
+    setShowPayment(false);
+    setSelectedPlan(null);
+    // Redirect to client portal or success page
+    window.location.href = '/client-portal';
+  };
+
+  const handlePaymentError = (error: any) => {
+    console.error('Payment failed:', error);
+    alert('Payment failed. Please try again.');
+  };
+
+  const getSelectedPlan = () => {
+    return pricingPlans.find(plan => plan.id === selectedPlan);
+  };
 
   return (
     <>
@@ -58,13 +129,13 @@ const SEOServices = () => {
               <div className="mb-8">
                 <div className="flex items-center justify-center gap-4 mb-6">
                   <div className="relative">
-                    <Search className="h-16 w-16 text-teal-400 animate-bounce" />
+                    <Search className="h-16 w-16 text-teal-400" />
                     <div className="absolute -top-2 -right-2 bg-gradient-to-r from-teal-400 to-blue-400 rounded-full p-1">
-                      <Sparkles className="h-6 w-6 text-white" />
+                      <Zap className="h-6 w-6 text-white" />
                     </div>
                   </div>
-                  <Bot className="h-16 w-16 text-blue-400 animate-pulse" />
-                  <Rocket className="h-16 w-16 text-purple-400 animate-bounce delay-500" />
+                  <Bot className="h-16 w-16 text-blue-400" />
+                  <Rocket className="h-16 w-16 text-purple-400" />
                 </div>
                 <div className="inline-flex items-center gap-2 bg-gradient-to-r from-teal-500/20 to-blue-500/20 backdrop-blur-sm px-6 py-3 rounded-full border border-teal-500/30 mb-6">
                   <Zap className="h-5 w-5 text-teal-400" />
@@ -80,11 +151,17 @@ const SEOServices = () => {
                 Experience the future of SEO with our cutting-edge AI SaaS platform. Get instant content generation, keyword research, competitor analysis, and professional SEO services all in one revolutionary solution.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-                <button className="bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center gap-2">
+                <button 
+                  onClick={() => handlePlanSelect('growth')}
+                  className="bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center gap-2"
+                >
                   <Rocket className="h-5 w-5" />
                   Try AI Platform FREE
                 </button>
-                <button className="border-2 border-teal-400 text-teal-400 hover:bg-teal-400 hover:text-slate-900 px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 flex items-center gap-2">
+                <button 
+                  onClick={() => window.location.href = '/contact'}
+                  className="border-2 border-teal-400 text-teal-400 hover:bg-teal-400 hover:text-slate-900 px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 flex items-center gap-2"
+                >
                   <Award className="h-5 w-5" />
                   Professional SEO Services
                 </button>
@@ -339,7 +416,10 @@ const SEOServices = () => {
                       <span className="text-slate-300">Email Support</span>
                     </li>
                   </ul>
-                  <button className="w-full bg-teal-500 hover:bg-teal-600 text-white py-3 px-6 rounded-lg font-semibold transition-colors">
+                  <button 
+                    onClick={() => handlePlanSelect('starter')}
+                    className="w-full bg-teal-500 hover:bg-teal-600 text-white py-3 px-6 rounded-lg font-semibold transition-colors"
+                  >
                     Start Free Trial
                   </button>
                 </div>
@@ -377,7 +457,10 @@ const SEOServices = () => {
                       <span className="text-slate-300">Monthly SEO Consultation</span>
                     </li>
                   </ul>
-                  <button className="w-full bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300">
+                  <button 
+                    onClick={() => handlePlanSelect('growth')}
+                    className="w-full bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300"
+                  >
                     Start Free Trial
                   </button>
                 </div>
@@ -412,7 +495,10 @@ const SEOServices = () => {
                       <span className="text-slate-300">Custom Integrations</span>
                     </li>
                   </ul>
-                  <button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300">
+                  <button 
+                    onClick={() => handlePlanSelect('enterprise')}
+                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300"
+                  >
                     Contact Sales
                   </button>
                 </div>
@@ -614,9 +700,9 @@ const SEOServices = () => {
             <div className="max-w-4xl mx-auto text-center">
               <div className="mb-8">
                 <div className="flex items-center justify-center gap-4 mb-6">
-                  <Rocket className="h-12 w-12 text-white animate-bounce" />
-                  <Sparkles className="h-12 w-12 text-white animate-pulse" />
-                  <Zap className="h-12 w-12 text-white animate-bounce delay-300" />
+                  <Rocket className="h-12 w-12 text-white" />
+                  <Target className="h-12 w-12 text-white" />
+                  <Zap className="h-12 w-12 text-white" />
                 </div>
               </div>
               <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
@@ -626,11 +712,17 @@ const SEOServices = () => {
                 Join thousands of businesses already using our AI-powered SEO platform to dominate search results. Start your free trial today!
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-                <button className="bg-white text-purple-600 hover:bg-slate-100 px-8 py-4 rounded-full font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center gap-2">
+                <button 
+                  onClick={() => handlePlanSelect('growth')}
+                  className="bg-white text-purple-600 hover:bg-slate-100 px-8 py-4 rounded-full font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center gap-2"
+                >
                   <Rocket className="h-5 w-5" />
                   Try AI Platform FREE
                 </button>
-                <button className="border-2 border-white text-white hover:bg-white hover:text-purple-600 px-8 py-4 rounded-full font-bold text-lg transition-all duration-300 flex items-center gap-2">
+                <button 
+                  onClick={() => window.location.href = '/contact'}
+                  className="border-2 border-white text-white hover:bg-white hover:text-purple-600 px-8 py-4 rounded-full font-bold text-lg transition-all duration-300 flex items-center gap-2"
+                >
                   <Award className="h-5 w-5" />
                   Get Professional SEO
                 </button>
@@ -664,6 +756,53 @@ const SEOServices = () => {
           </div>
         </section>
       </div>
+
+      {/* PayPal Payment Modal */}
+      {showPayment && selectedPlan && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full max-h-screen overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">
+                  Complete Your Purchase
+                </h2>
+                <button
+                  onClick={() => setShowPayment(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+              
+              {getSelectedPlan() && (
+                <div className="mb-6">
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <h3 className="font-semibold text-gray-900 mb-2">
+                      {getSelectedPlan()?.name} Plan
+                    </h3>
+                    <div className="text-sm text-gray-600 space-y-1">
+                      <p>AI Credits: {getSelectedPlan()?.aiCredits}</p>
+                      <p>Monthly billing</p>
+                      <p className="font-semibold text-lg text-gray-900">
+                        ${getSelectedPlan()?.price}/month
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              <PayPalPayment
+                amount={getSelectedPlan()?.priceInCents || 0}
+                description={`${getSelectedPlan()?.name} Plan - Monthly Subscription`}
+                onSuccess={handlePaymentSuccess}
+                onError={handlePaymentError}
+                subscriptionPlan={selectedPlan}
+                tier={selectedPlan}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
