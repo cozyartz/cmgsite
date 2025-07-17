@@ -1,0 +1,16 @@
+# Route API calls to Cloudflare Worker
+/api/* https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/:splat 200
+
+# Handle React Router routes that don't have dedicated HTML files
+/auth /index.html 200
+/client-portal /index.html 200
+/dashboard /index.html 200
+/pricing /index.html 200
+/privacy-policy /index.html 200
+/terms-of-service /index.html 200
+/cookie-policy /index.html 200
+/data-subject-request /index.html 200
+/404 /index.html 200
+
+# Handle SPA routing - all other routes serve index.html
+/* /index.html 200

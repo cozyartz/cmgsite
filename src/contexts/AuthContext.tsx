@@ -75,8 +75,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return;
       }
 
-      console.log('AuthContext: fetching /api/auth/verify');
-      const response = await fetch('/api/auth/verify', {
+      console.log('AuthContext: fetching API endpoint');
+      // Try the direct worker URL first, then fallback to relative path
+      const apiUrl = 'https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/verify';
+      const response = await fetch(apiUrl, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -94,12 +96,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     } catch (error) {
       console.error('Session check failed:', error);
-      // Don't remove token on network errors, API might be down
-      if (error instanceof TypeError && error.message.includes('fetch')) {
-        console.warn('API appears to be unavailable, continuing without auth check');
-      } else {
-        localStorage.removeItem('auth_token');
-      }
+      // Always remove invalid tokens and continue to show login
+      localStorage.removeItem('auth_token');
+      console.warn('API unavailable or token invalid, showing login page');
     } finally {
       console.log('AuthContext: setting loading to false');
       setLoading(false);
@@ -110,10 +109,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setLoading(true);
     try {
       if (provider === 'github' || provider === 'google') {
-        // Redirect to OAuth provider
-        window.location.href = `/api/auth/${provider}`;
+        // Redirect to OAuth provider on the worker
+        window.location.href = `https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/${provider}`;
       } else if (provider === 'email' && credentials) {
-        const response = await fetch('/api/auth/login', {
+        const response = await fetch('https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -140,7 +139,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const register = async (email: string, password: string, name: string) => {
     setLoading(true);
     try {
-      const response = await fetch('/api/auth/register', {
+      const response = await fetch('https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -165,7 +164,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = async () => {
     try {
-      await fetch('/api/auth/logout', {
+      await fetch('https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/logout', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
@@ -182,7 +181,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const switchClient = async (clientId: string) => {
     try {
-      const response = await fetch(`/api/clients/${clientId}/switch`, {
+      const response = await fetch(`https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/clients/${clientId}/switch`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
@@ -203,7 +202,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const updateClient = async (updates: Partial<Client>) => {
     try {
-      const response = await fetch(`/api/clients/${client?.id}`, {
+      const response = await fetch(`https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/clients/${client?.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
