@@ -14,6 +14,7 @@ interface SubscriptionPlan {
   id: string;
   name: string;
   price: number;
+  priceInCents: number;
   aiCalls: number;
   features: string[];
   popular?: boolean;
@@ -30,6 +31,7 @@ const SubscriptionManager: React.FC = () => {
       id: 'starter',
       name: 'Starter',
       price: 1000,
+      priceInCents: 100000,
       aiCalls: 100,
       features: [
         'Basic AI tools',
@@ -43,6 +45,7 @@ const SubscriptionManager: React.FC = () => {
       id: 'growth',
       name: 'Growth',
       price: 1500,
+      priceInCents: 150000,
       aiCalls: 250,
       features: [
         'Advanced AI tools',
@@ -58,6 +61,7 @@ const SubscriptionManager: React.FC = () => {
       id: 'enterprise',
       name: 'Enterprise',
       price: 2500,
+      priceInCents: 250000,
       aiCalls: 500,
       features: [
         'All AI tools',
@@ -97,7 +101,7 @@ const SubscriptionManager: React.FC = () => {
           clientId: client?.id,
           planId: selectedPlan!.id,
           paymentId: paymentResult.payment.id,
-          amount: selectedPlan!.price
+          amount: selectedPlan!.priceInCents
         })
       });
 
@@ -174,7 +178,7 @@ const SubscriptionManager: React.FC = () => {
 
           {/* Payment Form */}
           <PayPalPayment
-            amount={selectedPlan.price}
+            amount={selectedPlan.priceInCents}
             description={`${selectedPlan.name} Plan Subscription`}
             onSuccess={handlePaymentSuccess}
             onError={handlePaymentError}

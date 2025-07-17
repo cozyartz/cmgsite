@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Debug Test</title>
+</head>
+<body>
+  <h1>Test Page</h1>
+  <script>
+    // Test if the API is accessible
+    fetch('/api/auth/verify')
+      .then(response => response.json())
+      .then(data => {
+        console.log('API Response:', data);
+        document.body.innerHTML += '<p>API Response: ' + JSON.stringify(data) + '</p>';
+      })
+      .catch(error => {
+        console.error('API Error:', error);
+        document.body.innerHTML += '<p>API Error: ' + error.message + '</p>';
+      });
+  </script>
+</body>
+</html>
