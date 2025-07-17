@@ -1,14 +1,33 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const AuthSimple: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Check for OAuth errors in URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const authError = urlParams.get('error');
+    
+    if (authError) {
+      if (authError.includes('github')) {
+        setError('GitHub authentication failed. Please try email login.');
+      } else if (authError.includes('google')) {
+        setError('Google authentication failed. Please try email login.');
+      } else {
+        setError('Authentication failed. Please try again.');
+      }
+      // Clean up the URL
+      window.history.replaceState({}, '', '/auth');
+    }
+  }, [location]);
 
   const handleOAuthLogin = (provider: 'github' | 'google') => {
     setLoading(true);

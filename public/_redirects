@@ -1,5 +1,5 @@
-# Route API calls to Cloudflare Worker
-/api/* https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/:splat 200
+# Disable API routing to prevent 404 errors
+# /api/* https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/:splat 200
 
 # Handle React Router routes that don't have dedicated HTML files
 /auth /index.html 200

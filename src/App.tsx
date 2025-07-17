@@ -23,14 +23,20 @@ import { AuthProvider } from './contexts/AuthContext';
 function App() {
   const location = useLocation();
   
-  // Check if we're being redirected from a 404 page
+  // Check if we're being redirected from a 404 page or OAuth error
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const is404 = urlParams.get('404');
+    const authError = urlParams.get('error');
     
     if (is404) {
       // Clean up the URL and show 404
       window.history.replaceState({}, '', '/404');
+    }
+    
+    if (authError) {
+      // Clean up OAuth error from URL and redirect to auth page
+      window.history.replaceState({}, '', '/auth');
     }
   }, [location]);
 
