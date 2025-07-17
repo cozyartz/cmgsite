@@ -68,25 +68,39 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const checkSession = async () => {
     console.log('AuthContext: checkSession called');
+    
+    // Set a timeout to prevent hanging
+    const timeoutId = setTimeout(() => {
+      console.log('AuthContext: session check timeout, forcing loading false');
+      setLoading(false);
+    }, 5000); // 5 second timeout
+
     try {
       const token = localStorage.getItem('auth_token');
       console.log('AuthContext: token from localStorage:', token ? 'present' : 'not found');
       if (!token) {
         console.log('AuthContext: no token, setting loading to false');
+        clearTimeout(timeoutId);
         setLoading(false);
         return;
       }
 
       console.log('AuthContext: fetching API endpoint');
-      // Try the direct worker URL first, then fallback to relative path
+      // Try the direct worker URL with timeout
       const apiUrl = 'https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/verify';
+      const controller = new AbortController();
+      const timeoutSignal = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+
       const response = await fetch(apiUrl, {
         headers: {
           'Authorization': `Bearer ${token}`
-        }
+        },
+        signal: controller.signal
       });
 
+      clearTimeout(timeoutSignal);
       console.log('AuthContext: verify response status:', response.status);
+      
       if (response.ok) {
         const { user, client } = await response.json();
         console.log('AuthContext: setting user and client', { user, client });
@@ -102,6 +116,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.removeItem('auth_token');
       console.warn('API unavailable or token invalid, showing login page');
     } finally {
+      clearTimeout(timeoutId);
       console.log('AuthContext: setting loading to false');
       setLoading(false);
     }
