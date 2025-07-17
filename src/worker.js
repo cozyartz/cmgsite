@@ -487,7 +487,7 @@ async function handleAuth(request, env, path) {
           grant_type: 'authorization_code',
           redirect_uri: env.ENVIRONMENT === 'development' 
             ? `http://localhost:8787/api/auth/google/callback`
-            : `${new URL(request.url).origin}/api/auth/google/callback`,
+            : `https://cozyartzmedia.com/api/auth/google/callback`,
         }),
       });
 
