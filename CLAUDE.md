@@ -10,6 +10,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run preview` - Preview production build locally
 - `npm run lint` - Run ESLint to check code quality
 
+### Deployment Commands
+- `wrangler deploy` - Deploy Cloudflare Worker (API backend)
+- `wrangler pages deploy dist` - Deploy frontend to Cloudflare Pages
+- `npm run build && wrangler pages deploy dist` - Build and deploy frontend
+
 ### Project Setup
 - `npm install` - Install dependencies
 - Dependencies are managed with npm (package-lock.json present)
@@ -71,6 +76,25 @@ src/
 - Use consistent export: `export default ComponentName`
 - Implement responsive design with Tailwind breakpoints
 - Add hover effects and transitions for interactive elements
+
+## Deployment Information
+
+### Current Production URLs
+- **Frontend (Cloudflare Pages)**: https://f77fbcbc.cmgsite.pages.dev
+- **Backend API (Cloudflare Worker)**: https://cmgsite-client-portal.cozyartz-media-group.workers.dev
+- **Main Domain**: https://cozyartzmedia.com (currently redirects to Pages deployment)
+
+### OAuth Configuration
+- **GitHub OAuth Redirect URI**: https://cozyartzmedia.com/api/auth/github/callback
+- **Google OAuth Redirect URI**: https://cozyartzmedia.com/api/auth/google/callback
+- **Authentication Success Redirect**: https://f77fbcbc.cmgsite.pages.dev/auth
+
+### Required Secrets (Wrangler)
+- `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` - GitHub OAuth credentials
+- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` - Google OAuth credentials  
+- `JWT_SECRET` - JWT token signing key
+- `PAYPAL_CLIENT_ID` / `PAYPAL_CLIENT_SECRET` - PayPal payment processing
+- `SQUARE_ACCESS_TOKEN` / `SQUARE_APPLICATION_ID` / `SQUARE_LOCATION_ID` - Square payments
 
 ### Business Context
 - **Cozyartz Media Group** - Creative agency specializing in web design, multimedia production
