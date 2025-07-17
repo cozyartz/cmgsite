@@ -25,7 +25,8 @@ export default defineConfig({
         'instructional-design-services': './instructional-design-services.html',
         'multimedia-services': './multimedia-services.html',
         'drone-services': './drone-services.html',
-        'web-graphic-design-services': './web-graphic-design-services.html'
+        'web-graphic-design-services': './web-graphic-design-services.html',
+        'pricing': './pricing.html'
       }
     }
   }
