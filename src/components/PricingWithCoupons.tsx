@@ -258,11 +258,16 @@ export default function PricingWithCoupons() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="text-center mb-12">
         <h2 className="text-3xl font-bold text-gray-900 mb-4">
-          Choose Your SEO Success Plan
+          Flexible SEO Plans - No Long-Term Commitment
         </h2>
-        <p className="text-lg text-gray-600 mb-8">
-          Professional SEO tools and AI-powered insights to grow your business
+        <p className="text-lg text-gray-600 mb-4">
+          Professional SEO tools and AI-powered insights with no commitment required
         </p>
+        <div className="inline-flex items-center space-x-2 bg-green-100 text-green-800 px-6 py-3 rounded-full text-sm font-medium border border-green-200 mb-4">
+          <span>✓ NO COMMITMENT</span>
+          <span>•</span>
+          <span>✓ CANCEL ANYTIME</span>
+        </div>
 
         {/* Coupon Input */}
         <div className="max-w-md mx-auto mb-8">
@@ -409,6 +414,9 @@ export default function PricingWithCoupons() {
                 ))}
               </ul>
 
+              <div className="mb-3">
+                <p className="text-xs text-center text-gray-500">Cancel anytime • No commitment</p>
+              </div>
               <button
                 className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
                   isSelected

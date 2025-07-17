@@ -145,18 +145,22 @@ const SEOServices = () => {
                   <Bot className="h-16 w-16 text-blue-400" />
                   <Rocket className="h-16 w-16 text-purple-400" />
                 </div>
-                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-teal-500/20 to-blue-500/20 backdrop-blur-sm px-6 py-3 rounded-full border border-teal-500/30 mb-6">
+                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-teal-500/20 to-blue-500/20 backdrop-blur-sm px-6 py-3 rounded-full border border-teal-500/30 mb-4">
                   <Zap className="h-5 w-5 text-teal-400" />
                   <span className="text-teal-300 font-semibold">NEW: AI-Powered SEO SaaS Platform</span>
                   <span className="bg-teal-500 text-white px-2 py-1 rounded-full text-xs font-bold">BETA</span>
                 </div>
+                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500/20 to-emerald-500/20 backdrop-blur-sm px-6 py-3 rounded-full border border-green-500/30 mb-6">
+                  <CheckCircle className="h-5 w-5 text-green-400" />
+                  <span className="text-green-300 font-bold">NO COMMITMENT • CANCEL ANYTIME</span>
+                </div>
               </div>
               <h1 className="text-4xl md:text-7xl font-bold text-white mb-6">
-                <span className="bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">Revolutionary</span>
+                <span className="bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">Flexible SEO:</span>
                 <span className="block bg-gradient-to-r from-teal-400 to-blue-400 bg-clip-text text-transparent">AI-Powered SEO</span>
               </h1>
               <p className="text-xl md:text-2xl text-slate-300 mb-8 leading-relaxed max-w-4xl mx-auto">
-                Experience the future of SEO with our cutting-edge AI SaaS platform. Get instant content generation, keyword research, competitor analysis, and professional SEO services all in one revolutionary solution.
+                Start boosting your search rankings today with our AI-powered SEO platform. <span className="text-green-400 font-semibold">No commitment required</span> - cancel anytime with one click.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
                 <button 
@@ -175,23 +179,41 @@ const SEOServices = () => {
                 </button>
               </div>
               
-              {/* Stats Banner */}
+              {/* Flexible Benefits */}
+              <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 max-w-4xl mx-auto border border-green-500/30 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                  <div className="flex items-center justify-center gap-2 text-green-400">
+                    <CheckCircle className="h-5 w-5" />
+                    <span className="font-semibold">Cancel Anytime</span>
+                  </div>
+                  <div className="flex items-center justify-center gap-2 text-green-400">
+                    <CheckCircle className="h-5 w-5" />
+                    <span className="font-semibold">No Setup Fees</span>
+                  </div>
+                  <div className="flex items-center justify-center gap-2 text-green-400">
+                    <CheckCircle className="h-5 w-5" />
+                    <span className="font-semibold">Monthly Billing</span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Quick Results Banner */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-12 max-w-4xl mx-auto">
                 <div className="bg-slate-800/50 backdrop-blur-sm rounded-lg p-4 border border-slate-700/50">
-                  <div className="text-3xl font-bold text-teal-400 mb-1">10K+</div>
-                  <div className="text-slate-300 text-sm">AI Content Generated</div>
+                  <div className="text-3xl font-bold text-teal-400 mb-1">150%</div>
+                  <div className="text-slate-300 text-sm">Traffic Boost in 30 Days</div>
                 </div>
                 <div className="bg-slate-800/50 backdrop-blur-sm rounded-lg p-4 border border-slate-700/50">
                   <div className="text-3xl font-bold text-blue-400 mb-1">500+</div>
-                  <div className="text-slate-300 text-sm">Active Users</div>
+                  <div className="text-slate-300 text-sm">Happy Customers</div>
                 </div>
                 <div className="bg-slate-800/50 backdrop-blur-sm rounded-lg p-4 border border-slate-700/50">
-                  <div className="text-3xl font-bold text-purple-400 mb-1">99.9%</div>
-                  <div className="text-slate-300 text-sm">Uptime</div>
+                  <div className="text-3xl font-bold text-purple-400 mb-1">24/7</div>
+                  <div className="text-slate-300 text-sm">AI-Powered Support</div>
                 </div>
                 <div className="bg-slate-800/50 backdrop-blur-sm rounded-lg p-4 border border-slate-700/50">
-                  <div className="text-3xl font-bold text-green-400 mb-1">8 Years</div>
-                  <div className="text-slate-300 text-sm">SEO Experience</div>
+                  <div className="text-3xl font-bold text-green-400 mb-1">1-Click</div>
+                  <div className="text-slate-300 text-sm">Cancel Anytime</div>
                 </div>
               </div>
             </div>
@@ -390,11 +412,16 @@ const SEOServices = () => {
             <div className="max-w-6xl mx-auto">
               <div className="text-center mb-16">
                 <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-                  Choose Your SEO Solution
+                  Flexible SEO Plans - No Long-Term Commitment
                 </h2>
-                <p className="text-xl text-slate-300 max-w-3xl mx-auto">
-                  From self-service AI tools to full-service SEO management, we have the perfect solution for your needs.
+                <p className="text-xl text-slate-300 max-w-3xl mx-auto mb-4">
+                  From self-service AI tools to full-service SEO management - cancel anytime, no commitment required.
                 </p>
+                <div className="inline-flex items-center space-x-2 bg-green-500/20 text-green-300 px-6 py-3 rounded-full text-sm font-medium border border-green-500/30">
+                  <span>✓ NO COMMITMENT</span>
+                  <span>•</span>
+                  <span>✓ CANCEL ANYTIME</span>
+                </div>
               </div>
 
               <div className="grid md:grid-cols-3 gap-8">
@@ -424,11 +451,14 @@ const SEOServices = () => {
                       <span className="text-slate-300">Email Support</span>
                     </li>
                   </ul>
+                  <div className="mb-3">
+                    <p className="text-xs text-center text-slate-400">Cancel anytime • No commitment</p>
+                  </div>
                   <button 
                     onClick={() => handlePlanSelect('starter')}
                     className="w-full bg-teal-500 hover:bg-teal-600 text-white py-3 px-6 rounded-lg font-semibold transition-colors"
                   >
-                    Get Started
+                    Get Started - $1,000/month
                   </button>
                 </div>
 
@@ -465,11 +495,14 @@ const SEOServices = () => {
                       <span className="text-slate-300">Monthly SEO Consultation</span>
                     </li>
                   </ul>
+                  <div className="mb-3">
+                    <p className="text-xs text-center text-slate-400">Cancel anytime • No commitment</p>
+                  </div>
                   <button 
                     onClick={() => handlePlanSelect('growth')}
                     className="w-full bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300"
                   >
-                    Get Started
+                    Get Started - $1,500/month
                   </button>
                 </div>
 
@@ -503,11 +536,14 @@ const SEOServices = () => {
                       <span className="text-slate-300">Custom Integrations</span>
                     </li>
                   </ul>
+                  <div className="mb-3">
+                    <p className="text-xs text-center text-slate-400">Cancel anytime • No commitment</p>
+                  </div>
                   <button 
                     onClick={() => handlePlanSelect('enterprise')}
                     className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300"
                   >
-                    Contact Sales
+                    Get Started - $2,500/month
                   </button>
                 </div>
               </div>

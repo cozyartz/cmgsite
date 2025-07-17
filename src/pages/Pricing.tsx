@@ -6,7 +6,7 @@ import SEO from '../components/SEO';
 
 const Pricing: React.FC = () => {
   return (
-    <div className="min-h-screen bg-slate-900">
+    <div className="min-h-screen bg-white">
       <SEO
         title="Pricing Plans | Enterprise SEO & AI Services | Cozyartz Media Group"
         description="Professional SEO and AI-powered services starting at $1,000/month. Choose from Starter, Growth, and Enterprise plans with advanced features, dedicated support, and custom integrations."
