@@ -1,0 +1,48 @@
+# Cloudflare Pages configuration
+[settings]
+name = "cmgsite"
+compatibility_date = "2024-01-01"
+
+[build]
+command = "npm run build"
+destination = "dist"
+
+# Custom domain configuration
+[[domain]]
+name = "cozyartzmedia.com"
+
+# Redirects configuration  
+[[redirects]]
+from = "/api/*"
+to = "https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/:splat"
+status = 200
+
+[[redirects]]
+from = "/auth"
+to = "/index.html"
+status = 200
+
+[[redirects]]
+from = "/client-portal"
+to = "/index.html"
+status = 200
+
+[[redirects]]
+from = "/dashboard"
+to = "/index.html"
+status = 200
+
+[[redirects]]
+from = "/admin"
+to = "/index.html"
+status = 200
+
+[[redirects]]
+from = "/superadmin"
+to = "/index.html"
+status = 200
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200

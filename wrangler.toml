@@ -10,6 +10,12 @@ ENVIRONMENT = "production"
 # Pages configuration
 pages_build_output_dir = "dist"
 
+# Pages project configuration
+[pages]
+name = "cmgsite"
+compatibility_date = "2024-01-01"
+build = { command = "npm run build", cwd = "." }
+
 # D1 Database for client data
 [[d1_databases]]
 binding = "DB"
