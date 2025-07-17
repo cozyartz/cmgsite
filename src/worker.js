@@ -290,11 +290,30 @@ async function handleAuth(request, env, path) {
 
   // GitHub OAuth login
   if (path === '/api/auth/github' && request.method === 'GET') {
-    const redirectUri = env.ENVIRONMENT === 'development' 
-      ? `http://localhost:8787/api/auth/github/callback`
-      : `${new URL(request.url).origin}/api/auth/github/callback`;
+    
+    if (!env.GITHUB_CLIENT_ID) {
+      return new Response(JSON.stringify({ error: 'GitHub OAuth not configured' }), {
+        status: 500,
+        headers: corsHeaders
+      });
+    }
+    
+    // Determine the correct redirect URI based on the requesting domain
+    const requestUrl = new URL(request.url);
+    let redirectUri;
+    
+    if (env.ENVIRONMENT === 'development') {
+      redirectUri = `http://localhost:8787/api/auth/github/callback`;
+    } else if (requestUrl.hostname.includes('cozyartzmedia.com')) {
+      // When accessed via the main domain, use the main domain for callback
+      redirectUri = `https://cozyartzmedia.com/api/auth/github/callback`;
+    } else {
+      // Fallback to worker domain
+      redirectUri = `${requestUrl.origin}/api/auth/github/callback`;
+    }
     const scope = 'user:email';
     const state = crypto.randomUUID();
+    
     
     // Store state in session for security
     const githubUrl = `https://github.com/login/oauth/authorize?client_id=${env.GITHUB_CLIENT_ID}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
@@ -393,7 +412,17 @@ async function handleAuth(request, env, path) {
         avatar_url: user.avatar_url,
         role: clientUser?.role || 'user'
       }));
-      const frontendUrl = `${new URL(request.url).origin}/auth?token=${token}&user=${userParam}`;
+      // Determine the correct frontend URL based on the requesting domain
+      const requestUrl = new URL(request.url);
+      let frontendOrigin;
+      
+      if (requestUrl.hostname.includes('cozyartzmedia.com')) {
+        frontendOrigin = 'https://cozyartzmedia.com';
+      } else {
+        frontendOrigin = requestUrl.origin;
+      }
+      
+      const frontendUrl = `${frontendOrigin}/auth?token=${token}&user=${userParam}`;
       return Response.redirect(frontendUrl, 302);
       
     } catch (error) {
