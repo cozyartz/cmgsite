@@ -14,6 +14,20 @@ const SEOServices = () => {
 
   const pricingPlans = [
     {
+      id: 'free-trial',
+      name: 'Free Trial',
+      price: 0,
+      priceInCents: 0,
+      aiCredits: 25,
+      features: [
+        'AI Content Generator',
+        'Basic Keyword Research',
+        'SEO Analytics',
+        'Email Support',
+        '30-day trial period'
+      ]
+    },
+    {
       id: 'starter',
       name: 'Starter',
       price: 29,
@@ -59,6 +73,12 @@ const SEOServices = () => {
 
   const handlePlanSelect = (planId: string) => {
     setSelectedPlan(planId);
+    setShowPayment(true);
+  };
+
+  const handleFreeTrial = () => {
+    // Use PayPal with $0 charge for free trial (requires card on file)
+    setSelectedPlan('free-trial');
     setShowPayment(true);
   };
 
@@ -152,11 +172,11 @@ const SEOServices = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
                 <button 
-                  onClick={() => handlePlanSelect('growth')}
+                  onClick={handleFreeTrial}
                   className="bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center gap-2"
                 >
                   <Rocket className="h-5 w-5" />
-                  Try AI Platform FREE
+                  Start FREE Trial - $0 for 30 Days
                 </button>
                 <button 
                   onClick={() => window.location.href = '/contact'}
@@ -416,12 +436,15 @@ const SEOServices = () => {
                       <span className="text-slate-300">Email Support</span>
                     </li>
                   </ul>
-                  <button 
-                    onClick={() => handlePlanSelect('starter')}
-                    className="w-full bg-teal-500 hover:bg-teal-600 text-white py-3 px-6 rounded-lg font-semibold transition-colors"
-                  >
-                    Start Free Trial
-                  </button>
+                  <div className="space-y-2">
+                    <button 
+                      onClick={handleFreeTrial}
+                      className="w-full bg-teal-500 hover:bg-teal-600 text-white py-3 px-6 rounded-lg font-semibold transition-colors"
+                    >
+                      Start FREE Trial
+                    </button>
+                    <p className="text-xs text-slate-400 text-center">Credit card required • $0 for 30 days</p>
+                  </div>
                 </div>
 
                 {/* Growth Plan */}
@@ -713,11 +736,11 @@ const SEOServices = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
                 <button 
-                  onClick={() => handlePlanSelect('growth')}
+                  onClick={handleFreeTrial}
                   className="bg-white text-purple-600 hover:bg-slate-100 px-8 py-4 rounded-full font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center gap-2"
                 >
                   <Rocket className="h-5 w-5" />
-                  Try AI Platform FREE
+                  Start FREE Trial - $0 for 30 Days
                 </button>
                 <button 
                   onClick={() => window.location.href = '/contact'}
@@ -735,8 +758,8 @@ const SEOServices = () => {
                   <div className="text-sm text-slate-200">Free Trial</div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 text-center">
-                  <div className="text-2xl font-bold text-white">No</div>
-                  <div className="text-sm text-slate-200">Credit Card</div>
+                  <div className="text-2xl font-bold text-white">$0</div>
+                  <div className="text-sm text-slate-200">First 30 Days</div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 text-center">
                   <div className="text-2xl font-bold text-white">24/7</div>
@@ -778,14 +801,28 @@ const SEOServices = () => {
                 <div className="mb-6">
                   <div className="bg-gray-50 rounded-lg p-4">
                     <h3 className="font-semibold text-gray-900 mb-2">
-                      {getSelectedPlan()?.name} Plan
+                      {getSelectedPlan()?.name} {selectedPlan === 'free-trial' ? 'Setup' : 'Plan'}
                     </h3>
                     <div className="text-sm text-gray-600 space-y-1">
                       <p>AI Credits: {getSelectedPlan()?.aiCredits}</p>
-                      <p>Monthly billing</p>
-                      <p className="font-semibold text-lg text-gray-900">
-                        ${getSelectedPlan()?.price}/month
-                      </p>
+                      {selectedPlan === 'free-trial' ? (
+                        <>
+                          <p>30-day free trial</p>
+                          <p className="font-semibold text-lg text-gray-900">
+                            $0 today, then $29/month
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            Card required for account setup. Cancel anytime.
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <p>Monthly billing</p>
+                          <p className="font-semibold text-lg text-gray-900">
+                            ${getSelectedPlan()?.price}/month
+                          </p>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -793,7 +830,9 @@ const SEOServices = () => {
               
               <PayPalPayment
                 amount={getSelectedPlan()?.priceInCents || 0}
-                description={`${getSelectedPlan()?.name} Plan - Monthly Subscription`}
+                description={selectedPlan === 'free-trial' 
+                  ? `${getSelectedPlan()?.name} - Setup Account (Card Required, $0 Today)`
+                  : `${getSelectedPlan()?.name} Plan - Monthly Subscription`}
                 onSuccess={handlePaymentSuccess}
                 onError={handlePaymentError}
                 subscriptionPlan={selectedPlan}
