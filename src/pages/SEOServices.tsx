@@ -403,8 +403,8 @@ const SEOServices = () => {
                   <div className="text-center mb-6">
                     <h3 className="text-2xl font-bold text-white mb-2">Starter</h3>
                     <p className="text-slate-400 mb-4">Perfect for small businesses</p>
-                    <div className="text-4xl font-bold text-teal-400 mb-2">$29<span className="text-xl text-slate-400">/month</span></div>
-                    <p className="text-slate-400">100 AI credits included</p>
+                    <div className="text-4xl font-bold text-teal-400 mb-2">${pricingPlans[0].price.toLocaleString()}<span className="text-xl text-slate-400">/month</span></div>
+                    <p className="text-slate-400">{pricingPlans[0].aiCredits} AI credits included</p>
                   </div>
                   <ul className="space-y-3 mb-8">
                     <li className="flex items-center gap-3">
@@ -440,8 +440,8 @@ const SEOServices = () => {
                   <div className="text-center mb-6">
                     <h3 className="text-2xl font-bold text-white mb-2">Growth</h3>
                     <p className="text-slate-400 mb-4">Best for growing businesses</p>
-                    <div className="text-4xl font-bold text-teal-400 mb-2">$99<span className="text-xl text-slate-400">/month</span></div>
-                    <p className="text-slate-400">500 AI credits included</p>
+                    <div className="text-4xl font-bold text-teal-400 mb-2">${pricingPlans[1].price.toLocaleString()}<span className="text-xl text-slate-400">/month</span></div>
+                    <p className="text-slate-400">{pricingPlans[1].aiCredits} AI credits included</p>
                   </div>
                   <ul className="space-y-3 mb-8">
                     <li className="flex items-center gap-3">
@@ -469,7 +469,7 @@ const SEOServices = () => {
                     onClick={() => handlePlanSelect('growth')}
                     className="w-full bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300"
                   >
-                    Start Free Trial
+                    Get Started
                   </button>
                 </div>
 
@@ -478,8 +478,8 @@ const SEOServices = () => {
                   <div className="text-center mb-6">
                     <h3 className="text-2xl font-bold text-white mb-2">Enterprise</h3>
                     <p className="text-slate-400 mb-4">For large organizations</p>
-                    <div className="text-4xl font-bold text-purple-400 mb-2">$299<span className="text-xl text-slate-400">/month</span></div>
-                    <p className="text-slate-400">Unlimited AI credits</p>
+                    <div className="text-4xl font-bold text-purple-400 mb-2">${pricingPlans[2].price.toLocaleString()}<span className="text-xl text-slate-400">/month</span></div>
+                    <p className="text-slate-400">{pricingPlans[2].aiCredits} AI credits</p>
                   </div>
                   <ul className="space-y-3 mb-8">
                     <li className="flex items-center gap-3">
