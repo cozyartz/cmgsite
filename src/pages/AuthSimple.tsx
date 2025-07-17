@@ -98,9 +98,6 @@ const AuthSimple: React.FC = () => {
           </div>
         </div>
         
-        <p className="text-center text-sm text-gray-600 mt-4">
-          Test credentials: test@cozyartzmedia.com / TestPass123@
-        </p>
       </div>
     </div>
   );
