@@ -11,10 +11,12 @@ const AuthSimple: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Check for OAuth errors in URL
+  // Check for OAuth callback and errors in URL
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const authError = urlParams.get('error');
+    const code = urlParams.get('code');
+    const state = urlParams.get('state');
     
     if (authError) {
       if (authError.includes('github')) {
@@ -27,7 +29,54 @@ const AuthSimple: React.FC = () => {
       // Clean up the URL
       window.history.replaceState({}, '', '/auth');
     }
+    
+    // Handle GitHub OAuth callback
+    if (code && state) {
+      const storedState = localStorage.getItem('oauth_state');
+      if (state === storedState) {
+        handleGitHubCallback(code);
+      } else {
+        setError('Invalid OAuth state. Please try again.');
+        window.history.replaceState({}, '', '/auth');
+      }
+    }
   }, [location]);
+
+  const handleGitHubCallback = async (code: string) => {
+    setLoading(true);
+    setError('');
+    
+    try {
+      // For now, simulate successful GitHub login since we need a backend to securely handle the client secret
+      // In production, this would call your backend API endpoint that handles the OAuth flow
+      
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Mock successful login with GitHub data (you can customize this based on your needs)
+      localStorage.setItem('auth_token', 'github-jwt-token-' + Date.now());
+      localStorage.setItem('user_data', JSON.stringify({
+        id: 'github_user_' + Date.now(),
+        email: 'github.user@example.com', // In real implementation, this comes from GitHub
+        name: 'GitHub User',
+        avatar_url: 'https://github.com/identicons/user.png',
+        provider: 'github'
+      }));
+      localStorage.removeItem('oauth_state');
+      
+      // Clean up URL and navigate to dashboard
+      window.history.replaceState({}, '', '/auth');
+      navigate('/client-portal');
+      
+    } catch (error) {
+      console.error('GitHub OAuth error:', error);
+      setError('GitHub authentication failed. Please try again.');
+      localStorage.removeItem('oauth_state');
+      window.history.replaceState({}, '', '/auth');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleOAuthLogin = (provider: 'github' | 'google') => {
     setLoading(true);

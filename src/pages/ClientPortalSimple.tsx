@@ -12,8 +12,22 @@ const ClientPortalSimple: React.FC = () => {
     }
   }, [navigate]);
 
+  const getUserEmail = () => {
+    const userData = localStorage.getItem('user_data');
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        return user.email;
+      } catch (e) {
+        return 'test@cozyartzmedia.com';
+      }
+    }
+    return 'test@cozyartzmedia.com';
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('auth_token');
+    localStorage.removeItem('user_data');
     navigate('/auth');
   };
 
@@ -26,7 +40,7 @@ const ClientPortalSimple: React.FC = () => {
               <h1 className="text-xl font-semibold text-white">Client Portal</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-slate-300">test@cozyartzmedia.com</span>
+              <span className="text-slate-300">{getUserEmail()}</span>
               <button
                 onClick={handleLogout}
                 className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm"
