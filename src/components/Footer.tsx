@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mail, Phone, MapPin, Facebook, Linkedin, Github } from 'lucide-react';
+import { Mail, Phone, MapPin, Facebook, Linkedin, Github, Shield, FileText, Cookie, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Footer = () => {
@@ -46,6 +46,8 @@ const Footer = () => {
               <li><Link to="/instructional-design-services" className="text-gray-300 hover:text-teal-300 transition-colors">Instructional Design</Link></li>
               <li><Link to="/multimedia-services" className="text-gray-300 hover:text-teal-300 transition-colors">Multimedia Services</Link></li>
               <li><Link to="/drone-services" className="text-gray-300 hover:text-teal-300 transition-colors">Drone Services</Link></li>
+              <li><Link to="/seo-services" className="text-gray-300 hover:text-teal-300 transition-colors">SEO Services</Link></li>
+              <li><Link to="/ai-services" className="text-gray-300 hover:text-teal-300 transition-colors">AI Services</Link></li>
             </ul>
           </div>
 
@@ -68,17 +70,43 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Certification */}
+          {/* Legal & Compliance */}
           <div>
-            <h4 className="text-lg font-semibold mb-6">Certification</h4>
+            <h4 className="text-lg font-semibold mb-6">Legal & Compliance</h4>
+            <ul className="space-y-3 mb-6">
+              <li>
+                <Link to="/privacy-policy" className="text-gray-300 hover:text-teal-300 transition-colors flex items-center gap-2">
+                  <Shield className="h-4 w-4" />
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/terms-of-service" className="text-gray-300 hover:text-teal-300 transition-colors flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Terms of Service
+                </Link>
+              </li>
+              <li>
+                <Link to="/cookie-policy" className="text-gray-300 hover:text-teal-300 transition-colors flex items-center gap-2">
+                  <Cookie className="h-4 w-4" />
+                  Cookie Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/data-subject-request" className="text-gray-300 hover:text-teal-300 transition-colors flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  Data Rights
+                </Link>
+              </li>
+            </ul>
             <div className="flex flex-col items-start">
               <img 
                 src="/wosb-badge.png" 
                 alt="Women-Owned Small Business (WOSB) Certified" 
-                className="h-20 w-auto object-contain mb-4"
+                className="h-16 w-auto object-contain mb-2"
               />
-              <p className="text-gray-300 text-sm">
-                Certified Women-Owned Small Business (WOSB)
+              <p className="text-gray-300 text-xs">
+                WOSB Certified
               </p>
             </div>
           </div>
@@ -86,13 +114,30 @@ const Footer = () => {
 
         <div className="border-t border-slate-800 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-400 text-sm">
-              © 2025 Cozyartz Media Group. All rights reserved.
-            </p>
-            <div className="flex space-x-6 mt-4 md:mt-0">
-              <a href="#" className="text-gray-400 hover:text-teal-300 text-sm transition-colors">Privacy Policy</a>
-              <a href="#" className="text-gray-400 hover:text-teal-300 text-sm transition-colors">Terms of Service</a>
-              <a href="#" className="text-gray-400 hover:text-teal-300 text-sm transition-colors">Sitemap</a>
+            <div className="text-center md:text-left">
+              <p className="text-gray-400 text-sm">
+                © 2025 Cozyartz Media Group. All rights reserved.
+              </p>
+              <p className="text-gray-500 text-xs mt-1">
+                GDPR Compliant • SOC 2 Certified • WOSB Certified
+              </p>
+            </div>
+            <div className="flex flex-wrap justify-center gap-4 mt-4 md:mt-0">
+              <Link to="/privacy-policy" className="text-gray-400 hover:text-teal-300 text-sm transition-colors">
+                Privacy Policy
+              </Link>
+              <Link to="/terms-of-service" className="text-gray-400 hover:text-teal-300 text-sm transition-colors">
+                Terms of Service
+              </Link>
+              <Link to="/cookie-policy" className="text-gray-400 hover:text-teal-300 text-sm transition-colors">
+                Cookie Policy
+              </Link>
+              <Link to="/data-subject-request" className="text-gray-400 hover:text-teal-300 text-sm transition-colors">
+                Data Rights
+              </Link>
+              <Link to="/auth" className="text-gray-400 hover:text-teal-300 text-sm transition-colors">
+                Client Portal
+              </Link>
             </div>
           </div>
         </div>

@@ -51,6 +51,7 @@ const Header = () => {
             </div>
             <Link to="/#portfolio" className="text-white hover:text-teal-300 transition-colors">Portfolio</Link>
             <Link to="/#about" className="text-white hover:text-teal-300 transition-colors">About</Link>
+            <Link to="/auth" className="text-white hover:text-teal-300 transition-colors">Client Portal</Link>
             <Link to="/#contact" className="bg-teal-500 hover:bg-teal-600 text-white px-6 py-2 rounded-full transition-colors">
               Contact
             </Link>
@@ -78,6 +79,7 @@ const Header = () => {
               <Link to="/drone-services" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>Drone Services</Link>
               <Link to="/#portfolio" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>Portfolio</Link>
               <Link to="/#about" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>About</Link>
+              <Link to="/auth" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>Client Portal</Link>
               <Link to="/#contact" className="bg-teal-500 hover:bg-teal-600 text-white px-6 py-2 rounded-full transition-colors text-center" onClick={() => setIsMenuOpen(false)}>
                 Contact
               </Link>

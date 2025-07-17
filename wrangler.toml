@@ -1,0 +1,44 @@
+name = "cmgsite-client-portal"
+main = "src/worker.js"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+ENVIRONMENT = "development"
+
+# D1 Database for client data
+[[d1_databases]]
+binding = "DB"
+database_name = "cmgsite-client-portal-db"
+database_id = "fc037778-97fe-424f-9a8b-61374a1e5be0"
+
+# R2 Bucket for file storage
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "cmgsite-client-portal-files"
+
+# Workers AI binding
+[ai]
+binding = "AI"
+
+# AI Gateway configuration (remove - not yet supported)
+# [ai_gateway]
+# binding = "AI_GATEWAY"
+# id = "cmgsite-gateway"
+
+# KV for session storage
+[[kv_namespaces]]
+binding = "SESSIONS"
+id = "c6000623802844eeb805721507254686"
+
+# Secrets (set via wrangler secret put)
+# GITHUB_CLIENT_ID
+# GITHUB_CLIENT_SECRET
+# GOOGLE_CLIENT_ID
+# GOOGLE_CLIENT_SECRET
+# JWT_SECRET
+# PAYPAL_CLIENT_ID
+# PAYPAL_CLIENT_SECRET
+# PAYPAL_WEBHOOK_ID
+# OPENAI_API_KEY (if needed as fallback)
+# RESEND_API_KEY

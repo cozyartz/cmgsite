@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Search, TrendingUp, Target, Award, Globe, BarChart, CheckCircle, ArrowRight } from 'lucide-react';
 import SEO from '../components/SEO';
+import LegalDisclaimer from '../components/legal/LegalDisclaimer';
 
 const SEOServices = () => {
   useEffect(() => {
@@ -11,7 +12,7 @@ const SEOServices = () => {
     <>
       <SEO
         title="SEO Services | Search Engine Optimization Experts"
-        description="Professional SEO services to boost your online visibility and drive organic traffic. Google-certified experts helping local and global businesses dominate search results."
+        description="Professional SEO services to boost your online visibility and drive organic traffic. Google-certified experts helping local and global businesses improve search rankings and compete effectively online."
         keywords="SEO services, search engine optimization, Google SEO, local SEO, organic traffic, search rankings, digital marketing, Google certified, SEO experts"
         businessName="Cozyartz Media Group"
         phone="+1 (269) 261-0069"
@@ -54,7 +55,7 @@ const SEOServices = () => {
                 <span className="block text-teal-400">Services</span>
               </h1>
               <p className="text-xl text-slate-300 mb-8 leading-relaxed">
-                Boost your online visibility and dominate search results with our Google-certified SEO experts. We help local and global businesses achieve sustainable organic growth.
+                Boost your online visibility and improve search rankings with our Google-certified SEO experts. We help local and global businesses achieve sustainable organic growth through proven SEO strategies.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button className="bg-teal-500 hover:bg-teal-600 text-white px-8 py-3 rounded-full font-semibold transition-colors">
@@ -219,7 +220,7 @@ const SEOServices = () => {
                   <div className="space-y-4">
                     <div className="flex items-start gap-3">
                       <TrendingUp className="h-6 w-6 text-teal-400 mt-1 flex-shrink-0" />
-                      <p className="text-slate-300">Increase organic traffic by 150% on average</p>
+                      <p className="text-slate-300">Help increase organic traffic significantly</p>
                     </div>
                     <div className="flex items-start gap-3">
                       <Target className="h-6 w-6 text-teal-400 mt-1 flex-shrink-0" />
@@ -303,7 +304,7 @@ const SEOServices = () => {
           <div className="container mx-auto px-6">
             <div className="max-w-4xl mx-auto text-center">
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-                Ready to Dominate Search Results?
+                Ready to Improve Your Search Rankings?
               </h2>
               <p className="text-xl text-teal-100 mb-8">
                 Let our Google-certified SEO experts help your business achieve higher rankings and increased organic traffic.
@@ -315,6 +316,11 @@ const SEOServices = () => {
                 <button className="border-2 border-white text-white hover:bg-white hover:text-teal-600 px-8 py-3 rounded-full font-semibold transition-colors">
                   Schedule Consultation
                 </button>
+              </div>
+              
+              {/* Legal Disclaimer */}
+              <div className="max-w-2xl mx-auto mt-12">
+                <LegalDisclaimer type="results" />
               </div>
             </div>
           </div>
