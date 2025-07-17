@@ -62,16 +62,13 @@ const AuthSimple: React.FC = () => {
     }
   };
 
-  const handleOAuthLogin = (provider: 'github' | 'google') => {
+  const handleOAuthLogin = (provider: 'github') => {
     setLoading(true);
     setError('');
     
     if (provider === 'github') {
       // GitHub OAuth flow - redirect to worker endpoint which handles the GitHub OAuth
       window.location.href = '/api/auth/github';
-    } else {
-      setError(`${provider} authentication is currently unavailable. Please use email login.`);
-      setLoading(false);
     }
   };
 
@@ -143,11 +140,11 @@ const AuthSimple: React.FC = () => {
           </button>
           
           <button 
-            onClick={() => handleOAuthLogin('google')}
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 px-4 rounded hover:bg-blue-700 disabled:opacity-50"
+            disabled={true}
+            className="w-full bg-gray-400 text-white py-3 px-4 rounded cursor-not-allowed opacity-50"
+            title="Google authentication coming soon"
           >
-            Continue with Google
+            Continue with Google (Coming Soon)
           </button>
           
           <div className="border-t pt-4">
@@ -179,14 +176,6 @@ const AuthSimple: React.FC = () => {
               </button>
             </form>
             
-            {/* Demo Credentials */}
-            <div className="mt-4 p-3 bg-slate-100 border border-slate-300 rounded">
-              <h4 className="text-sm font-medium text-slate-700 mb-2">Demo Login Credentials:</h4>
-              <div className="text-xs text-slate-600 space-y-1">
-                <p><strong>Client Access:</strong> test@cozyartzmedia.com / TestPass123@</p>
-                <p><strong>Admin Access:</strong> Use GitHub OAuth (authorized accounts only)</p>
-              </div>
-            </div>
           </div>
         </div>
         
