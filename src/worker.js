@@ -7,13 +7,14 @@ export default {
     const url = new URL(request.url);
     const path = url.pathname;
 
-    // CORS and security headers
+    // CORS and security headers - main definition
     const corsHeaders = {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
       'Access-Control-Expose-Headers': 'Content-Length, Content-Type',
       'Access-Control-Max-Age': '86400',
+      'Content-Type': 'application/json',
       'X-Content-Type-Options': 'nosniff',
       'X-Frame-Options': 'DENY',
       'X-XSS-Protection': '1; mode=block',
@@ -65,7 +66,7 @@ export default {
       console.error('Worker Error:', error);
       return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
   }
@@ -73,10 +74,7 @@ export default {
 
 // Authentication handlers
 async function handleAuth(request, env, path) {
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Content-Type': 'application/json'
-  };
+  // Using main corsHeaders defined above
 
   if (path === '/api/auth/login' && request.method === 'POST') {
     const { email, password } = await request.json();
@@ -581,10 +579,7 @@ async function handleAuth(request, env, path) {
 
 // AI processing handlers
 async function handleAI(request, env, path) {
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Content-Type': 'application/json'
-  };
+  // Using main corsHeaders defined above
 
   if (path === '/api/ai/generate' && request.method === 'POST') {
     const token = request.headers.get('Authorization')?.replace('Bearer ', '');
@@ -725,10 +720,7 @@ async function handleAI(request, env, path) {
 
 // Dashboard handlers
 async function handleDashboard(request, env, path) {
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Content-Type': 'application/json'
-  };
+  // Using main corsHeaders defined above
 
   if (path === '/api/dashboard/metrics' && request.method === 'GET') {
     const token = request.headers.get('Authorization')?.replace('Bearer ', '');
@@ -768,10 +760,7 @@ async function handleDashboard(request, env, path) {
 
 // Consultation handlers
 async function handleConsultations(request, env, path) {
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Content-Type': 'application/json'
-  };
+  // Using main corsHeaders defined above
 
   if (request.method === 'GET') {
     const token = request.headers.get('Authorization')?.replace('Bearer ', '');
@@ -849,10 +838,7 @@ async function handleConsultations(request, env, path) {
 
 // Billing handlers
 async function handleBilling(request, env, path) {
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Content-Type': 'application/json'
-  };
+  // Using main corsHeaders defined above
 
   const token = request.headers.get('Authorization')?.replace('Bearer ', '');
   
@@ -1042,10 +1028,7 @@ async function handleBilling(request, env, path) {
 
 // Settings handlers
 async function handleSettings(request, env, path) {
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Content-Type': 'application/json'
-  };
+  // Using main corsHeaders defined above
 
   if (request.method === 'PUT') {
     const token = request.headers.get('Authorization')?.replace('Bearer ', '');
@@ -1088,10 +1071,7 @@ async function handleSettings(request, env, path) {
 
 // Client handlers
 async function handleClients(request, env, path) {
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Content-Type': 'application/json'
-  };
+  // Using main corsHeaders defined above
 
   return new Response(JSON.stringify({ message: 'Client endpoints not implemented' }), {
     headers: corsHeaders
@@ -1100,10 +1080,7 @@ async function handleClients(request, env, path) {
 
 // Payment handlers
 async function handlePayment(request, env, path) {
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Content-Type': 'application/json'
-  };
+  // Using main corsHeaders defined above
 
   const paypal = new PayPalService(env.PAYPAL_CLIENT_ID, env.PAYPAL_CLIENT_SECRET, 'sandbox');
 
@@ -1324,10 +1301,7 @@ async function handlePayment(request, env, path) {
 
 // Subscription handlers
 async function handleSubscriptions(request, env, path) {
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Content-Type': 'application/json'
-  };
+  // Using main corsHeaders defined above
 
   if (path === '/api/subscriptions/create' && request.method === 'POST') {
     const token = request.headers.get('Authorization')?.replace('Bearer ', '');
@@ -1375,10 +1349,7 @@ async function handleSubscriptions(request, env, path) {
 
 // GDPR Data Subject Rights handlers
 async function handleGDPR(request, env, path) {
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Content-Type': 'application/json'
-  };
+  // Using main corsHeaders defined above
 
   if (path === '/api/gdpr/data-export' && request.method === 'POST') {
     const token = request.headers.get('Authorization')?.replace('Bearer ', '');
@@ -1511,10 +1482,7 @@ async function handleGDPR(request, env, path) {
 
 // Whitelabel functionality handlers
 async function handleWhitelabel(request, env, path) {
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Content-Type': 'application/json'
-  };
+  // Using main corsHeaders defined above
 
   if (path === '/api/whitelabel/config' && request.method === 'GET') {
     // Get whitelabel configuration based on domain or subdomain
@@ -1948,10 +1916,7 @@ function clearRateLimit(identifier) {
 
 // Coupon handling
 async function handleCoupons(request, env, path) {
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Content-Type': 'application/json'
-  };
+  // Using main corsHeaders defined above
 
   // Validate coupon code
   if (path === '/api/coupons/validate' && request.method === 'POST') {
@@ -2204,10 +2169,7 @@ async function handleCoupons(request, env, path) {
 
 // Domain management
 async function handleDomains(request, env, path) {
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Content-Type': 'application/json'
-  };
+  // Using main corsHeaders defined above
 
   const token = request.headers.get('Authorization')?.replace('Bearer ', '');
   
@@ -2344,10 +2306,7 @@ async function handleDomains(request, env, path) {
 
 // Email handling
 async function handleEmail(request, env, path) {
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Content-Type': 'application/json'
-  };
+  // Using main corsHeaders defined above
 
   if (!env.RESEND_API_KEY) {
     return new Response(JSON.stringify({ error: 'Email service not configured' }), {
@@ -2533,10 +2492,7 @@ async function handleEmail(request, env, path) {
 
 // Analytics API handlers
 async function handleAnalytics(request, env, path) {
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Content-Type': 'application/json'
-  };
+  // Using main corsHeaders defined above
 
   // Import analytics service
   const { GoogleAnalyticsService } = await import('./lib/google-analytics.js');
