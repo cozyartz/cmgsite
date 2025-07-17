@@ -35,7 +35,7 @@ const ClientPortalSimple: React.FC = () => {
 
   const verifyToken = async (token: string) => {
     try {
-      const response = await fetch('https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/verify', {
+      const response = await fetch('https://cozyartzmedia.com/api/auth/verify', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },

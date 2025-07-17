@@ -73,11 +73,11 @@ const AuthSimple: React.FC = () => {
     setError('');
     
     if (provider === 'github') {
-      // GitHub OAuth flow - redirect to worker endpoint which handles the GitHub OAuth
-      window.location.href = 'https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/github';
+      // GitHub OAuth flow - redirect to main domain which routes to worker
+      window.location.href = 'https://cozyartzmedia.com/api/auth/github';
     } else if (provider === 'google') {
-      // Google OAuth flow - redirect to worker endpoint which handles the Google OAuth
-      window.location.href = 'https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/google';
+      // Google OAuth flow - redirect to main domain which routes to worker
+      window.location.href = 'https://cozyartzmedia.com/api/auth/google';
     }
   };
 
