@@ -25,7 +25,9 @@ const AuthSimple: React.FC = () => {
     if (formData.email === 'test@cozyartzmedia.com' && formData.password === 'TestPass123@') {
       // Mock successful login
       localStorage.setItem('auth_token', 'mock-jwt-token-' + Date.now());
-      navigate('/client-portal');
+      // Use window.location to ensure we stay on the current domain
+      window.location.href = '/client-portal';
+      return;
     } else {
       setError('Invalid credentials. Use test@cozyartzmedia.com / TestPass123@');
       setLoading(false);
