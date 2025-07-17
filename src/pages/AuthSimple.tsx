@@ -12,8 +12,8 @@ const AuthSimple: React.FC = () => {
 
   const handleOAuthLogin = (provider: 'github' | 'google') => {
     setLoading(true);
-    // Redirect to OAuth provider
-    window.location.href = `https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/${provider}`;
+    setError(`${provider} authentication is currently unavailable. Please use email login.`);
+    setLoading(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
