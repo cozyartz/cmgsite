@@ -62,13 +62,16 @@ const AuthSimple: React.FC = () => {
     }
   };
 
-  const handleOAuthLogin = (provider: 'github') => {
+  const handleOAuthLogin = (provider: 'github' | 'google') => {
     setLoading(true);
     setError('');
     
     if (provider === 'github') {
       // GitHub OAuth flow - redirect to worker endpoint which handles the GitHub OAuth
       window.location.href = '/api/auth/github';
+    } else if (provider === 'google') {
+      // Google OAuth flow - redirect to worker endpoint which handles the Google OAuth
+      window.location.href = '/api/auth/google';
     }
   };
 
@@ -140,11 +143,11 @@ const AuthSimple: React.FC = () => {
           </button>
           
           <button 
-            disabled={true}
-            className="w-full bg-gray-400 text-white py-3 px-4 rounded cursor-not-allowed opacity-50"
-            title="Google authentication coming soon"
+            onClick={() => handleOAuthLogin('google')}
+            disabled={loading}
+            className="w-full bg-blue-600 text-white py-3 px-4 rounded hover:bg-blue-700 disabled:opacity-50"
           >
-            Continue with Google (Coming Soon)
+            Continue with Google
           </button>
           
           <div className="border-t pt-4">

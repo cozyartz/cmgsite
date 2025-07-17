@@ -433,9 +433,27 @@ async function handleAuth(request, env, path) {
 
   // Google OAuth login
   if (path === '/api/auth/google' && request.method === 'GET') {
-    const redirectUri = env.ENVIRONMENT === 'development' 
-      ? `http://localhost:8787/api/auth/google/callback`
-      : `${new URL(request.url).origin}/api/auth/google/callback`;
+    if (!env.GOOGLE_CLIENT_ID) {
+      return new Response(JSON.stringify({ error: 'Google OAuth not configured' }), {
+        status: 500,
+        headers: corsHeaders
+      });
+    }
+    
+    // Determine the correct redirect URI based on the requesting domain
+    const requestUrl = new URL(request.url);
+    let redirectUri;
+    
+    if (env.ENVIRONMENT === 'development') {
+      redirectUri = `http://localhost:8787/api/auth/google/callback`;
+    } else if (requestUrl.hostname.includes('cozyartzmedia.com')) {
+      // When accessed via the main domain, use the main domain for callback
+      redirectUri = `https://cozyartzmedia.com/api/auth/google/callback`;
+    } else {
+      // Fallback to worker domain
+      redirectUri = `${requestUrl.origin}/api/auth/google/callback`;
+    }
+    
     const scope = 'profile email';
     const state = crypto.randomUUID();
     
@@ -528,8 +546,26 @@ async function handleAuth(request, env, path) {
       // Generate JWT token
       const token = await generateJWT(user.id, env.JWT_SECRET);
       
-      // Redirect to frontend with token
-      const frontendUrl = `${new URL(request.url).origin}/client-portal?token=${token}`;
+      // Redirect to frontend auth page with token and user data
+      const userParam = encodeURIComponent(JSON.stringify({
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        avatar_url: user.picture,
+        role: clientUser?.role || 'user'
+      }));
+      
+      // Determine the correct frontend URL based on the requesting domain
+      const requestUrl = new URL(request.url);
+      let frontendOrigin;
+      
+      if (requestUrl.hostname.includes('cozyartzmedia.com')) {
+        frontendOrigin = 'https://cozyartzmedia.com';
+      } else {
+        frontendOrigin = requestUrl.origin;
+      }
+      
+      const frontendUrl = `${frontendOrigin}/auth?token=${token}&user=${userParam}`;
       return Response.redirect(frontendUrl, 302);
       
     } catch (error) {
