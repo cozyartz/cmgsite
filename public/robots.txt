@@ -16,6 +16,12 @@ Allow: /multimedia-services
 Allow: /drone-services
 Allow: /web-graphic-design-services
 
+# Block authentication and private pages
+Disallow: /auth
+Disallow: /client-portal
+Disallow: /dashboard
+Disallow: /404
+
 # Block any private or development files
 Disallow: /.well-known/
 Disallow: /node_modules/
