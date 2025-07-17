@@ -30,58 +30,35 @@ const AuthSimple: React.FC = () => {
       window.history.replaceState({}, '', '/auth');
     }
     
-    // Handle GitHub OAuth callback
-    if (code && state) {
-      const storedState = localStorage.getItem('oauth_state');
-      if (state === storedState) {
-        handleGitHubCallback(code);
-      } else {
-        setError('Invalid OAuth state. Please try again.');
-        window.history.replaceState({}, '', '/auth');
-      }
+    // Handle OAuth success callback
+    const token = urlParams.get('token');
+    if (token) {
+      handleOAuthSuccess();
     }
   }, [location]);
 
-  const handleGitHubCallback = async (code: string) => {
-    setLoading(true);
-    setError('');
+  // Handle successful OAuth login from URL parameters
+  const handleOAuthSuccess = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const userParam = urlParams.get('user');
     
-    try {
-      // Call the real backend OAuth endpoint
-      const response = await fetch('/api/auth/github/callback', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          code: code,
-          state: state
-        }),
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Authentication failed');
+    if (token && userParam) {
+      try {
+        const user = JSON.parse(decodeURIComponent(userParam));
+        
+        // Store JWT token and user data
+        localStorage.setItem('auth_token', token);
+        localStorage.setItem('user_data', JSON.stringify(user));
+        
+        // Clean up URL
+        window.history.replaceState({}, '', '/auth');
+        
+        // Navigate to client portal
+        navigate('/client-portal');
+      } catch (err) {
+        setError('Invalid authentication response');
       }
-      
-      const authData = await response.json();
-      
-      // Store real JWT token and user data
-      localStorage.setItem('auth_token', authData.token);
-      localStorage.setItem('user_data', JSON.stringify(authData.user));
-      localStorage.removeItem('oauth_state');
-      
-      // Clean up URL and navigate to dashboard
-      window.history.replaceState({}, '', '/auth');
-      navigate('/client-portal');
-      
-    } catch (error) {
-      console.error('GitHub OAuth error:', error);
-      setError(error instanceof Error ? error.message : 'GitHub authentication failed. Please try again.');
-      localStorage.removeItem('oauth_state');
-      window.history.replaceState({}, '', '/auth');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -90,16 +67,8 @@ const AuthSimple: React.FC = () => {
     setError('');
     
     if (provider === 'github') {
-      // GitHub OAuth flow - redirect to GitHub
-      const clientId = 'Ov23liFnmuNZ9QkJDCnJ'; // Your GitHub OAuth app client ID
-      const redirectUri = encodeURIComponent(window.location.origin + '/auth');
-      const scope = 'user:email';
-      const state = Math.random().toString(36).substring(7); // Random state for security
-      
-      localStorage.setItem('oauth_state', state);
-      
-      const githubUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
-      window.location.href = githubUrl;
+      // GitHub OAuth flow - redirect to worker endpoint which handles the GitHub OAuth
+      window.location.href = '/api/auth/github';
     } else {
       setError(`${provider} authentication is currently unavailable. Please use email login.`);
       setLoading(false);

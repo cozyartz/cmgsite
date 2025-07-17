@@ -385,8 +385,15 @@ async function handleAuth(request, env, path) {
       // Generate JWT token
       const token = await generateJWT(user.id, env.JWT_SECRET);
       
-      // Redirect to frontend with token
-      const frontendUrl = `${new URL(request.url).origin}/client-portal?token=${token}`;
+      // Redirect to frontend auth page with token and user data
+      const userParam = encodeURIComponent(JSON.stringify({
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        avatar_url: user.avatar_url,
+        role: clientUser?.role || 'user'
+      }));
+      const frontendUrl = `${new URL(request.url).origin}/auth?token=${token}&user=${userParam}`;
       return Response.redirect(frontendUrl, 302);
       
     } catch (error) {
