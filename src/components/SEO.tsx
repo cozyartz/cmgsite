@@ -287,10 +287,9 @@ const SEO: React.FC<Props> = ({
       {/* Canonical URL */}
       {canonical && <link rel="canonical" href={canonical} />}
 
-      {/* Preload Critical Resources */}
-      <link rel="preload" href="https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&family=Inter:wght@300;400;500;600;700;800;900&display=swap" as="style" />
-      <link rel="dns-prefetch" href="//fonts.googleapis.com" />
-      <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+      {/* Load Fonts from Cloudflare CDN for better performance */}
+      <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/inter-ui/3.19.3/inter.css" as="style" />
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/inter-ui/3.19.3/inter.css" />
       <link rel="dns-prefetch" href="//cdnjs.cloudflare.com" />
 
       {/* Structured Data */}
