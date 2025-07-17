@@ -4,6 +4,7 @@ import Hero from '../components/Hero';
 import Services from '../components/Services';
 import Portfolio from '../components/Portfolio';
 import About from '../components/About';
+import PricingPreview from '../components/PricingPreview';
 import Contact from '../components/Contact';
 import Footer from '../components/Footer';
 import SEO from '../components/SEO';
@@ -55,6 +56,7 @@ const Home = () => {
         <Services />
         <Portfolio />
         <About />
+        <PricingPreview />
         <Contact />
       </main>
       <Footer />

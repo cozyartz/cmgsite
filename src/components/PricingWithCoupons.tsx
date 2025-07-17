@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Check, Tag, Calendar, DollarSign } from 'lucide-react';
 import { formatCurrency, calculatePrepaymentTotal, type PricingTier } from '../config/whitelabel';
+import { useNavigate } from 'react-router-dom';
+import PayPalPayment from './payment/PayPalPayment';
 
 interface PricingTier {
   id: string;
@@ -33,6 +35,7 @@ interface PrepaymentQuote {
 }
 
 export default function PricingWithCoupons() {
+  const navigate = useNavigate();
   const [selectedTier, setSelectedTier] = useState<string>('growth');
   const [couponCode, setCouponCode] = useState('');
   const [couponInfo, setCouponInfo] = useState<CouponInfo | null>(null);
@@ -41,6 +44,7 @@ export default function PricingWithCoupons() {
   const [prepaymentQuote, setPrepaymentQuote] = useState<PrepaymentQuote | null>(null);
   const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
   const [isLoadingQuote, setIsLoadingQuote] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
 
   const tiers: PricingTier[] = [
     {
@@ -235,6 +239,20 @@ export default function PricingWithCoupons() {
   const couponDiscount = selectedTierData ? calculateCouponDiscount(selectedTierData.price) : 0;
   const monthlyPrice = selectedTierData ? selectedTierData.price - couponDiscount : 0;
   const effectiveMonthlyPrice = Math.max(0, monthlyPrice);
+
+  const handlePaymentSuccess = async (paymentResult: any) => {
+    console.log('Payment successful:', paymentResult);
+    navigate('/client-portal');
+  };
+
+  const handlePaymentError = (error: any) => {
+    console.error('Payment failed:', error);
+    alert('Payment failed. Please try again.');
+  };
+
+  const handleStartSubscription = () => {
+    setShowPayment(true);
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -460,9 +478,23 @@ export default function PricingWithCoupons() {
               )}
             </div>
 
-            <button className="w-full mt-6 bg-teal-600 text-white py-3 px-4 rounded-lg hover:bg-teal-700 font-medium transition-colors">
-              {showPrepayment ? 'Pay 3 Months in Advance' : 'Start Monthly Subscription'}
-            </button>
+            {showPayment ? (
+              <PayPalPayment
+                amount={showPrepayment && prepaymentQuote ? prepaymentQuote.prepaymentTotal : effectiveMonthlyPrice}
+                description={`${selectedTierData.name} Plan - ${showPrepayment ? '3-Month Prepayment' : 'Monthly Subscription'}`}
+                onSuccess={handlePaymentSuccess}
+                onError={handlePaymentError}
+                buttonText={showPrepayment ? 'Pay 3 Months in Advance' : 'Start Monthly Subscription'}
+                subscriptionPlan={selectedTier}
+              />
+            ) : (
+              <button 
+                onClick={handleStartSubscription}
+                className="w-full mt-6 bg-teal-600 text-white py-3 px-4 rounded-lg hover:bg-teal-700 font-medium transition-colors"
+              >
+                {showPrepayment ? 'Pay 3 Months in Advance' : 'Start Monthly Subscription'}
+              </button>
+            )}
           </div>
         </div>
       )}

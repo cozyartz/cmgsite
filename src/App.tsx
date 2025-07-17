@@ -7,6 +7,7 @@ import MultimediaServices from './pages/MultimediaServices';
 import WebGraphicDesignServices from './pages/WebGraphicDesignServices';
 import SEOServices from './pages/SEOServices';
 import AIServices from './pages/AIServices';
+import Pricing from './pages/Pricing';
 import Auth from './pages/Auth';
 import ClientPortal from './pages/ClientPortal';
 import PrivacyPolicy from './pages/PrivacyPolicy';
@@ -67,6 +68,7 @@ function App() {
               <Footer />
             </>
           } />
+          <Route path="/pricing" element={<Pricing />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/client-portal" element={<ClientPortal />} />
           <Route path="/dashboard" element={<ClientPortal />} />
