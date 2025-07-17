@@ -29,7 +29,7 @@ export default {
         }
 
         const state = generateRandomString(32);
-        const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${env.GITHUB_CLIENT_ID}&redirect_uri=${encodeURIComponent('https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/github/callback')}&scope=user:email&state=${state}`;
+        const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${env.GITHUB_CLIENT_ID}&redirect_uri=${encodeURIComponent('https://cozyartzmedia.com/api/auth/github/callback')}&scope=user:email&state=${state}`;
         
         return Response.redirect(githubAuthUrl, 302);
       }
