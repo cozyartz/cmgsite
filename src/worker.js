@@ -7,11 +7,16 @@ export default {
     const url = new URL(request.url);
     const path = url.pathname;
 
-    // CORS headers
+    // CORS and security headers
     const corsHeaders = {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'DENY',
+      'X-XSS-Protection': '1; mode=block',
+      'Referrer-Policy': 'strict-origin-when-cross-origin',
+      'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
     };
 
     // Handle CORS preflight
@@ -74,9 +79,20 @@ async function handleAuth(request, env, path) {
   if (path === '/api/auth/login' && request.method === 'POST') {
     const { email, password } = await request.json();
     
+    // Validate email format
+    let validatedEmail;
+    try {
+      validatedEmail = validateEmail(email);
+    } catch (error) {
+      return new Response(JSON.stringify({ error: error.message }), {
+        status: 400,
+        headers: corsHeaders
+      });
+    }
+    
     // Rate limiting
     try {
-      checkRateLimit(email);
+      checkRateLimit(validatedEmail);
     } catch (error) {
       return new Response(JSON.stringify({ error: error.message }), {
         status: 429,
@@ -85,7 +101,7 @@ async function handleAuth(request, env, path) {
     }
     
     // Query user from D1 database
-    const user = await env.DB.prepare('SELECT * FROM users WHERE email = ?').bind(email).first();
+    const user = await env.DB.prepare('SELECT * FROM users WHERE email = ?').bind(validatedEmail).first();
     
     if (!user) {
       return new Response(JSON.stringify({ error: 'Invalid credentials' }), {
@@ -114,7 +130,7 @@ async function handleAuth(request, env, path) {
     const clientUser = await env.DB.prepare('SELECT c.*, cu.role FROM clients c JOIN client_users cu ON c.id = cu.client_id WHERE cu.user_id = ?').bind(user.id).first();
     
     // Clear rate limit on successful login
-    clearRateLimit(email);
+    clearRateLimit(validatedEmail);
     
     // Generate JWT token
     const token = await generateJWT(user.id, env.JWT_SECRET);
@@ -146,8 +162,20 @@ async function handleAuth(request, env, path) {
   if (path === '/api/auth/register' && request.method === 'POST') {
     const { email, password, name } = await request.json();
     
+    // Validate and sanitize input
+    let validatedEmail, validatedName;
+    try {
+      validatedEmail = validateEmail(email);
+      validatedName = validateName(name);
+    } catch (error) {
+      return new Response(JSON.stringify({ error: error.message }), {
+        status: 400,
+        headers: corsHeaders
+      });
+    }
+    
     // Check if user exists
-    const existingUser = await env.DB.prepare('SELECT id FROM users WHERE email = ?').bind(email).first();
+    const existingUser = await env.DB.prepare('SELECT id FROM users WHERE email = ?').bind(validatedEmail).first();
     
     if (existingUser) {
       return new Response(JSON.stringify({ error: 'User already exists' }), {
@@ -169,11 +197,11 @@ async function handleAuth(request, env, path) {
     
     // Create user
     const userId = crypto.randomUUID();
-    await env.DB.prepare('INSERT INTO users (id, email, name, provider, password_hash) VALUES (?, ?, ?, ?, ?)').bind(userId, email, name, 'email', passwordHash).run();
+    await env.DB.prepare('INSERT INTO users (id, email, name, provider, password_hash) VALUES (?, ?, ?, ?, ?)').bind(userId, validatedEmail, validatedName, 'email', passwordHash).run();
     
     // Create default client
     const clientId = crypto.randomUUID();
-    await env.DB.prepare('INSERT INTO clients (id, name, owner_id) VALUES (?, ?, ?)').bind(clientId, `${name}'s Company`, userId).run();
+    await env.DB.prepare('INSERT INTO clients (id, name, owner_id) VALUES (?, ?, ?)').bind(clientId, `${validatedName}'s Company`, userId).run();
     
     // Add user to client
     await env.DB.prepare('INSERT INTO client_users (client_id, user_id, role) VALUES (?, ?, ?)').bind(clientId, userId, 'owner').run();
@@ -1752,6 +1780,7 @@ async function verifyPassword(password, hash) {
 
 function validatePasswordStrength(password) {
   const minLength = 8;
+  const maxLength = 128; // Prevent DoS attacks
   const hasUpper = /[A-Z]/.test(password);
   const hasLower = /[a-z]/.test(password);
   const hasNumber = /\d/.test(password);
@@ -1759,6 +1788,9 @@ function validatePasswordStrength(password) {
   
   if (password.length < minLength) {
     throw new Error('Password must be at least 8 characters long');
+  }
+  if (password.length > maxLength) {
+    throw new Error('Password must be less than 128 characters');
   }
   if (!hasUpper) {
     throw new Error('Password must contain at least one uppercase letter');
@@ -1781,6 +1813,39 @@ function validatePasswordStrength(password) {
       throw new Error('Password cannot contain common words or patterns');
     }
   }
+  
+  // Check for excessive repeated characters
+  const repeatedChar = /(.)\1{3,}/.test(password);
+  if (repeatedChar) {
+    throw new Error('Password cannot contain more than 3 consecutive identical characters');
+  }
+}
+
+// Input validation and sanitization
+function validateEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    throw new Error('Invalid email format');
+  }
+  if (email.length > 254) {
+    throw new Error('Email address too long');
+  }
+  return email.toLowerCase().trim();
+}
+
+function validateName(name) {
+  if (!name || name.trim().length === 0) {
+    throw new Error('Name is required');
+  }
+  if (name.length > 100) {
+    throw new Error('Name too long');
+  }
+  // Remove potential XSS
+  const sanitized = name.replace(/[<>]/g, '');
+  if (sanitized !== name) {
+    throw new Error('Name contains invalid characters');
+  }
+  return sanitized.trim();
 }
 
 // Rate limiting
