@@ -31,8 +31,23 @@ const AuthSimple: React.FC = () => {
 
   const handleOAuthLogin = (provider: 'github' | 'google') => {
     setLoading(true);
-    setError(`${provider} authentication is currently unavailable. Please use email login.`);
-    setLoading(false);
+    setError('');
+    
+    if (provider === 'github') {
+      // GitHub OAuth flow - redirect to GitHub
+      const clientId = 'Ov23liFnmuNZ9QkJDCnJ'; // Your GitHub OAuth app client ID
+      const redirectUri = encodeURIComponent(window.location.origin + '/auth');
+      const scope = 'user:email';
+      const state = Math.random().toString(36).substring(7); // Random state for security
+      
+      localStorage.setItem('oauth_state', state);
+      
+      const githubUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
+      window.location.href = githubUrl;
+    } else {
+      setError(`${provider} authentication is currently unavailable. Please use email login.`);
+      setLoading(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,8 +59,8 @@ const AuthSimple: React.FC = () => {
     if (formData.email === 'test@cozyartzmedia.com' && formData.password === 'TestPass123@') {
       // Mock successful login
       localStorage.setItem('auth_token', 'mock-jwt-token-' + Date.now());
-      // Use window.location to ensure we stay on the current domain
-      window.location.href = '/client-portal';
+      // Use navigate to ensure proper React routing
+      navigate('/client-portal');
       return;
     } else {
       setError('Invalid credentials. Use test@cozyartzmedia.com / TestPass123@');
