@@ -8,7 +8,7 @@ import WebGraphicDesignServices from './pages/WebGraphicDesignServices';
 import SEOServices from './pages/SEOServices';
 import AIServices from './pages/AIServices';
 import Pricing from './pages/Pricing';
-import Auth from './pages/Auth';
+import AuthSimple from './pages/AuthSimple';
 import ClientPortal from './pages/ClientPortal';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
@@ -82,7 +82,7 @@ function App() {
             </>
           } />
           <Route path="/pricing" element={<Pricing />} />
-          <Route path="/auth" element={<Auth />} />
+          <Route path="/auth" element={<AuthSimple />} />
           <Route path="/client-portal" element={<ClientPortal />} />
           <Route path="/dashboard" element={<ClientPortal />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
