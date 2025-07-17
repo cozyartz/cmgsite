@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 const AuthSimple: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -19,7 +21,11 @@ const AuthSimple: React.FC = () => {
     const state = urlParams.get('state');
     
     if (authError) {
-      if (authError.includes('github')) {
+      if (authError === 'github_oauth_not_configured') {
+        setError('GitHub OAuth is not yet configured. Please use email login for now.');
+      } else if (authError === 'google_oauth_not_configured') {
+        setError('Google OAuth is not yet configured. Please use email login for now.');
+      } else if (authError.includes('github')) {
         setError('GitHub authentication failed. Please try email login.');
       } else if (authError.includes('google')) {
         setError('Google authentication failed. Please try email login.');
@@ -68,10 +74,10 @@ const AuthSimple: React.FC = () => {
     
     if (provider === 'github') {
       // GitHub OAuth flow - redirect to worker endpoint which handles the GitHub OAuth
-      window.location.href = '/api/auth/github';
+      window.location.href = 'https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/github';
     } else if (provider === 'google') {
       // Google OAuth flow - redirect to worker endpoint which handles the Google OAuth
-      window.location.href = '/api/auth/google';
+      window.location.href = 'https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/google';
     }
   };
 
@@ -80,31 +86,13 @@ const AuthSimple: React.FC = () => {
     setLoading(true);
     setError('');
 
-    // Real email/password authentication
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-        }),
+      await login('email', {
+        email: formData.email,
+        password: formData.password,
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Login failed');
-      }
-
-      const authData = await response.json();
       
-      // Store real JWT token and user data
-      localStorage.setItem('auth_token', authData.token);
-      localStorage.setItem('user_data', JSON.stringify(authData.user));
-      
-      // Navigate to client portal
+      // Navigate to client portal after successful login
       navigate('/client-portal');
       
     } catch (error) {

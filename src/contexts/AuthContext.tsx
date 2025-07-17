@@ -25,6 +25,7 @@ interface AuthContextType {
   client: Client | null;
   loading: boolean;
   isAdmin: boolean;
+  isSuperAdmin: boolean;
   login: (provider: 'github' | 'google' | 'email', credentials?: { email: string; password: string }) => Promise<void>;
   logout: () => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
@@ -51,15 +52,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [client, setClient] = useState<Client | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Restricted super admin access - only specific authorized users
-  const authorizedAdminEmails = [
-    'hello@cozyartzmedia.com',  // Primary admin
-    'amy@cozyartzmedia.com'     // Amy's access
+  // Restricted super admin access - only specific GitHub users via GitHub OAuth
+  const authorizedSuperAdminGitHubUsers = [
+    'cozyartz',        // Primary admin GitHub username
+    'AmyCozartLundin'  // Amy's GitHub username
   ];
   
-  const isAdmin = user?.role === 'admin' || authorizedAdminEmails.includes(user?.email || '');
+  const isAdmin = user?.role === 'admin';
+  const isSuperAdmin = user?.provider === 'github' && 
+                      authorizedSuperAdminGitHubUsers.some(githubUser => 
+                        user?.email?.toLowerCase().includes(githubUser.toLowerCase()) || 
+                        user?.sub === `github_${githubUser}` ||
+                        user?.name?.toLowerCase().includes(githubUser.toLowerCase()) ||
+                        user?.sub?.includes(`github_${githubUser}`)
+                      );
 
-  console.log('AuthProvider render:', { user, client, loading });
 
   useEffect(() => {
     // Check for token in URL params (from OAuth redirect)
@@ -77,25 +84,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const checkSession = async () => {
-    console.log('AuthContext: checkSession called');
     
     // Set a timeout to prevent hanging
     const timeoutId = setTimeout(() => {
-      console.log('AuthContext: session check timeout, forcing loading false');
       setLoading(false);
     }, 5000); // 5 second timeout
 
     try {
       const token = localStorage.getItem('auth_token');
-      console.log('AuthContext: token from localStorage:', token ? 'present' : 'not found');
       if (!token) {
-        console.log('AuthContext: no token, setting loading to false');
         clearTimeout(timeoutId);
         setLoading(false);
         return;
       }
 
-      console.log('AuthContext: fetching API endpoint');
       // Try the direct worker URL with timeout
       const apiUrl = 'https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/verify';
       const controller = new AbortController();
@@ -109,15 +111,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
 
       clearTimeout(timeoutSignal);
-      console.log('AuthContext: verify response status:', response.status);
       
       if (response.ok) {
         const { user, client } = await response.json();
-        console.log('AuthContext: setting user and client', { user, client });
         setUser(user);
         setClient(client);
       } else {
-        console.log('AuthContext: verify failed, removing token');
         localStorage.removeItem('auth_token');
       }
     } catch (error) {
@@ -127,7 +126,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.warn('API unavailable or token invalid, showing login page');
     } finally {
       clearTimeout(timeoutId);
-      console.log('AuthContext: setting loading to false');
       setLoading(false);
     }
   };
@@ -290,6 +288,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     client,
     loading,
     isAdmin,
+    isSuperAdmin,
     login,
     logout,
     register,

@@ -11,6 +11,7 @@ import Pricing from './pages/Pricing';
 import AuthSimple from './pages/AuthSimple';
 import ClientPortalSimple from './pages/ClientPortalSimple';
 import AdminDashboard from './pages/AdminDashboard';
+import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import CookiePolicy from './pages/CookiePolicy';
@@ -93,6 +94,7 @@ function App() {
           <Route path="/client-portal" element={<ClientPortalSimple />} />
           <Route path="/dashboard" element={<ClientPortalSimple />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/superadmin" element={<SuperAdminDashboard />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/cookie-policy" element={<CookiePolicy />} />

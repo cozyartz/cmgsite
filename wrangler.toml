@@ -1,5 +1,5 @@
 name = "cmgsite-client-portal"
-main = "src/worker.js"
+main = "worker.js"
 compatibility_date = "2024-01-01"
 compatibility_flags = ["nodejs_compat"]
 account_id = "51826042d6e31c694331efeb1be34123"

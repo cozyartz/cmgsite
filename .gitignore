@@ -37,6 +37,8 @@ Thumbs.db
 # Cloudflare
 .wrangler/
 wrangler.toml.bak
+wrangler.toml.backup
+test-worker.js
 
 # Logs
 *.log

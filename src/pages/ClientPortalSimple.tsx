@@ -5,7 +5,7 @@ import CustomerMaxAI from '../components/customer/CustomerMaxAI';
 
 const ClientPortalSimple: React.FC = () => {
   const navigate = useNavigate();
-  const { user, isAdmin, loading } = useAuth();
+  const { user, isAdmin, isSuperAdmin, loading } = useAuth();
 
   useEffect(() => {
     if (loading) return;
@@ -17,6 +17,12 @@ const ClientPortalSimple: React.FC = () => {
       return;
     }
     
+    // Route superadmin users to superadmin dashboard
+    if (isSuperAdmin) {
+      navigate('/superadmin');
+      return;
+    }
+    
     // Route admin users to admin dashboard
     if (isAdmin) {
       navigate('/admin');
@@ -25,11 +31,11 @@ const ClientPortalSimple: React.FC = () => {
     
     // Verify token with backend for regular users
     verifyToken(token);
-  }, [navigate, user, isAdmin, loading]);
+  }, [navigate, user, isAdmin, isSuperAdmin, loading]);
 
   const verifyToken = async (token: string) => {
     try {
-      const response = await fetch('/api/auth/verify', {
+      const response = await fetch('https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/verify', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },

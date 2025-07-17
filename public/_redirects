@@ -5,6 +5,8 @@
 /auth /index.html 200
 /client-portal /index.html 200
 /dashboard /index.html 200
+/admin /index.html 200
+/superadmin /index.html 200
 /privacy-policy /index.html 200
 /terms-of-service /index.html 200
 /cookie-policy /index.html 200
