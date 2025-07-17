@@ -214,8 +214,8 @@ export default {
 
           const token = await createJWT(jwtPayload, env.JWT_SECRET);
           
-          // Redirect to frontend with token
-          return Response.redirect(`https://ba0621af.cmgsite.pages.dev/auth?token=${token}`, 302);
+          // Redirect to debug page temporarily to test OAuth flow
+          return Response.redirect(`https://raw.githubusercontent.com/cozyartz/cmgsite/main/oauth-debug.html?token=${token}`, 302);
 
         } catch (error) {
           console.error('Google OAuth error:', error);

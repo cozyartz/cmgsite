@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth Debug Test</title>
+</head>
+<body>
+    <h1>OAuth Debug Test</h1>
+    <p>This page will help debug the OAuth flow.</p>
+    
+    <script>
+        // Check for token in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        const error = urlParams.get('error');
+        
+        console.log('Debug page - URL params:', { token, error });
+        
+        if (error) {
+            document.body.innerHTML += `<p style="color: red;">Error: ${error}</p>`;
+        }
+        
+        if (token) {
+            document.body.innerHTML += `<p style="color: green;">Token received: ${token.substring(0, 20)}...</p>`;
+            
+            // Store token
+            localStorage.setItem('auth_token', token);
+            
+            // Test token verification
+            fetch('https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/verify', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Token verification result:', data);
+                document.body.innerHTML += `<pre style="background: #f5f5f5; padding: 10px;">User data: ${JSON.stringify(data.user, null, 2)}</pre>`;
+                
+                // Check superadmin status
+                const authorizedEmails = ['cozy2963@gmail.com', 'andrea@cozyartzmedia.com'];
+                const isSuperAdmin = data.user.provider === 'google' && 
+                                   data.user.email && 
+                                   authorizedEmails.includes(data.user.email);
+                
+                document.body.innerHTML += `<p><strong>Is SuperAdmin:</strong> ${isSuperAdmin}</p>`;
+                
+                if (isSuperAdmin) {
+                    document.body.innerHTML += `<p style="color: green;">✅ SuperAdmin access detected! You should be redirected to /superadmin</p>`;
+                    // Redirect to the main app
+                    setTimeout(() => {
+                        window.location.href = 'https://ba0621af.cmgsite.pages.dev/client-portal';
+                    }, 3000);
+                } else {
+                    document.body.innerHTML += `<p style="color: orange;">ℹ️ Regular user access</p>`;
+                }
+            })
+            .catch(error => {
+                console.error('Token verification failed:', error);
+                document.body.innerHTML += `<p style="color: red;">Token verification failed: ${error.message}</p>`;
+            });
+        }
+    </script>
+</body>
+</html>
