@@ -49,6 +49,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [client, setClient] = useState<Client | null>(null);
   const [loading, setLoading] = useState(true);
 
+  console.log('AuthProvider render:', { user, client, loading });
+
   useEffect(() => {
     // Check for token in URL params (from OAuth redirect)
     const urlParams = new URLSearchParams(window.location.search);

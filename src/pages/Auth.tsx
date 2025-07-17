@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import AuthLanding from '../components/auth/AuthLanding';
 import SEO from '../components/SEO';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 const Auth: React.FC = () => {
   const { user, loading } = useAuth();
@@ -34,7 +35,9 @@ const Auth: React.FC = () => {
         canonical="https://cozyartzmedia.com/auth"
       />
       
-      <AuthLanding />
+      <ErrorBoundary>
+        <AuthLanding />
+      </ErrorBoundary>
     </>
   );
 };
