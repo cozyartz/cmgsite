@@ -209,6 +209,15 @@ const AuthSimple: React.FC = () => {
                 {loading ? 'Signing in...' : 'Sign In'}
               </button>
             </form>
+            
+            {/* Demo Credentials */}
+            <div className="mt-4 p-3 bg-slate-100 border border-slate-300 rounded">
+              <h4 className="text-sm font-medium text-slate-700 mb-2">Demo Login Credentials:</h4>
+              <div className="text-xs text-slate-600 space-y-1">
+                <p><strong>Client Access:</strong> test@cozyartzmedia.com / TestPass123@</p>
+                <p><strong>Admin Access:</strong> Use GitHub OAuth (authorized accounts only)</p>
+              </div>
+            </div>
           </div>
         </div>
         

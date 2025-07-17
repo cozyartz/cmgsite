@@ -1,20 +1,31 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import CustomerMaxAI from '../components/customer/CustomerMaxAI';
 
 const ClientPortalSimple: React.FC = () => {
   const navigate = useNavigate();
+  const { user, isAdmin, loading } = useAuth();
 
   useEffect(() => {
+    if (loading) return;
+    
     // Check if user has auth token and verify it
     const token = localStorage.getItem('auth_token');
-    if (!token) {
+    if (!token || !user) {
       navigate('/auth');
       return;
     }
     
-    // Verify token with backend
+    // Route admin users to admin dashboard
+    if (isAdmin) {
+      navigate('/admin');
+      return;
+    }
+    
+    // Verify token with backend for regular users
     verifyToken(token);
-  }, [navigate]);
+  }, [navigate, user, isAdmin, loading]);
 
   const verifyToken = async (token: string) => {
     try {
@@ -183,6 +194,12 @@ const ClientPortalSimple: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Customer MAX AI Assistant */}
+      <CustomerMaxAI 
+        userPlan="starter" 
+        userId={user?.id}
+      />
     </div>
   );
 };

@@ -6,6 +6,7 @@ interface User {
   name: string;
   avatar_url?: string;
   provider: string;
+  role?: 'admin' | 'user';
 }
 
 interface Client {
@@ -23,6 +24,7 @@ interface AuthContextType {
   user: User | null;
   client: Client | null;
   loading: boolean;
+  isAdmin: boolean;
   login: (provider: 'github' | 'google' | 'email', credentials?: { email: string; password: string }) => Promise<void>;
   logout: () => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
@@ -48,6 +50,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [client, setClient] = useState<Client | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Restricted super admin access - only specific authorized users
+  const authorizedAdminEmails = [
+    'hello@cozyartzmedia.com',  // Primary admin
+    'amy@cozyartzmedia.com'     // Amy's access
+  ];
+  
+  const isAdmin = user?.role === 'admin' || authorizedAdminEmails.includes(user?.email || '');
 
   console.log('AuthProvider render:', { user, client, loading });
 
@@ -137,7 +147,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             email: 'test@cozyartzmedia.com',
             name: 'Test User',
             avatar_url: '',
-            provider: 'email'
+            provider: 'email',
+            role: 'user' as const
           };
           const mockClient = {
             id: 'client_test_001',
@@ -155,6 +166,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setLoading(false);
           return;
         }
+        
         
         // Try real API as fallback
         try {
@@ -277,6 +289,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     user,
     client,
     loading,
+    isAdmin,
     login,
     logout,
     register,
