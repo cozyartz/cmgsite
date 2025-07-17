@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Menu, X, ChevronDown } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 
@@ -7,6 +7,7 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const headerRef = useRef<HTMLElement>(null);
 
   const handleAboutClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -79,10 +80,43 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Handle escape key and click outside to close mobile menu
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isMenuOpen) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (headerRef.current && !headerRef.current.contains(e.target as Node) && isMenuOpen) {
+        setIsMenuOpen(false);
+      }
+    };
+    
+    if (isMenuOpen) {
+      document.addEventListener('keydown', handleEscape);
+      document.addEventListener('mousedown', handleClickOutside);
+      // Prevent body scroll when menu is open
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMenuOpen]);
+
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      isScrolled ? 'bg-slate-900/95 backdrop-blur-md shadow-lg' : 'bg-transparent'
-    }`}>
+    <header 
+      ref={headerRef}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled ? 'bg-slate-900/95 backdrop-blur-md shadow-lg' : 'bg-transparent'
+      }`}
+    >
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
@@ -125,8 +159,11 @@ const Header = () => {
 
           {/* Mobile Menu Button */}
           <button 
-            className="md:hidden text-white"
+            className="md:hidden text-white p-2 rounded-md hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 focus:ring-offset-slate-900"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-expanded={isMenuOpen}
+            aria-controls="mobile-menu"
+            aria-label={isMenuOpen ? "Close main menu" : "Open main menu"}
           >
             {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
@@ -134,22 +171,116 @@ const Header = () => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <nav className="md:hidden mt-4 pb-4 border-t border-slate-700">
-            <div className="flex flex-col space-y-4 pt-4">
-              <Link to="/" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>Home</Link>
-              <Link to="/web-graphic-design-services" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>Web & Graphic Design</Link>
-              <Link to="/seo-services" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>SEO Services</Link>
-              <Link to="/ai-services" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>AI Services</Link>
-              <Link to="/instructional-design-services" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>Instructional Design</Link>
-              <Link to="/multimedia-services" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>Multimedia Services</Link>
-              <Link to="/drone-services" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>Drone Services</Link>
-              <button onClick={handlePortfolioClick} className="text-white hover:text-teal-300 transition-colors text-left">Portfolio</button>
-              <button onClick={handleAboutClick} className="text-white hover:text-teal-300 transition-colors text-left">About</button>
-              <Link to="/pricing" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>Pricing</Link>
-              <Link to="/auth" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>Client Portal</Link>
-              <button onClick={handleContactClick} className="bg-teal-500 hover:bg-teal-600 text-white px-6 py-2 rounded-full transition-colors text-center">
-                Contact
+          <nav 
+            id="mobile-menu"
+            className="md:hidden mt-4 pb-4 border-t border-slate-700 bg-slate-900/95 backdrop-blur-md rounded-b-lg shadow-xl"
+            role="navigation"
+            aria-label="Mobile navigation"
+          >
+            <div className="flex flex-col space-y-1 pt-4 px-2">
+              <Link 
+                to="/" 
+                className="text-white hover:text-teal-300 hover:bg-slate-700/50 focus:bg-slate-700/50 focus:text-teal-300 transition-colors px-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" 
+                onClick={() => setIsMenuOpen(false)}
+                tabIndex={0}
+              >
+                Home
+              </Link>
+              
+              {/* Services Section */}
+              <div className="px-4 py-2">
+                <div className="text-slate-400 text-sm font-medium uppercase tracking-wide mb-2">Services</div>
+                <div className="flex flex-col space-y-1 pl-4 border-l-2 border-slate-700">
+                  <Link 
+                    to="/web-graphic-design-services" 
+                    className="text-white hover:text-teal-300 hover:bg-slate-700/50 focus:bg-slate-700/50 focus:text-teal-300 transition-colors px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" 
+                    onClick={() => setIsMenuOpen(false)}
+                    tabIndex={0}
+                  >
+                    Web & Graphic Design
+                  </Link>
+                  <Link 
+                    to="/seo-services" 
+                    className="text-white hover:text-teal-300 hover:bg-slate-700/50 focus:bg-slate-700/50 focus:text-teal-300 transition-colors px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" 
+                    onClick={() => setIsMenuOpen(false)}
+                    tabIndex={0}
+                  >
+                    SEO Services
+                  </Link>
+                  <Link 
+                    to="/ai-services" 
+                    className="text-white hover:text-teal-300 hover:bg-slate-700/50 focus:bg-slate-700/50 focus:text-teal-300 transition-colors px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" 
+                    onClick={() => setIsMenuOpen(false)}
+                    tabIndex={0}
+                  >
+                    AI Services
+                  </Link>
+                  <Link 
+                    to="/instructional-design-services" 
+                    className="text-white hover:text-teal-300 hover:bg-slate-700/50 focus:bg-slate-700/50 focus:text-teal-300 transition-colors px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" 
+                    onClick={() => setIsMenuOpen(false)}
+                    tabIndex={0}
+                  >
+                    Instructional Design
+                  </Link>
+                  <Link 
+                    to="/multimedia-services" 
+                    className="text-white hover:text-teal-300 hover:bg-slate-700/50 focus:bg-slate-700/50 focus:text-teal-300 transition-colors px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" 
+                    onClick={() => setIsMenuOpen(false)}
+                    tabIndex={0}
+                  >
+                    Multimedia Services
+                  </Link>
+                  <Link 
+                    to="/drone-services" 
+                    className="text-white hover:text-teal-300 hover:bg-slate-700/50 focus:bg-slate-700/50 focus:text-teal-300 transition-colors px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" 
+                    onClick={() => setIsMenuOpen(false)}
+                    tabIndex={0}
+                  >
+                    Drone Services
+                  </Link>
+                </div>
+              </div>
+
+              <button 
+                onClick={handlePortfolioClick} 
+                className="text-white hover:text-teal-300 hover:bg-slate-700/50 focus:bg-slate-700/50 focus:text-teal-300 transition-colors px-4 py-3 rounded-md text-left focus:outline-none focus:ring-2 focus:ring-teal-500"
+                tabIndex={0}
+              >
+                Portfolio
               </button>
+              <button 
+                onClick={handleAboutClick} 
+                className="text-white hover:text-teal-300 hover:bg-slate-700/50 focus:bg-slate-700/50 focus:text-teal-300 transition-colors px-4 py-3 rounded-md text-left focus:outline-none focus:ring-2 focus:ring-teal-500"
+                tabIndex={0}
+              >
+                About
+              </button>
+              <Link 
+                to="/pricing" 
+                className="text-white hover:text-teal-300 hover:bg-slate-700/50 focus:bg-slate-700/50 focus:text-teal-300 transition-colors px-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" 
+                onClick={() => setIsMenuOpen(false)}
+                tabIndex={0}
+              >
+                Pricing
+              </Link>
+              <Link 
+                to="/auth" 
+                className="text-white hover:text-teal-300 hover:bg-slate-700/50 focus:bg-slate-700/50 focus:text-teal-300 transition-colors px-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" 
+                onClick={() => setIsMenuOpen(false)}
+                tabIndex={0}
+              >
+                Client Portal
+              </Link>
+              <div className="px-4 pt-2">
+                <button 
+                  onClick={handleContactClick} 
+                  className="w-full bg-teal-500 hover:bg-teal-600 focus:bg-teal-600 text-white px-6 py-3 rounded-full transition-colors text-center font-medium focus:outline-none focus:ring-2 focus:ring-teal-300 focus:ring-offset-2 focus:ring-offset-slate-900"
+                  tabIndex={0}
+                >
+                  Contact Us
+                </button>
+              </div>
             </div>
           </nav>
         )}
