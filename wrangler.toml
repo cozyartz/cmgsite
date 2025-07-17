@@ -5,7 +5,10 @@ compatibility_flags = ["nodejs_compat"]
 account_id = "51826042d6e31c694331efeb1be34123"
 
 [vars]
-ENVIRONMENT = "development"
+ENVIRONMENT = "production"
+
+# Pages configuration
+pages_build_output_dir = "dist"
 
 # D1 Database for client data
 [[d1_databases]]
