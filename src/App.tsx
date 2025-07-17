@@ -1,5 +1,5 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Home from './pages/Home';
 import InstructionalDesignServices from './pages/InstructionalDesignServices';
 import DroneServices from './pages/DroneServices';
@@ -21,6 +21,19 @@ import CookieConsent from './components/legal/CookieConsent';
 import { AuthProvider } from './contexts/AuthContext';
 
 function App() {
+  const location = useLocation();
+  
+  // Check if we're being redirected from a 404 page
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const is404 = urlParams.get('404');
+    
+    if (is404) {
+      // Clean up the URL and show 404
+      window.history.replaceState({}, '', '/404');
+    }
+  }, [location]);
+
   return (
     <AuthProvider>
       <div className="min-h-screen">
@@ -76,6 +89,7 @@ function App() {
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/cookie-policy" element={<CookiePolicy />} />
           <Route path="/data-subject-request" element={<DataSubjectRequest />} />
+          <Route path="/404" element={<NotFound />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <CookieConsent />

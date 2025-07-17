@@ -1,10 +1,75 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, ChevronDown } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleAboutClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (location.pathname === '/') {
+      // If on home page, scroll to about section
+      const aboutSection = document.getElementById('about');
+      if (aboutSection) {
+        aboutSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      // If on another page, navigate to home and then scroll to about
+      navigate('/');
+      setTimeout(() => {
+        const aboutSection = document.getElementById('about');
+        if (aboutSection) {
+          aboutSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    }
+    setIsMenuOpen(false);
+  };
+
+  const handlePortfolioClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (location.pathname === '/') {
+      // If on home page, scroll to portfolio section
+      const portfolioSection = document.getElementById('portfolio');
+      if (portfolioSection) {
+        portfolioSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      // If on another page, navigate to home and then scroll to portfolio
+      navigate('/');
+      setTimeout(() => {
+        const portfolioSection = document.getElementById('portfolio');
+        if (portfolioSection) {
+          portfolioSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    }
+    setIsMenuOpen(false);
+  };
+
+  const handleContactClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (location.pathname === '/') {
+      // If on home page, scroll to contact section
+      const contactSection = document.getElementById('contact');
+      if (contactSection) {
+        contactSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      // If on another page, navigate to home and then scroll to contact
+      navigate('/');
+      setTimeout(() => {
+        const contactSection = document.getElementById('contact');
+        if (contactSection) {
+          contactSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    }
+    setIsMenuOpen(false);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -49,13 +114,13 @@ const Header = () => {
                 <Link to="/drone-services" className="block px-4 py-3 text-white hover:bg-teal-600 rounded-b-lg">Drone Services</Link>
               </div>
             </div>
-            <Link to="/#portfolio" className="text-white hover:text-teal-300 transition-colors">Portfolio</Link>
-            <Link to="/#about" className="text-white hover:text-teal-300 transition-colors">About</Link>
+            <button onClick={handlePortfolioClick} className="text-white hover:text-teal-300 transition-colors">Portfolio</button>
+            <button onClick={handleAboutClick} className="text-white hover:text-teal-300 transition-colors">About</button>
             <Link to="/pricing" className="text-white hover:text-teal-300 transition-colors">Pricing</Link>
             <Link to="/auth" className="text-white hover:text-teal-300 transition-colors">Client Portal</Link>
-            <Link to="/#contact" className="bg-teal-500 hover:bg-teal-600 text-white px-6 py-2 rounded-full transition-colors">
+            <button onClick={handleContactClick} className="bg-teal-500 hover:bg-teal-600 text-white px-6 py-2 rounded-full transition-colors">
               Contact
-            </Link>
+            </button>
           </nav>
 
           {/* Mobile Menu Button */}
@@ -78,13 +143,13 @@ const Header = () => {
               <Link to="/instructional-design-services" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>Instructional Design</Link>
               <Link to="/multimedia-services" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>Multimedia Services</Link>
               <Link to="/drone-services" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>Drone Services</Link>
-              <Link to="/#portfolio" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>Portfolio</Link>
-              <Link to="/#about" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>About</Link>
+              <button onClick={handlePortfolioClick} className="text-white hover:text-teal-300 transition-colors text-left">Portfolio</button>
+              <button onClick={handleAboutClick} className="text-white hover:text-teal-300 transition-colors text-left">About</button>
               <Link to="/pricing" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>Pricing</Link>
               <Link to="/auth" className="text-white hover:text-teal-300 transition-colors" onClick={() => setIsMenuOpen(false)}>Client Portal</Link>
-              <Link to="/#contact" className="bg-teal-500 hover:bg-teal-600 text-white px-6 py-2 rounded-full transition-colors text-center" onClick={() => setIsMenuOpen(false)}>
+              <button onClick={handleContactClick} className="bg-teal-500 hover:bg-teal-600 text-white px-6 py-2 rounded-full transition-colors text-center">
                 Contact
-              </Link>
+              </button>
             </div>
           </nav>
         )}
