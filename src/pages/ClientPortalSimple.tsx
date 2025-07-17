@@ -5,12 +5,40 @@ const ClientPortalSimple: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user has auth token
+    // Check if user has auth token and verify it
     const token = localStorage.getItem('auth_token');
     if (!token) {
       navigate('/auth');
+      return;
     }
+    
+    // Verify token with backend
+    verifyToken(token);
   }, [navigate]);
+
+  const verifyToken = async (token: string) => {
+    try {
+      const response = await fetch('/api/auth/verify', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error('Token invalid');
+      }
+      
+      const userData = await response.json();
+      // Update user data if needed
+      localStorage.setItem('user_data', JSON.stringify(userData.user));
+      
+    } catch (error) {
+      console.error('Token verification failed:', error);
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('user_data');
+      navigate('/auth');
+    }
+  };
 
   const getUserEmail = () => {
     const userData = localStorage.getItem('user_data');

@@ -47,21 +47,28 @@ const AuthSimple: React.FC = () => {
     setError('');
     
     try {
-      // For now, simulate successful GitHub login since we need a backend to securely handle the client secret
-      // In production, this would call your backend API endpoint that handles the OAuth flow
+      // Call the real backend OAuth endpoint
+      const response = await fetch('/api/auth/github/callback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          code: code,
+          state: state
+        }),
+      });
       
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Authentication failed');
+      }
       
-      // Mock successful login with GitHub data (you can customize this based on your needs)
-      localStorage.setItem('auth_token', 'github-jwt-token-' + Date.now());
-      localStorage.setItem('user_data', JSON.stringify({
-        id: 'github_user_' + Date.now(),
-        email: 'github.user@example.com', // In real implementation, this comes from GitHub
-        name: 'GitHub User',
-        avatar_url: 'https://github.com/identicons/user.png',
-        provider: 'github'
-      }));
+      const authData = await response.json();
+      
+      // Store real JWT token and user data
+      localStorage.setItem('auth_token', authData.token);
+      localStorage.setItem('user_data', JSON.stringify(authData.user));
       localStorage.removeItem('oauth_state');
       
       // Clean up URL and navigate to dashboard
@@ -70,7 +77,7 @@ const AuthSimple: React.FC = () => {
       
     } catch (error) {
       console.error('GitHub OAuth error:', error);
-      setError('GitHub authentication failed. Please try again.');
+      setError(error instanceof Error ? error.message : 'GitHub authentication failed. Please try again.');
       localStorage.removeItem('oauth_state');
       window.history.replaceState({}, '', '/auth');
     } finally {
@@ -104,15 +111,37 @@ const AuthSimple: React.FC = () => {
     setLoading(true);
     setError('');
 
-    // Test login
-    if (formData.email === 'test@cozyartzmedia.com' && formData.password === 'TestPass123@') {
-      // Mock successful login
-      localStorage.setItem('auth_token', 'mock-jwt-token-' + Date.now());
-      // Use navigate to ensure proper React routing
+    // Real email/password authentication
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Login failed');
+      }
+
+      const authData = await response.json();
+      
+      // Store real JWT token and user data
+      localStorage.setItem('auth_token', authData.token);
+      localStorage.setItem('user_data', JSON.stringify(authData.user));
+      
+      // Navigate to client portal
       navigate('/client-portal');
-      return;
-    } else {
-      setError('Invalid credentials. Use test@cozyartzmedia.com / TestPass123@');
+      
+    } catch (error) {
+      console.error('Login error:', error);
+      setError(error instanceof Error ? error.message : 'Login failed. Please check your credentials.');
+    } finally {
       setLoading(false);
     }
   };
