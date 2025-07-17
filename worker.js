@@ -18,6 +18,16 @@ export default {
     }
 
     try {
+      // Version check endpoint
+      if (path === '/api/version' && request.method === 'GET') {
+        return new Response(JSON.stringify({ 
+          version: '2.0', 
+          timestamp: new Date().toISOString(),
+          path: path 
+        }), {
+          headers: corsHeaders
+        });
+      }
 
       // GitHub OAuth initiation
       if (path === '/api/auth/github' && request.method === 'GET') {
@@ -29,8 +39,11 @@ export default {
         }
 
         const state = generateRandomString(32);
-        const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${env.GITHUB_CLIENT_ID}&redirect_uri=${encodeURIComponent('https://cozyartzmedia.com/api/auth/github/callback')}&scope=user:email&state=${state}`;
+        const redirectUri = 'https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/github/callback';
+        const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${env.GITHUB_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=user:email&state=${state}`;
         
+        // For now, we'll skip state validation in production due to Cloudflare Worker limitations
+        // TODO: Implement proper state storage using KV namespace
         return Response.redirect(githubAuthUrl, 302);
       }
 
@@ -39,30 +52,49 @@ export default {
         const urlParams = new URLSearchParams(url.search);
         const code = urlParams.get('code');
         const state = urlParams.get('state');
+        const error = urlParams.get('error');
 
-        if (!code) {
-          return Response.redirect('https://cozyartzmedia.com/auth?error=github_auth_failed', 302);
+        // Handle authorization errors from GitHub
+        if (error) {
+          return Response.redirect(`https://38dd0a8a.cmgsite.pages.dev/auth?error=github_${error}`, 302);
         }
 
+        if (!code) {
+          return Response.redirect('https://38dd0a8a.cmgsite.pages.dev/auth?error=github_auth_failed', 302);
+        }
+
+        // TODO: Implement proper state validation using KV namespace
+        // For now, we'll skip state validation to get OAuth working
+
         try {
+          const redirectUri = 'https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/github/callback';
+          
           // Exchange code for access token
           const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
             method: 'POST',
             headers: {
               'Accept': 'application/json',
               'Content-Type': 'application/json',
+              'User-Agent': 'CMGSite-OAuth/1.0'
             },
             body: JSON.stringify({
               client_id: env.GITHUB_CLIENT_ID,
               client_secret: env.GITHUB_CLIENT_SECRET,
               code: code,
+              redirect_uri: redirectUri
             }),
           });
+
+          if (!tokenResponse.ok) {
+            console.error('GitHub token request failed:', tokenResponse.status, await tokenResponse.text());
+            return Response.redirect('https://38dd0a8a.cmgsite.pages.dev/auth?error=github_token_request_failed', 302);
+          }
 
           const tokenData = await tokenResponse.json();
           
           if (!tokenData.access_token) {
-            return Response.redirect('https://cozyartzmedia.com/auth?error=github_token_failed', 302);
+            console.error('No access token in response:', tokenData);
+            return Response.redirect(`https://38dd0a8a.cmgsite.pages.dev/auth?error=github_token_failed&details=${encodeURIComponent(tokenData.error || 'unknown')}`, 302);
           }
 
           // Get user info from GitHub
@@ -70,18 +102,39 @@ export default {
             headers: {
               'Authorization': `Bearer ${tokenData.access_token}`,
               'User-Agent': 'CMGSite-Auth/1.0',
+              'Accept': 'application/vnd.github.v3+json'
             },
           });
 
+          if (!userResponse.ok) {
+            console.error('GitHub user request failed:', userResponse.status, await userResponse.text());
+            return Response.redirect('https://38dd0a8a.cmgsite.pages.dev/auth?error=github_user_request_failed', 302);
+          }
+
           const userData = await userResponse.json();
+          
+          // Also get email if not public
+          let userEmail = userData.email;
+          if (!userEmail) {
+            const emailResponse = await fetch('https://api.github.com/user/emails', {
+              headers: {
+                'Authorization': `Bearer ${tokenData.access_token}`,
+                'User-Agent': 'CMGSite-Auth/1.0',
+              },
+            });
+            const emails = await emailResponse.json();
+            const primaryEmail = emails.find(e => e.primary);
+            userEmail = primaryEmail ? primaryEmail.email : `${userData.login}@github.local`;
+          }
           
           // Create JWT token for our app
           const jwtPayload = {
             sub: `github_${userData.id}`,
-            email: userData.email || `${userData.login}@github.local`,
+            email: userEmail,
             name: userData.name || userData.login,
             avatar_url: userData.avatar_url,
             provider: 'github',
+            github_username: userData.login,
             iat: Math.floor(Date.now() / 1000),
             exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60), // 24 hours
           };
@@ -89,11 +142,11 @@ export default {
           const token = await createJWT(jwtPayload, env.JWT_SECRET);
           
           // Redirect to frontend with token
-          return Response.redirect(`https://cozyartzmedia.com/auth?token=${token}`, 302);
+          return Response.redirect(`https://38dd0a8a.cmgsite.pages.dev/auth?token=${token}`, 302);
 
         } catch (error) {
           console.error('GitHub OAuth error:', error);
-          return Response.redirect('https://cozyartzmedia.com/auth?error=github_auth_error', 302);
+          return Response.redirect('https://38dd0a8a.cmgsite.pages.dev/auth?error=github_auth_error', 302);
         }
       }
 
@@ -107,7 +160,7 @@ export default {
         }
 
         const state = generateRandomString(32);
-        const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${env.GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent('https://cozyartzmedia.com/api/auth/google/callback')}&scope=openid%20email%20profile&response_type=code&state=${state}`;
+        const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${env.GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent('https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/google/callback')}&scope=openid%20email%20profile&response_type=code&state=${state}`;
         
         return Response.redirect(googleAuthUrl, 302);
       }
@@ -119,7 +172,7 @@ export default {
         const state = urlParams.get('state');
 
         if (!code) {
-          return Response.redirect('https://cozyartzmedia.com/auth?error=google_auth_failed', 302);
+          return Response.redirect('https://38dd0a8a.cmgsite.pages.dev/auth?error=google_auth_failed', 302);
         }
 
         try {
@@ -134,14 +187,14 @@ export default {
               client_secret: env.GOOGLE_CLIENT_SECRET,
               code: code,
               grant_type: 'authorization_code',
-              redirect_uri: 'https://cozyartzmedia.com/api/auth/google/callback',
+              redirect_uri: 'https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/google/callback',
             }),
           });
 
           const tokenData = await tokenResponse.json();
           
           if (!tokenData.access_token) {
-            return Response.redirect('https://cozyartzmedia.com/auth?error=google_token_failed', 302);
+            return Response.redirect('https://38dd0a8a.cmgsite.pages.dev/auth?error=google_token_failed', 302);
           }
 
           // Get user info from Google
@@ -162,11 +215,11 @@ export default {
           const token = await createJWT(jwtPayload, env.JWT_SECRET);
           
           // Redirect to frontend with token
-          return Response.redirect(`https://cozyartzmedia.com/auth?token=${token}`, 302);
+          return Response.redirect(`https://38dd0a8a.cmgsite.pages.dev/auth?token=${token}`, 302);
 
         } catch (error) {
           console.error('Google OAuth error:', error);
-          return Response.redirect('https://cozyartzmedia.com/auth?error=google_auth_error', 302);
+          return Response.redirect('https://38dd0a8a.cmgsite.pages.dev/auth?error=google_auth_error', 302);
         }
       }
 
@@ -238,6 +291,7 @@ export default {
               name: payload.name,
               avatar_url: payload.avatar_url || '',
               provider: payload.provider,
+              github_username: payload.github_username,
               role: 'user'
             },
             client: {

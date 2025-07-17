@@ -6,6 +6,7 @@ interface User {
   name: string;
   avatar_url?: string;
   provider: string;
+  github_username?: string;
   role?: 'admin' | 'user';
 }
 
@@ -60,12 +61,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   
   const isAdmin = user?.role === 'admin';
   const isSuperAdmin = user?.provider === 'github' && 
-                      authorizedSuperAdminGitHubUsers.some(githubUser => 
-                        user?.email?.toLowerCase().includes(githubUser.toLowerCase()) || 
-                        user?.sub === `github_${githubUser}` ||
-                        user?.name?.toLowerCase().includes(githubUser.toLowerCase()) ||
-                        user?.sub?.includes(`github_${githubUser}`)
-                      );
+                      user?.github_username &&
+                      authorizedSuperAdminGitHubUsers.includes(user.github_username);
 
 
   useEffect(() => {
@@ -99,7 +96,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       // Try the direct worker URL with timeout
-      const apiUrl = 'https://cozyartzmedia.com/api/auth/verify';
+      const apiUrl = 'https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/verify';
       const controller = new AbortController();
       const timeoutSignal = setTimeout(() => controller.abort(), 3000); // 3 second timeout
 
@@ -134,8 +131,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setLoading(true);
     try {
       if (provider === 'github' || provider === 'google') {
-        // Redirect to OAuth provider via main domain
-        window.location.href = `https://cozyartzmedia.com/api/auth/${provider}`;
+        // Redirect to OAuth provider via worker domain
+        window.location.href = `https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/${provider}`;
       } else if (provider === 'email' && credentials) {
         // Mock successful login for testing
         if (credentials.email === 'test@cozyartzmedia.com' && credentials.password === 'TestPass123@') {
@@ -168,7 +165,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         
         // Try real API as fallback
         try {
-          const response = await fetch('https://cozyartzmedia.com/api/auth/login', {
+          const response = await fetch('https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/login', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -199,7 +196,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const register = async (email: string, password: string, name: string) => {
     setLoading(true);
     try {
-      const response = await fetch('https://cozyartzmedia.com/api/auth/register', {
+      const response = await fetch('https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -224,7 +221,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = async () => {
     try {
-      await fetch('https://cozyartzmedia.com/api/auth/logout', {
+      await fetch('https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/logout', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
@@ -241,7 +238,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const switchClient = async (clientId: string) => {
     try {
-      const response = await fetch(`https://cozyartzmedia.com/api/clients/${clientId}/switch`, {
+      const response = await fetch(`https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/clients/${clientId}/switch`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
@@ -262,7 +259,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const updateClient = async (updates: Partial<Client>) => {
     try {
-      const response = await fetch(`https://cozyartzmedia.com/api/clients/${client?.id}`, {
+      const response = await fetch(`https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/clients/${client?.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
