@@ -53,16 +53,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [client, setClient] = useState<Client | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Restricted super admin access - only specific GitHub users via GitHub OAuth
+  // Restricted super admin access - GitHub OAuth or specific Google email
   const authorizedSuperAdminGitHubUsers = [
     'cozyartz',        // Primary admin GitHub username
     'AmyCozartLundin'  // Amy's GitHub username
   ];
   
+  const authorizedSuperAdminEmails = [
+    'cozy2963@gmail.com',     // Andrea's Google email
+    'andrea@cozyartzmedia.com' // Andrea's business email
+  ];
+  
   const isAdmin = user?.role === 'admin';
-  const isSuperAdmin = user?.provider === 'github' && 
-                      user?.github_username &&
-                      authorizedSuperAdminGitHubUsers.includes(user.github_username);
+  const isSuperAdmin = (
+    // GitHub OAuth with authorized usernames
+    (user?.provider === 'github' && 
+     user?.github_username &&
+     authorizedSuperAdminGitHubUsers.includes(user.github_username)) ||
+    // Google OAuth with authorized emails
+    (user?.provider === 'google' && 
+     user?.email &&
+     authorizedSuperAdminEmails.includes(user.email))
+  );
 
 
   useEffect(() => {
