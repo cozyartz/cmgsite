@@ -159,6 +159,7 @@ const AuthSimple: React.FC = () => {
                 onChange={handleChange}
                 placeholder="Email" 
                 className="w-full p-3 border rounded"
+                autoComplete="email"
                 required
               />
               <input 
@@ -167,6 +168,7 @@ const AuthSimple: React.FC = () => {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Password" 
+                autoComplete="current-password"
                 className="w-full p-3 border rounded"
                 required
               />

@@ -11,7 +11,9 @@ export default {
     const corsHeaders = {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
+      'Access-Control-Expose-Headers': 'Content-Length, Content-Type',
+      'Access-Control-Max-Age': '86400',
       'X-Content-Type-Options': 'nosniff',
       'X-Frame-Options': 'DENY',
       'X-XSS-Protection': '1; mode=block',
@@ -417,7 +419,7 @@ async function handleAuth(request, env, path) {
       let frontendOrigin;
       
       if (requestUrl.hostname.includes('cozyartzmedia.com')) {
-        frontendOrigin = 'https://480d358a.cmgsite.pages.dev';
+        frontendOrigin = 'https://9fcbd4a0.cmgsite.pages.dev';
       } else {
         frontendOrigin = requestUrl.origin;
       }
@@ -470,7 +472,7 @@ async function handleAuth(request, env, path) {
     const state = url.searchParams.get('state');
     
     if (!code) {
-      return Response.redirect(`https://480d358a.cmgsite.pages.dev/?error=google_auth_failed`, 302);
+      return Response.redirect(`https://9fcbd4a0.cmgsite.pages.dev/?error=google_auth_failed`, 302);
     }
 
     try {
@@ -560,7 +562,7 @@ async function handleAuth(request, env, path) {
       let frontendOrigin;
       
       if (requestUrl.hostname.includes('cozyartzmedia.com')) {
-        frontendOrigin = 'https://480d358a.cmgsite.pages.dev';
+        frontendOrigin = 'https://9fcbd4a0.cmgsite.pages.dev';
       } else {
         frontendOrigin = requestUrl.origin;
       }
@@ -570,7 +572,7 @@ async function handleAuth(request, env, path) {
       
     } catch (error) {
       console.error('Google OAuth error:', error);
-      return Response.redirect(`https://480d358a.cmgsite.pages.dev/?error=google_auth_failed`, 302);
+      return Response.redirect(`https://9fcbd4a0.cmgsite.pages.dev/?error=google_auth_failed`, 302);
     }
   }
 

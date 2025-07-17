@@ -141,6 +141,7 @@ ${formData.message}
                       onChange={handleChange}
                       className="w-full px-4 py-3 bg-slate-700 text-white rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none transition-colors"
                       placeholder="Your name"
+                      autoComplete="name"
                     />
                   </div>
 
@@ -157,6 +158,7 @@ ${formData.message}
                       onChange={handleChange}
                       className="w-full px-4 py-3 bg-slate-700 text-white rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none transition-colors"
                       placeholder="your@email.com"
+                      autoComplete="email"
                     />
                   </div>
                 </div>
