@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Search, TrendingUp, Target, Award, Globe, BarChart, CheckCircle, ArrowRight } from 'lucide-react';
+import { Search, TrendingUp, Target, Award, Globe, BarChart, CheckCircle, ArrowRight, Zap, Brain, Sparkles, Rocket, Users, FileText, Mail, RefreshCw, Bot, Shield, Star, Clock, DollarSign } from 'lucide-react';
 import SEO from '../components/SEO';
 import LegalDisclaimer from '../components/legal/LegalDisclaimer';
 
@@ -11,9 +11,9 @@ const SEOServices = () => {
   return (
     <>
       <SEO
-        title="SEO Services | Search Engine Optimization Experts"
-        description="Professional SEO services to boost your online visibility and drive organic traffic. Google-certified experts helping local and global businesses improve search rankings and compete effectively online."
-        keywords="SEO services, search engine optimization, Google SEO, local SEO, organic traffic, search rankings, digital marketing, Google certified, SEO experts"
+        title="AI-Powered SEO Platform | Revolutionary SEO SaaS Tools & Services"
+        description="Experience the future of SEO with our AI-powered SaaS platform. Instant content generation, keyword research, competitor analysis, plus professional SEO services from Google-certified experts."
+        keywords="AI SEO platform, SEO SaaS, AI content generation, automated SEO tools, keyword research AI, SEO automation, AI-powered SEO services, search engine optimization platform, SEO software"
         businessName="Cozyartz Media Group"
         phone="+1 (269) 261-0069"
         email="hello@cozyartzmedia.com"
@@ -30,40 +30,84 @@ const SEOServices = () => {
         canonical="https://cozyartzmedia.com/seo-services"
         businessType="ProfessionalService"
         services={[
-          "Search Engine Optimization",
-          "Local SEO",
-          "Technical SEO",
-          "Content Optimization",
-          "Link Building",
-          "SEO Audits",
-          "Google Analytics",
-          "Keyword Research"
+          "AI-Powered SEO Platform",
+          "SEO Content Generation",
+          "Automated Keyword Research",
+          "AI Competitor Analysis",
+          "Email Optimization AI",
+          "Professional SEO Services",
+          "Local SEO Optimization",
+          "Technical SEO Audits",
+          "SEO Analytics Dashboard"
         ]}
         foundingDate="2016"
       />
       
       <div className="min-h-screen bg-slate-900">
         {/* Hero Section */}
-        <section className="pt-24 pb-12 bg-gradient-to-br from-slate-900 via-slate-800 to-teal-900">
-          <div className="container mx-auto px-6">
-            <div className="max-w-4xl mx-auto text-center">
-              <div className="mb-6">
-                <Search className="h-16 w-16 text-teal-400 mx-auto mb-4" />
+        <section className="pt-24 pb-12 bg-gradient-to-br from-slate-900 via-slate-800 to-teal-900 relative overflow-hidden">
+          {/* Animated background elements */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute top-20 left-10 w-72 h-72 bg-teal-500/10 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
+          </div>
+          
+          <div className="container mx-auto px-6 relative">
+            <div className="max-w-6xl mx-auto text-center">
+              <div className="mb-8">
+                <div className="flex items-center justify-center gap-4 mb-6">
+                  <div className="relative">
+                    <Search className="h-16 w-16 text-teal-400 animate-bounce" />
+                    <div className="absolute -top-2 -right-2 bg-gradient-to-r from-teal-400 to-blue-400 rounded-full p-1">
+                      <Sparkles className="h-6 w-6 text-white" />
+                    </div>
+                  </div>
+                  <Bot className="h-16 w-16 text-blue-400 animate-pulse" />
+                  <Rocket className="h-16 w-16 text-purple-400 animate-bounce delay-500" />
+                </div>
+                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-teal-500/20 to-blue-500/20 backdrop-blur-sm px-6 py-3 rounded-full border border-teal-500/30 mb-6">
+                  <Zap className="h-5 w-5 text-teal-400" />
+                  <span className="text-teal-300 font-semibold">NEW: AI-Powered SEO SaaS Platform</span>
+                  <span className="bg-teal-500 text-white px-2 py-1 rounded-full text-xs font-bold">BETA</span>
+                </div>
               </div>
-              <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-                Professional SEO
-                <span className="block text-teal-400">Services</span>
+              <h1 className="text-4xl md:text-7xl font-bold text-white mb-6">
+                <span className="bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">Revolutionary</span>
+                <span className="block bg-gradient-to-r from-teal-400 to-blue-400 bg-clip-text text-transparent">AI-Powered SEO</span>
               </h1>
-              <p className="text-xl text-slate-300 mb-8 leading-relaxed">
-                Boost your online visibility and improve search rankings with our Google-certified SEO experts. We help local and global businesses achieve sustainable organic growth through proven SEO strategies.
+              <p className="text-xl md:text-2xl text-slate-300 mb-8 leading-relaxed max-w-4xl mx-auto">
+                Experience the future of SEO with our cutting-edge AI SaaS platform. Get instant content generation, keyword research, competitor analysis, and professional SEO services all in one revolutionary solution.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button className="bg-teal-500 hover:bg-teal-600 text-white px-8 py-3 rounded-full font-semibold transition-colors">
-                  Get SEO Analysis
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+                <button className="bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center gap-2">
+                  <Rocket className="h-5 w-5" />
+                  Try AI Platform FREE
                 </button>
-                <button className="border-2 border-teal-400 text-teal-400 hover:bg-teal-400 hover:text-slate-900 px-8 py-3 rounded-full font-semibold transition-colors">
-                  View Case Studies
+                <button className="border-2 border-teal-400 text-teal-400 hover:bg-teal-400 hover:text-slate-900 px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 flex items-center gap-2">
+                  <Award className="h-5 w-5" />
+                  Professional SEO Services
                 </button>
+              </div>
+              
+              {/* Stats Banner */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-12 max-w-4xl mx-auto">
+                <div className="bg-slate-800/50 backdrop-blur-sm rounded-lg p-4 border border-slate-700/50">
+                  <div className="text-3xl font-bold text-teal-400 mb-1">10K+</div>
+                  <div className="text-slate-300 text-sm">AI Content Generated</div>
+                </div>
+                <div className="bg-slate-800/50 backdrop-blur-sm rounded-lg p-4 border border-slate-700/50">
+                  <div className="text-3xl font-bold text-blue-400 mb-1">500+</div>
+                  <div className="text-slate-300 text-sm">Active Users</div>
+                </div>
+                <div className="bg-slate-800/50 backdrop-blur-sm rounded-lg p-4 border border-slate-700/50">
+                  <div className="text-3xl font-bold text-purple-400 mb-1">99.9%</div>
+                  <div className="text-slate-300 text-sm">Uptime</div>
+                </div>
+                <div className="bg-slate-800/50 backdrop-blur-sm rounded-lg p-4 border border-slate-700/50">
+                  <div className="text-3xl font-bold text-green-400 mb-1">8 Years</div>
+                  <div className="text-slate-300 text-sm">SEO Experience</div>
+                </div>
               </div>
             </div>
           </div>
@@ -113,16 +157,280 @@ const SEOServices = () => {
           </div>
         </section>
 
-        {/* Services Overview */}
+        {/* AI SaaS Platform Features */}
+        <section className="py-20 bg-slate-900 relative">
+          <div className="container mx-auto px-6">
+            <div className="max-w-6xl mx-auto">
+              <div className="text-center mb-16">
+                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-teal-500/20 to-blue-500/20 backdrop-blur-sm px-6 py-3 rounded-full border border-teal-500/30 mb-6">
+                  <Brain className="h-5 w-5 text-teal-400" />
+                  <span className="text-teal-300 font-semibold">AI-Powered SaaS Platform</span>
+                </div>
+                <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
+                  <span className="bg-gradient-to-r from-teal-400 to-blue-400 bg-clip-text text-transparent">Revolutionary</span> SEO Tools
+                </h2>
+                <p className="text-xl text-slate-300 max-w-3xl mx-auto">
+                  Harness the power of advanced AI to generate SEO content, research keywords, and optimize your digital presence in seconds, not hours.
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-8 hover:from-slate-700 hover:to-slate-800 transition-all duration-300 border border-slate-700/50 hover:border-teal-500/50 group">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-gradient-to-r from-teal-500 to-blue-500 rounded-lg group-hover:scale-110 transition-transform">
+                      <FileText className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-teal-400" />
+                      <span className="text-teal-400 text-sm font-medium">AI-Powered</span>
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-4">Content Generator</h3>
+                  <p className="text-slate-300 mb-4">
+                    Generate SEO-optimized blog posts, meta descriptions, and social media content instantly with our advanced AI.
+                  </p>
+                  <div className="flex items-center gap-2 text-sm text-slate-400">
+                    <Clock className="h-4 w-4" />
+                    <span>Instant generation</span>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-8 hover:from-slate-700 hover:to-slate-800 transition-all duration-300 border border-slate-700/50 hover:border-blue-500/50 group">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg group-hover:scale-110 transition-transform">
+                      <Target className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Brain className="h-4 w-4 text-blue-400" />
+                      <span className="text-blue-400 text-sm font-medium">Smart Research</span>
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-4">Keyword Research</h3>
+                  <p className="text-slate-300 mb-4">
+                    Discover high-value keywords and long-tail opportunities with AI-powered research and competitive analysis.
+                  </p>
+                  <div className="flex items-center gap-2 text-sm text-slate-400">
+                    <TrendingUp className="h-4 w-4" />
+                    <span>Real-time insights</span>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-8 hover:from-slate-700 hover:to-slate-800 transition-all duration-300 border border-slate-700/50 hover:border-purple-500/50 group">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg group-hover:scale-110 transition-transform">
+                      <Users className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Shield className="h-4 w-4 text-purple-400" />
+                      <span className="text-purple-400 text-sm font-medium">Competitive Edge</span>
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-4">Competitor Analysis</h3>
+                  <p className="text-slate-300 mb-4">
+                    Analyze competitor strategies and find content gaps to dominate your market with AI-driven insights.
+                  </p>
+                  <div className="flex items-center gap-2 text-sm text-slate-400">
+                    <BarChart className="h-4 w-4" />
+                    <span>Deep analysis</span>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-8 hover:from-slate-700 hover:to-slate-800 transition-all duration-300 border border-slate-700/50 hover:border-green-500/50 group">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-gradient-to-r from-green-500 to-teal-500 rounded-lg group-hover:scale-110 transition-transform">
+                      <Mail className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Zap className="h-4 w-4 text-green-400" />
+                      <span className="text-green-400 text-sm font-medium">High-Converting</span>
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-4">Email Optimizer</h3>
+                  <p className="text-slate-300 mb-4">
+                    Create compelling email campaigns and subject lines that drive engagement and conversions.
+                  </p>
+                  <div className="flex items-center gap-2 text-sm text-slate-400">
+                    <RefreshCw className="h-4 w-4" />
+                    <span>A/B test ready</span>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-8 hover:from-slate-700 hover:to-slate-800 transition-all duration-300 border border-slate-700/50 hover:border-orange-500/50 group">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg group-hover:scale-110 transition-transform">
+                      <BarChart className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Star className="h-4 w-4 text-orange-400" />
+                      <span className="text-orange-400 text-sm font-medium">Real-time</span>
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-4">Analytics Dashboard</h3>
+                  <p className="text-slate-300 mb-4">
+                    Track your SEO performance with comprehensive analytics and AI-powered insights.
+                  </p>
+                  <div className="flex items-center gap-2 text-sm text-slate-400">
+                    <TrendingUp className="h-4 w-4" />
+                    <span>Live monitoring</span>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-8 hover:from-slate-700 hover:to-slate-800 transition-all duration-300 border border-slate-700/50 hover:border-indigo-500/50 group">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg group-hover:scale-110 transition-transform">
+                      <Globe className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-indigo-400" />
+                      <span className="text-indigo-400 text-sm font-medium">Local Focus</span>
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-4">Local SEO Tools</h3>
+                  <p className="text-slate-300 mb-4">
+                    Dominate local search results with AI-powered local SEO optimization and Google My Business tools.
+                  </p>
+                  <div className="flex items-center gap-2 text-sm text-slate-400">
+                    <Target className="h-4 w-4" />
+                    <span>Local dominance</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Pricing Section */}
+        <section className="py-20 bg-gradient-to-br from-slate-800 to-slate-900">
+          <div className="container mx-auto px-6">
+            <div className="max-w-6xl mx-auto">
+              <div className="text-center mb-16">
+                <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+                  Choose Your SEO Solution
+                </h2>
+                <p className="text-xl text-slate-300 max-w-3xl mx-auto">
+                  From self-service AI tools to full-service SEO management, we have the perfect solution for your needs.
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-8">
+                {/* Starter Plan */}
+                <div className="bg-slate-800 rounded-xl p-8 border border-slate-700 hover:border-teal-500/50 transition-all duration-300">
+                  <div className="text-center mb-6">
+                    <h3 className="text-2xl font-bold text-white mb-2">Starter</h3>
+                    <p className="text-slate-400 mb-4">Perfect for small businesses</p>
+                    <div className="text-4xl font-bold text-teal-400 mb-2">$29<span className="text-xl text-slate-400">/month</span></div>
+                    <p className="text-slate-400">100 AI credits included</p>
+                  </div>
+                  <ul className="space-y-3 mb-8">
+                    <li className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-teal-400" />
+                      <span className="text-slate-300">AI Content Generator</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-teal-400" />
+                      <span className="text-slate-300">Basic Keyword Research</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-teal-400" />
+                      <span className="text-slate-300">SEO Analytics</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-teal-400" />
+                      <span className="text-slate-300">Email Support</span>
+                    </li>
+                  </ul>
+                  <button className="w-full bg-teal-500 hover:bg-teal-600 text-white py-3 px-6 rounded-lg font-semibold transition-colors">
+                    Start Free Trial
+                  </button>
+                </div>
+
+                {/* Growth Plan */}
+                <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-8 border-2 border-teal-500 relative hover:border-teal-400 transition-all duration-300">
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <span className="bg-gradient-to-r from-teal-500 to-blue-500 text-white px-4 py-1 rounded-full text-sm font-bold">MOST POPULAR</span>
+                  </div>
+                  <div className="text-center mb-6">
+                    <h3 className="text-2xl font-bold text-white mb-2">Growth</h3>
+                    <p className="text-slate-400 mb-4">Best for growing businesses</p>
+                    <div className="text-4xl font-bold text-teal-400 mb-2">$99<span className="text-xl text-slate-400">/month</span></div>
+                    <p className="text-slate-400">500 AI credits included</p>
+                  </div>
+                  <ul className="space-y-3 mb-8">
+                    <li className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-teal-400" />
+                      <span className="text-slate-300">Everything in Starter</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-teal-400" />
+                      <span className="text-slate-300">Advanced Competitor Analysis</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-teal-400" />
+                      <span className="text-slate-300">Email Optimization Tools</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-teal-400" />
+                      <span className="text-slate-300">Priority Support</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-teal-400" />
+                      <span className="text-slate-300">Monthly SEO Consultation</span>
+                    </li>
+                  </ul>
+                  <button className="w-full bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300">
+                    Start Free Trial
+                  </button>
+                </div>
+
+                {/* Enterprise Plan */}
+                <div className="bg-slate-800 rounded-xl p-8 border border-slate-700 hover:border-purple-500/50 transition-all duration-300">
+                  <div className="text-center mb-6">
+                    <h3 className="text-2xl font-bold text-white mb-2">Enterprise</h3>
+                    <p className="text-slate-400 mb-4">For large organizations</p>
+                    <div className="text-4xl font-bold text-purple-400 mb-2">$299<span className="text-xl text-slate-400">/month</span></div>
+                    <p className="text-slate-400">Unlimited AI credits</p>
+                  </div>
+                  <ul className="space-y-3 mb-8">
+                    <li className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-purple-400" />
+                      <span className="text-slate-300">Everything in Growth</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-purple-400" />
+                      <span className="text-slate-300">White-label Solutions</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-purple-400" />
+                      <span className="text-slate-300">API Access</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-purple-400" />
+                      <span className="text-slate-300">Dedicated Account Manager</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-purple-400" />
+                      <span className="text-slate-300">Custom Integrations</span>
+                    </li>
+                  </ul>
+                  <button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300">
+                    Contact Sales
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Traditional SEO Services */}
         <section className="py-20 bg-slate-900">
           <div className="container mx-auto px-6">
             <div className="max-w-6xl mx-auto">
               <div className="text-center mb-16">
                 <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-                  Comprehensive SEO Solutions
+                  Professional SEO Services
                 </h2>
                 <p className="text-xl text-slate-300 max-w-3xl mx-auto">
-                  From technical audits to content optimization, we provide end-to-end SEO services that deliver measurable results.
+                  Need hands-off SEO management? Our Google-certified experts provide comprehensive SEO services to drive organic growth.
                 </p>
               </div>
 
@@ -300,22 +608,52 @@ const SEOServices = () => {
         </section>
 
         {/* CTA Section */}
-        <section className="py-20 bg-gradient-to-r from-teal-600 to-teal-700">
-          <div className="container mx-auto px-6">
+        <section className="py-20 bg-gradient-to-r from-teal-600 via-blue-600 to-purple-600 relative overflow-hidden">
+          <div className="absolute inset-0 bg-black/20"></div>
+          <div className="container mx-auto px-6 relative">
             <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-                Ready to Improve Your Search Rankings?
+              <div className="mb-8">
+                <div className="flex items-center justify-center gap-4 mb-6">
+                  <Rocket className="h-12 w-12 text-white animate-bounce" />
+                  <Sparkles className="h-12 w-12 text-white animate-pulse" />
+                  <Zap className="h-12 w-12 text-white animate-bounce delay-300" />
+                </div>
+              </div>
+              <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
+                Ready to <span className="bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">Revolutionize</span> Your SEO?
               </h2>
-              <p className="text-xl text-teal-100 mb-8">
-                Let our Google-certified SEO experts help your business achieve higher rankings and increased organic traffic.
+              <p className="text-xl text-slate-100 mb-8 max-w-3xl mx-auto">
+                Join thousands of businesses already using our AI-powered SEO platform to dominate search results. Start your free trial today!
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button className="bg-white text-teal-600 hover:bg-slate-100 px-8 py-3 rounded-full font-semibold transition-colors">
-                  Get Free SEO Audit
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+                <button className="bg-white text-purple-600 hover:bg-slate-100 px-8 py-4 rounded-full font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center gap-2">
+                  <Rocket className="h-5 w-5" />
+                  Try AI Platform FREE
                 </button>
-                <button className="border-2 border-white text-white hover:bg-white hover:text-teal-600 px-8 py-3 rounded-full font-semibold transition-colors">
-                  Schedule Consultation
+                <button className="border-2 border-white text-white hover:bg-white hover:text-purple-600 px-8 py-4 rounded-full font-bold text-lg transition-all duration-300 flex items-center gap-2">
+                  <Award className="h-5 w-5" />
+                  Get Professional SEO
                 </button>
+              </div>
+              
+              {/* Trust Indicators */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 max-w-2xl mx-auto">
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 text-center">
+                  <div className="text-2xl font-bold text-white">30-Day</div>
+                  <div className="text-sm text-slate-200">Free Trial</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 text-center">
+                  <div className="text-2xl font-bold text-white">No</div>
+                  <div className="text-sm text-slate-200">Credit Card</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 text-center">
+                  <div className="text-2xl font-bold text-white">24/7</div>
+                  <div className="text-sm text-slate-200">Support</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 text-center">
+                  <div className="text-2xl font-bold text-white">99.9%</div>
+                  <div className="text-sm text-slate-200">Uptime</div>
+                </div>
               </div>
               
               {/* Legal Disclaimer */}
