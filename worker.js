@@ -56,11 +56,11 @@ export default {
 
         // Handle authorization errors from GitHub
         if (error) {
-          return Response.redirect(`https://a936c027.cmgsite.pages.dev/auth?error=github_${error}`, 302);
+          return Response.redirect(`https://ba0621af.cmgsite.pages.dev/auth?error=github_${error}`, 302);
         }
 
         if (!code) {
-          return Response.redirect('https://a936c027.cmgsite.pages.dev/auth?error=github_auth_failed', 302);
+          return Response.redirect('https://ba0621af.cmgsite.pages.dev/auth?error=github_auth_failed', 302);
         }
 
         // TODO: Implement proper state validation using KV namespace
@@ -87,14 +87,14 @@ export default {
 
           if (!tokenResponse.ok) {
             console.error('GitHub token request failed:', tokenResponse.status, await tokenResponse.text());
-            return Response.redirect('https://a936c027.cmgsite.pages.dev/auth?error=github_token_request_failed', 302);
+            return Response.redirect('https://ba0621af.cmgsite.pages.dev/auth?error=github_token_request_failed', 302);
           }
 
           const tokenData = await tokenResponse.json();
           
           if (!tokenData.access_token) {
             console.error('No access token in response:', tokenData);
-            return Response.redirect(`https://a936c027.cmgsite.pages.dev/auth?error=github_token_failed&details=${encodeURIComponent(tokenData.error || 'unknown')}`, 302);
+            return Response.redirect(`https://ba0621af.cmgsite.pages.dev/auth?error=github_token_failed&details=${encodeURIComponent(tokenData.error || 'unknown')}`, 302);
           }
 
           // Get user info from GitHub
@@ -108,7 +108,7 @@ export default {
 
           if (!userResponse.ok) {
             console.error('GitHub user request failed:', userResponse.status, await userResponse.text());
-            return Response.redirect('https://a936c027.cmgsite.pages.dev/auth?error=github_user_request_failed', 302);
+            return Response.redirect('https://ba0621af.cmgsite.pages.dev/auth?error=github_user_request_failed', 302);
           }
 
           const userData = await userResponse.json();
@@ -142,11 +142,11 @@ export default {
           const token = await createJWT(jwtPayload, env.JWT_SECRET);
           
           // Redirect to frontend with token
-          return Response.redirect(`https://a936c027.cmgsite.pages.dev/auth?token=${token}`, 302);
+          return Response.redirect(`https://ba0621af.cmgsite.pages.dev/auth?token=${token}`, 302);
 
         } catch (error) {
           console.error('GitHub OAuth error:', error);
-          return Response.redirect('https://a936c027.cmgsite.pages.dev/auth?error=github_auth_error', 302);
+          return Response.redirect('https://ba0621af.cmgsite.pages.dev/auth?error=github_auth_error', 302);
         }
       }
 
@@ -172,7 +172,7 @@ export default {
         const state = urlParams.get('state');
 
         if (!code) {
-          return Response.redirect('https://a936c027.cmgsite.pages.dev/auth?error=google_auth_failed', 302);
+          return Response.redirect('https://ba0621af.cmgsite.pages.dev/auth?error=google_auth_failed', 302);
         }
 
         try {
@@ -194,7 +194,7 @@ export default {
           const tokenData = await tokenResponse.json();
           
           if (!tokenData.access_token) {
-            return Response.redirect('https://a936c027.cmgsite.pages.dev/auth?error=google_token_failed', 302);
+            return Response.redirect('https://ba0621af.cmgsite.pages.dev/auth?error=google_token_failed', 302);
           }
 
           // Get user info from Google
@@ -215,11 +215,11 @@ export default {
           const token = await createJWT(jwtPayload, env.JWT_SECRET);
           
           // Redirect to frontend with token
-          return Response.redirect(`https://a936c027.cmgsite.pages.dev/auth?token=${token}`, 302);
+          return Response.redirect(`https://ba0621af.cmgsite.pages.dev/auth?token=${token}`, 302);
 
         } catch (error) {
           console.error('Google OAuth error:', error);
-          return Response.redirect('https://a936c027.cmgsite.pages.dev/auth?error=google_auth_error', 302);
+          return Response.redirect('https://ba0621af.cmgsite.pages.dev/auth?error=google_auth_error', 302);
         }
       }
 

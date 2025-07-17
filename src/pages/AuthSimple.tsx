@@ -17,8 +17,7 @@ const AuthSimple: React.FC = () => {
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const authError = urlParams.get('error');
-    const code = urlParams.get('code');
-    const state = urlParams.get('state');
+    const token = urlParams.get('token');
     
     if (authError) {
       if (authError === 'github_oauth_not_configured') {
@@ -36,50 +35,25 @@ const AuthSimple: React.FC = () => {
       window.history.replaceState({}, '', '/auth');
     }
     
-    // Handle OAuth success callback
-    const token = urlParams.get('token');
+    // If there's a token, let AuthContext handle it and redirect to client portal
+    // The AuthContext will determine the proper routing (superadmin vs regular user)
     if (token) {
-      handleOAuthSuccess();
-    }
-  }, [location]);
-
-  // Handle successful OAuth login from URL parameters
-  const handleOAuthSuccess = () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('token');
-    const userParam = urlParams.get('user');
-    
-    if (token && userParam) {
-      try {
-        const user = JSON.parse(decodeURIComponent(userParam));
-        
-        // Store JWT token and user data
-        localStorage.setItem('auth_token', token);
-        localStorage.setItem('user_data', JSON.stringify(user));
-        
-        // Clean up URL
-        window.history.replaceState({}, '', '/auth');
-        
-        // Navigate to client portal
+      // Small delay to let AuthContext process the token
+      setTimeout(() => {
         navigate('/client-portal');
-      } catch (err) {
-        setError('Invalid authentication response');
-      }
+      }, 100);
     }
-  };
+  }, [location, navigate]);
 
+  // OAuth login handlers
   const handleOAuthLogin = (provider: 'github' | 'google') => {
     setLoading(true);
     setError('');
     
-    if (provider === 'github') {
-      // GitHub OAuth flow - redirect to main domain which routes to worker
-      window.location.href = 'https://cozyartzmedia.com/api/auth/github';
-    } else if (provider === 'google') {
-      // Google OAuth flow - redirect to main domain which routes to worker
-      window.location.href = 'https://cozyartzmedia.com/api/auth/google';
-    }
+    // Redirect to OAuth provider via worker domain
+    window.location.href = `https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/${provider}`;
   };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
