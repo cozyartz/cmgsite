@@ -4,7 +4,7 @@ import { formatCurrency, calculatePrepaymentTotal, type PricingTier } from '../c
 import { useNavigate } from 'react-router-dom';
 import PayPalPayment from './payment/PayPalPayment';
 
-interface PricingTier {
+interface PricingPlan {
   id: string;
   name: string;
   price: number;
@@ -46,7 +46,7 @@ export default function PricingWithCoupons() {
   const [isLoadingQuote, setIsLoadingQuote] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
 
-  const tiers: PricingTier[] = [
+  const tiers: PricingPlan[] = [
     {
       id: 'starter',
       name: 'Starter',
