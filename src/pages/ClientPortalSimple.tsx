@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/SupabaseAuthContext';
 import CustomerMaxAI from '../components/customer/CustomerMaxAI';
 import GoogleAnalyticsCard from '../components/dashboard/GoogleAnalyticsCard';
 import SearchConsoleCard from '../components/dashboard/SearchConsoleCard';

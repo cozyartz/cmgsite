@@ -9,6 +9,8 @@ import SEOServices from './pages/SEOServices';
 import AIServices from './pages/AIServices';
 import Pricing from './pages/Pricing';
 import AuthSimple from './pages/AuthSimple';
+import AuthSimpleSupabase from './pages/AuthSimpleSupabase';
+import AuthCallback from './pages/AuthCallback';
 import ClientPortalSimple from './pages/ClientPortalSimple';
 import AdminDashboard from './pages/AdminDashboard';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
@@ -21,7 +23,7 @@ import NotFound from './pages/NotFound';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import CookieConsent from './components/legal/CookieConsent';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider } from './contexts/SupabaseAuthContext';
 
 function App() {
   const location = useLocation();
@@ -91,7 +93,8 @@ function App() {
             </>
           } />
           <Route path="/pricing" element={<Pricing />} />
-          <Route path="/auth" element={<AuthSimple />} />
+          <Route path="/auth" element={<AuthSimpleSupabase />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/client-portal" element={<ClientPortalSimple />} />
           <Route path="/dashboard" element={<ClientPortalSimple />} />
           <Route path="/book-consultation" element={<BookConsultation />} />
