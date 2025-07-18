@@ -49,6 +49,13 @@ const Footer = () => {
               <li><Link to="/seo-services" className="text-gray-300 hover:text-teal-300 transition-colors">SEO Services</Link></li>
               <li><Link to="/ai-services" className="text-gray-300 hover:text-teal-300 transition-colors">AI Services</Link></li>
             </ul>
+            <div className="mt-6">
+              <h5 className="text-sm font-semibold mb-3 text-teal-300">Quick Actions</h5>
+              <ul className="space-y-2">
+                <li><Link to="/pricing" className="text-gray-300 hover:text-teal-300 transition-colors text-sm">View Pricing</Link></li>
+                <li><Link to="/book-consultation" className="text-gray-300 hover:text-teal-300 transition-colors text-sm">Book Consultation</Link></li>
+              </ul>
+            </div>
           </div>
 
           {/* Contact Info */}
@@ -134,6 +141,9 @@ const Footer = () => {
               </Link>
               <Link to="/data-subject-request" className="text-gray-400 hover:text-teal-300 text-sm transition-colors">
                 Data Rights
+              </Link>
+              <Link to="/book-consultation" className="text-gray-400 hover:text-teal-300 text-sm transition-colors">
+                Book Consultation
               </Link>
               <Link to="/auth" className="text-gray-400 hover:text-teal-300 text-sm transition-colors">
                 Client Portal

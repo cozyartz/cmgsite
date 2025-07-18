@@ -151,6 +151,7 @@ const Header = () => {
             <button onClick={handlePortfolioClick} className="text-white hover:text-teal-300 transition-colors">Portfolio</button>
             <button onClick={handleAboutClick} className="text-white hover:text-teal-300 transition-colors">About</button>
             <Link to="/pricing" className="text-white hover:text-teal-300 transition-colors">Pricing</Link>
+            <Link to="/book-consultation" className="text-white hover:text-teal-300 transition-colors">Book Consultation</Link>
             <Link to="/auth" className="text-white hover:text-teal-300 transition-colors">Client Portal</Link>
             <button onClick={handleContactClick} className="bg-teal-500 hover:bg-teal-600 text-white px-6 py-2 rounded-full transition-colors">
               Contact
@@ -263,6 +264,14 @@ const Header = () => {
                 tabIndex={0}
               >
                 Pricing
+              </Link>
+              <Link 
+                to="/book-consultation" 
+                className="text-white hover:text-teal-300 hover:bg-slate-700/50 focus:bg-slate-700/50 focus:text-teal-300 transition-colors px-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" 
+                onClick={() => setIsMenuOpen(false)}
+                tabIndex={0}
+              >
+                Book Consultation
               </Link>
               <Link 
                 to="/auth" 
