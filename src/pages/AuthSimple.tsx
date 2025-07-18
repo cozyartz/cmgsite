@@ -19,9 +19,11 @@ const AuthSimple: React.FC = () => {
 
   // Check for OAuth callback and errors in URL
   useEffect(() => {
+    console.log('AuthSimple: Checking URL params', window.location.href);
     const urlParams = new URLSearchParams(location.search);
     const authError = urlParams.get('error');
     const token = urlParams.get('token');
+    console.log('AuthSimple: URL params - error:', authError, 'token:', token ? 'present' : 'not found');
     
     if (authError) {
       if (authError === 'github_oauth_not_configured') {
