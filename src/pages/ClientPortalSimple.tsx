@@ -2,6 +2,10 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import CustomerMaxAI from '../components/customer/CustomerMaxAI';
+import GoogleAnalyticsCard from '../components/dashboard/GoogleAnalyticsCard';
+import SearchConsoleCard from '../components/dashboard/SearchConsoleCard';
+import MyBusinessCard from '../components/dashboard/MyBusinessCard';
+import PageSpeedCard from '../components/dashboard/PageSpeedCard';
 
 const ClientPortalSimple: React.FC = () => {
   const navigate = useNavigate();
@@ -213,11 +217,36 @@ const ClientPortalSimple: React.FC = () => {
         </div>
       </div>
 
-      {/* Customer MAX AI Assistant */}
-      <CustomerMaxAI 
-        userPlan="starter" 
-        userId={user?.id}
-      />
+      {/* Main Dashboard Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Welcome Section */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-white mb-2">Welcome to your Dashboard</h2>
+          <p className="text-slate-300">Monitor your website performance and digital presence</p>
+        </div>
+        
+        {/* Google Services Dashboard */}
+        <div className="mb-8">
+          <h3 className="text-xl font-semibold text-white mb-4">Performance Analytics</h3>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <GoogleAnalyticsCard className="lg:col-span-1" />
+            <SearchConsoleCard className="lg:col-span-1" />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <MyBusinessCard className="lg:col-span-1" />
+            <PageSpeedCard className="lg:col-span-1" />
+          </div>
+        </div>
+        
+        {/* AI Assistant */}
+        <div className="mb-8">
+          <h3 className="text-xl font-semibold text-white mb-4">AI Assistant</h3>
+          <CustomerMaxAI 
+            userPlan="starter" 
+            userId={user?.id}
+          />
+        </div>
+      </div>
     </div>
   );
 };

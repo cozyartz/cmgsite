@@ -57,6 +57,8 @@ export default {
     }
 
     try {
+      log('debug', `Request: ${request.method} ${path}`);
+      
       // Version check endpoint
       if (path === '/api/version' && request.method === 'GET') {
         return new Response(JSON.stringify({ 

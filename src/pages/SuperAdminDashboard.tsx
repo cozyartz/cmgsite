@@ -36,6 +36,10 @@ import {
 import MaxHeadroomAI from '../components/admin/MaxHeadroomAI';
 import UserManagement from '../components/admin/UserManagement';
 import CustomerMaxAI from '../components/customer/CustomerMaxAI';
+import GoogleAnalyticsCard from '../components/dashboard/GoogleAnalyticsCard';
+import SearchConsoleCard from '../components/dashboard/SearchConsoleCard';
+import MyBusinessCard from '../components/dashboard/MyBusinessCard';
+import PageSpeedCard from '../components/dashboard/PageSpeedCard';
 
 interface AdminStats {
   totalUsers: number;
@@ -252,10 +256,67 @@ const SuperAdminDashboard: React.FC = () => {
           <div>
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-gray-900">Analytics Dashboard</h2>
-              <p className="text-gray-600">Platform performance and usage metrics</p>
+              <p className="text-gray-600">Google services integration & performance metrics</p>
             </div>
+            
+            {/* Google Analytics & Search Console Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <GoogleAnalyticsCard className="lg:col-span-1" />
+              <SearchConsoleCard className="lg:col-span-1" />
+            </div>
+            
+            {/* Business Profile & PageSpeed Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <MyBusinessCard className="lg:col-span-1" />
+              <PageSpeedCard className="lg:col-span-1" />
+            </div>
+            
+            {/* System Analytics Overview */}
             <div className="bg-white rounded-lg shadow p-6">
-              <p className="text-gray-500">Detailed analytics coming soon...</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">System Analytics</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Total API Calls</p>
+                      <p className="text-2xl font-bold text-blue-600">{stats.apiCalls.toLocaleString()}</p>
+                    </div>
+                    <Zap className="w-8 h-8 text-blue-500" />
+                  </div>
+                  <div className="flex items-center mt-2">
+                    <TrendingUp className="w-4 h-4 text-green-500" />
+                    <span className="text-sm text-green-600 ml-1">+18.2%</span>
+                  </div>
+                </div>
+                
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">System Uptime</p>
+                      <p className="text-2xl font-bold text-green-600">{stats.systemUptime}%</p>
+                    </div>
+                    <Activity className="w-8 h-8 text-green-500" />
+                  </div>
+                  <div className="flex items-center mt-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span className="text-sm text-green-600 ml-1">Excellent</span>
+                  </div>
+                </div>
+                
+                <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Support Tickets</p>
+                      <p className="text-2xl font-bold text-orange-600">{stats.supportTickets}</p>
+                    </div>
+                    <AlertTriangle className="w-8 h-8 text-orange-500" />
+                  </div>
+                  <div className="flex items-center mt-2">
+                    <TrendingDown className="w-4 h-4 text-green-500" />
+                    <span className="text-sm text-green-600 ml-1">-12.5%</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         );
