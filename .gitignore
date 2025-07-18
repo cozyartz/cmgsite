@@ -9,14 +9,44 @@ dist/
 build/
 .vite/
 
-# Environment variables
+# Environment variables & secrets
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+!.env.example
 .dev.vars
 .dev.vars.*
+*.env
+*.env.local
+*.env.development
+*.env.test
+*.env.production
+
+# Security & secrets
+*.key
+*.pem
+*.p12
+*.pfx
+*.cer
+*.crt
+*.der
+*.jks
+*.keystore
+secrets.json
+config.json
+credentials.json
+*.secrets
+*.credentials
+.secrets/
+auth.json
+service-account*.json
+
+# API keys and tokens (common patterns)
+*secret*
+*token*
+*credential*
+*auth.json
+*api-key*
+.wrangler/secrets/
 
 # IDE/Editor files
 .vscode/
@@ -48,3 +78,28 @@ logs/
 .cache/
 .parcel-cache/
 .eslintcache
+
+# Testing & temporary files
+test-*.js
+test-*.mjs
+*.test.env
+debug-*.json
+temp-*.js
+
+# Database & backup files
+*.db
+*.sqlite
+*.sqlite3
+*.backup
+*.dump
+backup/
+backups/
+
+# Additional security patterns
+.npmrc
+.yarnrc
+.docker/
+docker-compose.override.yml
+.terraform/
+*.tfstate
+*.tfstate.backup
