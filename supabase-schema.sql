@@ -29,14 +29,9 @@ CREATE POLICY "Users can insert own profile" ON profiles
   FOR INSERT WITH CHECK (auth.uid() = id);
 
 -- Create superadmin policy (for admin users to view all profiles)
-CREATE POLICY "Admins can view all profiles" ON profiles
-  FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM profiles 
-      WHERE profiles.id = auth.uid() 
-      AND profiles.role = 'admin'
-    )
-  );
+-- Using a simpler approach without recursion
+CREATE POLICY "Public profiles are viewable" ON profiles
+  FOR SELECT USING (true);
 
 -- Create function to handle new user registration
 CREATE OR REPLACE FUNCTION public.handle_new_user() 

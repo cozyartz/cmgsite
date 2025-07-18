@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/SupabaseAuthContext';
-import { Github, Mail, AlertCircle, CheckCircle } from 'lucide-react';
+import { Github, Mail, AlertCircle, CheckCircle, ShieldCheck } from 'lucide-react';
+import TurnstileWidget from '../components/auth/TurnstileWidget';
 
 const AuthSimpleSupabase: React.FC = () => {
   const navigate = useNavigate();
@@ -15,6 +16,8 @@ const AuthSimpleSupabase: React.FC = () => {
   const [formLoading, setFormLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [showTurnstile, setShowTurnstile] = useState(true);
 
   // Redirect authenticated users
   useEffect(() => {
@@ -42,22 +45,36 @@ const AuthSimpleSupabase: React.FC = () => {
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check for Turnstile token
+    if (!turnstileToken) {
+      setError('Please complete the security check');
+      return;
+    }
+    
     setFormLoading(true);
     setError('');
     setSuccess('');
 
     try {
+      // TODO: Verify turnstile token on backend before processing
+      // For now, we'll proceed if we have a token
+      
       if (isSignUp) {
         await signUp(formData.email, formData.password, formData.fullName);
         setSuccess('Account created successfully! Please check your email for verification.');
         setIsSignUp(false);
         setFormData({ email: '', password: '', fullName: '' });
+        setTurnstileToken(null); // Reset token
+        setShowTurnstile(true); // Show new challenge
       } else {
         await signInWithEmail(formData.email, formData.password);
         // Will redirect via useEffect above
       }
     } catch (error: any) {
       setError(error.message || 'Authentication failed');
+      setTurnstileToken(null); // Reset on error
+      setShowTurnstile(true); // Show new challenge
     } finally {
       setFormLoading(false);
     }
@@ -172,9 +189,36 @@ const AuthSimpleSupabase: React.FC = () => {
               required
             />
             
+            {/* Turnstile Widget */}
+            {showTurnstile && (
+              <div className="relative">
+                <TurnstileWidget
+                  onVerify={(token) => {
+                    setTurnstileToken(token);
+                    setError('');
+                  }}
+                  onError={() => {
+                    setError('Security verification failed. Please try again.');
+                    setTurnstileToken(null);
+                  }}
+                  onExpire={() => {
+                    setTurnstileToken(null);
+                    setShowTurnstile(true);
+                  }}
+                  theme="auto"
+                  size="normal"
+                />
+                {turnstileToken && (
+                  <div className="absolute top-2 right-2">
+                    <ShieldCheck className="w-5 h-5 text-green-600" />
+                  </div>
+                )}
+              </div>
+            )}
+            
             <button 
               type="submit"
-              disabled={formLoading}
+              disabled={formLoading || !turnstileToken}
               className="w-full bg-teal-600 text-white py-3 px-4 rounded hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
             >
               {formLoading ? (
@@ -188,7 +232,7 @@ const AuthSimpleSupabase: React.FC = () => {
             </button>
           </form>
           
-          <div className="text-center">
+          <div className="text-center space-y-2">
             <button
               onClick={() => {
                 setIsSignUp(!isSignUp);
@@ -196,10 +240,17 @@ const AuthSimpleSupabase: React.FC = () => {
                 setSuccess('');
                 setFormData({ email: '', password: '', fullName: '' });
               }}
-              className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
+              className="text-sm text-blue-600 hover:text-blue-800 transition-colors block w-full"
             >
               {isSignUp ? 'Already have an account? Sign In' : 'Need an account? Sign Up'}
             </button>
+            
+            <a 
+              href="/auth/debug" 
+              className="text-xs text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              Debug Auth Status →
+            </a>
           </div>
         </div>
       </div>

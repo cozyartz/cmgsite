@@ -11,6 +11,8 @@ import Pricing from './pages/Pricing';
 import AuthSimple from './pages/AuthSimple';
 import AuthSimpleSupabase from './pages/AuthSimpleSupabase';
 import AuthCallback from './pages/AuthCallback';
+import AuthDebugPage from './pages/AuthDebugPage';
+import TestAuth from './pages/TestAuth';
 import ClientPortalSimple from './pages/ClientPortalSimple';
 import AdminDashboard from './pages/AdminDashboard';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
@@ -95,6 +97,8 @@ function App() {
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/auth" element={<AuthSimpleSupabase />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/auth/debug" element={<AuthDebugPage />} />
+          <Route path="/auth/test" element={<TestAuth />} />
           <Route path="/client-portal" element={<ClientPortalSimple />} />
           <Route path="/dashboard" element={<ClientPortalSimple />} />
           <Route path="/book-consultation" element={<BookConsultation />} />
