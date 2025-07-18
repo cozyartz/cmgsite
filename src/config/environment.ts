@@ -167,9 +167,29 @@ const stagingConfig: EnvironmentConfig = {
  * Get the current environment configuration
  */
 export function getEnvironmentConfig(): EnvironmentConfig {
-  const environment = import.meta.env.VITE_ENVIRONMENT || 
-                     import.meta.env.NODE_ENV || 
-                     'development';
+  // First check environment variables
+  let environment = import.meta.env.VITE_ENVIRONMENT || import.meta.env.NODE_ENV;
+  
+  // If no environment variable is set, detect from hostname
+  if (!environment && typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    
+    if (hostname === 'cozyartzmedia.com') {
+      environment = 'production';
+    } else if (hostname.includes('staging') || hostname.includes('.pages.dev')) {
+      environment = 'staging';
+    } else if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      environment = 'development';
+    } else {
+      // Default to production for any other domain
+      environment = 'production';
+    }
+  }
+  
+  // Final fallback to development
+  environment = environment || 'development';
+  
+  console.log(`[Environment] Detected environment: ${environment} (hostname: ${typeof window !== 'undefined' ? window.location.hostname : 'server'})`);
   
   switch (environment) {
     case 'production':

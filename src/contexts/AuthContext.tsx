@@ -27,7 +27,7 @@ interface AuthContextType {
   loading: boolean;
   isAdmin: boolean;
   isSuperAdmin: boolean;
-  login: (provider: 'github' | 'google' | 'email', credentials?: { email: string; password: string }) => Promise<void>;
+  login: (provider: 'github' | 'google' | 'email' | 'oauth', credentials?: { email: string; password: string } | { token: string }) => Promise<void>;
   logout: () => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
   switchClient: (clientId: string) => Promise<void>;
@@ -56,7 +56,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Role-based access control
   const isAdmin = user?.role === 'admin';
-  const isSuperAdmin = user?.role === 'admin';
+  const isSuperAdmin = user?.role === 'admin'; // For now, admin and superadmin are the same
 
   // Debug: Log role-based access detection
   if (user) {
@@ -116,6 +116,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const { user, client } = await response.json();
         console.log('AuthContext: User data received:', user);
         console.log('AuthContext: User role:', user?.role);
+        console.log('AuthContext: User email:', user?.email);
+        console.log('AuthContext: User provider:', user?.provider);
+        console.log('AuthContext: GitHub username:', user?.github_username);
+        console.log('AuthContext: Is Admin?', user?.role === 'admin');
         setUser(user);
         setClient(client);
       } else {
@@ -133,13 +137,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const login = async (provider: 'github' | 'google' | 'email', credentials?: { email: string; password: string }) => {
+  const login = async (provider: 'github' | 'google' | 'email' | 'oauth', credentials?: { email: string; password: string } | { token: string }) => {
     setLoading(true);
     try {
-      if (provider === 'github' || provider === 'google') {
+      if (provider === 'oauth' && credentials && 'token' in credentials) {
+        // OAuth login with token - verify and set user
+        const token = credentials.token;
+        localStorage.setItem('auth_token', token);
+        await checkSession(); // This will verify the token and set user/client
+        setLoading(false);
+        return;
+      } else if (provider === 'github' || provider === 'google') {
         // Redirect to OAuth provider via worker domain
         window.location.href = `https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/${provider}`;
-      } else if (provider === 'email' && credentials) {
+      } else if (provider === 'email' && credentials && 'email' in credentials) {
         // Mock successful login for testing
         if (credentials.email === 'test@cozyartzmedia.com' && credentials.password === 'TestPass123@') {
           const mockToken = 'mock-jwt-token-' + Date.now();

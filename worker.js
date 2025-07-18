@@ -136,7 +136,7 @@ async function handleDebugOAuth(url, env, config, log) {
   try {
     const payload = await verifyJWT(token, env.JWT_SECRET);
     const authorizedEmails = ['cozy2963@gmail.com', 'andrea@cozyartzmedia.com'];
-    const authorizedGitHubUsers = ['cozytag']; // Add actual GitHub usernames
+    const authorizedGitHubUsers = ['cozyartz'];
     
     const isSuperAdmin = (
       (payload.provider === 'google' && payload.email && authorizedEmails.includes(payload.email)) ||
@@ -409,7 +409,7 @@ async function handleTokenVerification(request, env, config, log) {
     
     // Check if user is superadmin
     const authorizedEmails = ['cozy2963@gmail.com', 'andrea@cozyartzmedia.com'];
-    const authorizedGitHubUsers = ['cozytag'];
+    const authorizedGitHubUsers = ['cozyartz'];
     
     const isSuperAdmin = (
       (payload.provider === 'google' && payload.email && authorizedEmails.includes(payload.email)) ||

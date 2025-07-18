@@ -88,11 +88,14 @@ export const OAuthCallback: React.FC<OAuthCallbackProps> = ({
       setStatus('success');
       setMessage('Authentication successful! Redirecting...');
 
-      // Small delay to show success message
+      // Trigger login in AuthContext with the token
+      await login('oauth', { token });
+
+      // Small delay to show success message before navigation
       setTimeout(() => {
-        // Let AuthContext determine the correct route based on user role
-        // This will trigger a re-render and proper routing
-        window.location.reload();
+        // Navigation will be handled by AuthSimple component
+        // which watches for user state changes
+        navigate('/auth');
       }, 1500);
 
     } catch (error) {

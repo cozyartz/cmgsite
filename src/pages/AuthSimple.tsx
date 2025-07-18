@@ -52,15 +52,25 @@ const AuthSimple: React.FC = () => {
 
   // Effect to route authenticated users to the correct dashboard
   useEffect(() => {
+    console.log('AuthSimple routing check:', {
+      loading,
+      user: user?.email,
+      role: user?.role,
+      isAdmin,
+      isSuperAdmin,
+      provider: user?.provider,
+      github_username: user?.github_username
+    });
+    
     if (!loading && user) {
       if (isSuperAdmin) {
-        console.log('Routing to superadmin dashboard');
+        console.log('✅ Routing to superadmin dashboard');
         navigate('/superadmin');
       } else if (isAdmin) {
-        console.log('Routing to admin dashboard');
+        console.log('✅ Routing to admin dashboard');
         navigate('/admin');
       } else {
-        console.log('Routing to client portal');
+        console.log('✅ Routing to client portal');
         navigate('/client-portal');
       }
     }
