@@ -89,6 +89,7 @@ const AuthSimple: React.FC = () => {
   // OAuth login handlers
   const handleOAuthLogin = async (provider: 'github' | 'google') => {
     try {
+      console.log(`Starting OAuth flow for ${provider}`);
       if (provider === 'github') {
         setGithubLoading(true);
       } else {
@@ -97,6 +98,7 @@ const AuthSimple: React.FC = () => {
       setError('');
       await startOAuth(provider);
     } catch (error) {
+      console.error(`OAuth ${provider} error:`, error);
       setError(error instanceof Error ? error.message : `Failed to start ${provider} authentication`);
       setGithubLoading(false);
       setGoogleLoading(false);
