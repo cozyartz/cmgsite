@@ -7,8 +7,8 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key
 // Create Supabase client
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    // Set the redirect URL for OAuth
-    redirectTo: `${window.location.origin}/auth/callback`,
+    // Set the redirect URL for OAuth - use production URL
+    redirectTo: 'https://cozyartzmedia.com/auth/callback',
     // Auto refresh tokens
     autoRefreshToken: true,
     // Persist session in localStorage

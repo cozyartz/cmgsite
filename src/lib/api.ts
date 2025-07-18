@@ -50,27 +50,41 @@ export interface RequestOptions {
   requireAuth?: boolean;
 }
 
-// Token management
+// Token management for Supabase
 class TokenManager {
   private token: string | null = null;
   private refreshPromise: Promise<string> | null = null;
 
   setToken(token: string) {
     this.token = token;
-    localStorage.setItem('auth_token', token);
+    // No need to store in localStorage - Supabase handles this
     logger.debug('Token updated');
   }
 
-  getToken(): string | null {
-    if (!this.token) {
-      this.token = localStorage.getItem('auth_token');
+  async getToken(): Promise<string | null> {
+    // Get token from Supabase session instead of localStorage
+    try {
+      const { supabase } = await import('./supabase');
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session?.access_token) {
+        this.token = session.access_token;
+        return this.token;
+      }
+      
+      return null;
+    } catch (error) {
+      logger.error('Failed to get Supabase token:', error);
+      return null;
     }
-    return this.token;
   }
 
   clearToken() {
     this.token = null;
-    localStorage.removeItem('auth_token');
+    // Clear Supabase session
+    import('./supabase').then(({ supabase }) => {
+      supabase.auth.signOut();
+    });
     logger.debug('Token cleared');
   }
 
@@ -138,8 +152,8 @@ class HttpClient {
     };
 
     // Add authentication if required
-    if (requireAuth || this.tokenManager.getToken()) {
-      const token = this.tokenManager.getToken();
+    const token = await this.tokenManager.getToken();
+    if (requireAuth || token) {
       if (token) {
         requestHeaders['Authorization'] = `Bearer ${token}`;
       } else if (requireAuth) {
@@ -272,8 +286,8 @@ class HttpClient {
     this.tokenManager.setToken(token);
   }
 
-  getAuthToken() {
-    return this.tokenManager.getToken();
+  async getAuthToken() {
+    return await this.tokenManager.getToken();
   }
 
   clearAuthToken() {

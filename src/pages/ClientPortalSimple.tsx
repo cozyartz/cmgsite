@@ -18,9 +18,8 @@ const ClientPortalSimple: React.FC = () => {
   useEffect(() => {
     if (loading) return;
     
-    // Check if user has auth token and verify it
-    const token = localStorage.getItem('auth_token');
-    if (!token || !user) {
+    // Check if user is authenticated via Supabase
+    if (!user) {
       navigate('/auth');
       return;
     }

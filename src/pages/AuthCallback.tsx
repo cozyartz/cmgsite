@@ -29,12 +29,13 @@ const AuthCallback: React.FC = () => {
           
           // Wait a moment then redirect based on user role
           setTimeout(() => {
+            const baseUrl = 'https://cozyartzmedia.com';
             if (isSuperAdmin) {
-              navigate('/superadmin');
+              window.location.href = `${baseUrl}/superadmin`;
             } else if (isAdmin) {
-              navigate('/admin');
+              window.location.href = `${baseUrl}/admin`;
             } else {
-              navigate('/client-portal');
+              window.location.href = `${baseUrl}/client-portal`;
             }
           }, 2000);
         } else {
@@ -61,12 +62,13 @@ const AuthCallback: React.FC = () => {
       setMessage('Authentication successful! Redirecting...');
       
       setTimeout(() => {
+        const baseUrl = 'https://cozyartzmedia.com';
         if (isSuperAdmin) {
-          navigate('/superadmin');
+          window.location.href = `${baseUrl}/superadmin`;
         } else if (isAdmin) {
-          navigate('/admin');
+          window.location.href = `${baseUrl}/admin`;
         } else {
-          navigate('/client-portal');
+          window.location.href = `${baseUrl}/client-portal`;
         }
       }, 1500);
     }
