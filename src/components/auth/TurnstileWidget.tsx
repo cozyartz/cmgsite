@@ -20,6 +20,11 @@ const TurnstileWidget: React.FC<TurnstileWidgetProps> = ({
   
   // Get site key from environment
   const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY || 'placeholder-key';
+  
+  // Debug logging for development
+  if (import.meta.env.DEV) {
+    console.log('Turnstile site key:', siteKey);
+  }
 
   const handleError = (error: any) => {
     console.error('Turnstile error:', error);
@@ -30,6 +35,19 @@ const TurnstileWidget: React.FC<TurnstileWidgetProps> = ({
     console.log('Turnstile token expired');
     onExpire?.();
   };
+
+  // Don't render if we don't have a valid site key
+  if (!siteKey || siteKey === 'placeholder-key') {
+    return (
+      <div className="flex justify-center my-4">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <p className="text-yellow-800 text-sm">
+            Turnstile CAPTCHA is not configured. Please set VITE_TURNSTILE_SITE_KEY environment variable.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex justify-center my-4">
