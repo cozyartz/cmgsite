@@ -21,7 +21,8 @@ GOOGLE_REDIRECT_URI = "https://cmgsite-client-portal.cozyartz-media-group.worker
 DEBUG_MODE = "false"
 ENABLE_DEBUG_ENDPOINT = "false"
 
-# Pages configuration is handled separately via wrangler pages deploy
+# Pages configuration
+pages_build_output_dir = "dist"
 
 # D1 Database for client data
 [[d1_databases]]

@@ -17,6 +17,7 @@ export default defineConfig({
     },
   },
   build: {
+    chunkSizeWarningLimit: 800, // Increase limit to 800 kB
     rollupOptions: {
       input: {
         main: './index.html',
@@ -27,6 +28,12 @@ export default defineConfig({
         'drone-services': './drone-services.html',
         'web-graphic-design-services': './web-graphic-design-services.html',
         'pricing': './pricing.html'
+      },
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          ui: ['lucide-react', 'react-helmet-async']
+        }
       }
     }
   }
