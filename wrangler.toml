@@ -6,6 +6,20 @@ account_id = "51826042d6e31c694331efeb1be34123"
 
 [vars]
 ENVIRONMENT = "production"
+# Frontend URLs (will be set based on environment)
+FRONTEND_BASE_URL = "https://cozyartzmedia.com"
+FRONTEND_AUTH_URL = "https://cozyartzmedia.com/auth"
+FRONTEND_CLIENT_PORTAL_URL = "https://cozyartzmedia.com/client-portal"
+FRONTEND_ADMIN_URL = "https://cozyartzmedia.com/admin"
+FRONTEND_SUPERADMIN_URL = "https://cozyartzmedia.com/superadmin"
+# Worker configuration
+API_BASE_URL = "https://cmgsite-client-portal.cozyartz-media-group.workers.dev"
+# OAuth redirect URIs
+GITHUB_REDIRECT_URI = "https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/github/callback"
+GOOGLE_REDIRECT_URI = "https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/google/callback"
+# Feature flags
+DEBUG_MODE = "false"
+ENABLE_DEBUG_ENDPOINT = "false"
 
 # Pages configuration
 pages_build_output_dir = "dist"
@@ -52,3 +66,29 @@ id = "c6000623802844eeb805721507254686"
 # PAYPAL_WEBHOOK_ID
 # OPENAI_API_KEY (if needed as fallback)
 # RESEND_API_KEY
+
+# Environment-specific configurations
+[env.staging]
+[env.staging.vars]
+ENVIRONMENT = "staging"
+FRONTEND_BASE_URL = "https://staging.cmgsite.pages.dev"
+FRONTEND_AUTH_URL = "https://staging.cmgsite.pages.dev/auth"
+FRONTEND_CLIENT_PORTAL_URL = "https://staging.cmgsite.pages.dev/client-portal"
+FRONTEND_ADMIN_URL = "https://staging.cmgsite.pages.dev/admin"
+FRONTEND_SUPERADMIN_URL = "https://staging.cmgsite.pages.dev/superadmin"
+DEBUG_MODE = "true"
+ENABLE_DEBUG_ENDPOINT = "true"
+
+[env.development]
+[env.development.vars]
+ENVIRONMENT = "development"
+FRONTEND_BASE_URL = "http://localhost:5173"
+FRONTEND_AUTH_URL = "http://localhost:5173/auth"
+FRONTEND_CLIENT_PORTAL_URL = "http://localhost:5173/client-portal"
+FRONTEND_ADMIN_URL = "http://localhost:5173/admin"
+FRONTEND_SUPERADMIN_URL = "http://localhost:5173/superadmin"
+API_BASE_URL = "http://localhost:8787"
+GITHUB_REDIRECT_URI = "http://localhost:8787/api/auth/github/callback"
+GOOGLE_REDIRECT_URI = "http://localhost:8787/api/auth/google/callback"
+DEBUG_MODE = "true"
+ENABLE_DEBUG_ENDPOINT = "true"

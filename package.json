@@ -8,8 +8,15 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "worker:dev": "wrangler dev src/worker.js --port 8787",
-    "worker:deploy": "wrangler deploy src/worker.js"
+    "worker:dev": "wrangler dev worker.js --port 8787",
+    "worker:deploy": "wrangler deploy",
+    "worker:deploy:staging": "wrangler deploy --env staging",
+    "worker:deploy:dev": "wrangler deploy --env development",
+    "deploy": "npm run build && npm run deploy:worker && npm run deploy:pages",
+    "deploy:worker": "wrangler deploy",
+    "deploy:pages": "wrangler pages deploy dist",
+    "deploy:staging": "npm run build && wrangler deploy --env staging && wrangler pages deploy dist",
+    "deploy:production": "npm run build && wrangler deploy && wrangler pages deploy dist"
   },
   "dependencies": {
     "@anthropic-ai/claude-code": "^1.0.53",

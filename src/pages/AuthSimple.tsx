@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { OAuthProvider } from '../components/auth/OAuthProvider';
+import { useOAuth, useOAuthCallback } from '../hooks/useOAuth';
+import { apiService } from '../lib/api';
+import { oauth, errors } from '../lib/urls';
 
 const AuthSimple: React.FC = () => {
   const navigate = useNavigate();
@@ -45,13 +49,20 @@ const AuthSimple: React.FC = () => {
     }
   }, [location, navigate]);
 
+  // OAuth hooks
+  const { isLoading: oauthLoading, error: oauthError, startOAuth } = useOAuth();
+  const { processCallback, clearCallbackParams } = useOAuthCallback();
+
   // OAuth login handlers
-  const handleOAuthLogin = (provider: 'github' | 'google') => {
-    setLoading(true);
-    setError('');
-    
-    // Redirect to OAuth provider via worker domain
-    window.location.href = `https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/${provider}`;
+  const handleOAuthLogin = async (provider: 'github' | 'google') => {
+    try {
+      setLoading(true);
+      setError('');
+      await startOAuth(provider);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : `Failed to start ${provider} authentication`);
+      setLoading(false);
+    }
   };
 
 
@@ -61,7 +72,7 @@ const AuthSimple: React.FC = () => {
     setError('');
 
     try {
-      await login('email', {
+      const response = await apiService.login({
         email: formData.email,
         password: formData.password,
       });
@@ -96,21 +107,21 @@ const AuthSimple: React.FC = () => {
         )}
         
         <div className="space-y-4">
-          <button 
-            onClick={() => handleOAuthLogin('github')}
-            disabled={loading}
-            className="w-full bg-gray-800 text-white py-3 px-4 rounded hover:bg-gray-700 disabled:opacity-50"
-          >
-            Continue with GitHub
-          </button>
+          <OAuthProvider
+            provider="github"
+            disabled={loading || oauthLoading}
+            loading={oauthLoading}
+            onStartAuth={() => handleOAuthLogin('github')}
+            onError={setError}
+          />
           
-          <button 
-            onClick={() => handleOAuthLogin('google')}
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 px-4 rounded hover:bg-blue-700 disabled:opacity-50"
-          >
-            Continue with Google
-          </button>
+          <OAuthProvider
+            provider="google"
+            disabled={loading || oauthLoading}
+            loading={oauthLoading}
+            onStartAuth={() => handleOAuthLogin('google')}
+            onError={setError}
+          />
           
           <div className="border-t pt-4">
             <form onSubmit={handleSubmit} className="space-y-4">

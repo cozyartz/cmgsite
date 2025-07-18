@@ -1,8 +1,47 @@
-// Production Cloudflare Worker with proper OAuth
+/**
+ * Environment-Aware Cloudflare Worker
+ * Uses environment variables instead of hardcoded URLs for maintainability
+ */
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const path = url.pathname;
+
+    // Environment configuration with fallbacks
+    const config = {
+      environment: env.ENVIRONMENT || 'production',
+      debug: env.DEBUG_MODE === 'true',
+      enableDebugEndpoint: env.ENABLE_DEBUG_ENDPOINT === 'true',
+      
+      frontend: {
+        baseUrl: env.FRONTEND_BASE_URL || 'https://cozyartzmedia.com',
+        authUrl: env.FRONTEND_AUTH_URL || 'https://cozyartzmedia.com/auth',
+        clientPortalUrl: env.FRONTEND_CLIENT_PORTAL_URL || 'https://cozyartzmedia.com/client-portal',
+        adminUrl: env.FRONTEND_ADMIN_URL || 'https://cozyartzmedia.com/admin',
+        superAdminUrl: env.FRONTEND_SUPERADMIN_URL || 'https://cozyartzmedia.com/superadmin',
+      },
+      
+      api: {
+        baseUrl: env.API_BASE_URL || 'https://cmgsite-client-portal.cozyartz-media-group.workers.dev',
+      },
+      
+      oauth: {
+        github: {
+          redirectUri: env.GITHUB_REDIRECT_URI || 'https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/github/callback',
+        },
+        google: {
+          redirectUri: env.GOOGLE_REDIRECT_URI || 'https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/google/callback',
+        },
+      },
+    };
+
+    // Logging helper
+    const log = (level, message, ...args) => {
+      if (config.debug || level === 'error') {
+        console[level](`[${config.environment.toUpperCase()}] ${message}`, ...args);
+      }
+    };
 
     // CORS headers
     const corsHeaders = {
@@ -21,371 +60,49 @@ export default {
       // Version check endpoint
       if (path === '/api/version' && request.method === 'GET') {
         return new Response(JSON.stringify({ 
-          version: '2.0', 
+          version: '3.0', 
+          environment: config.environment,
           timestamp: new Date().toISOString(),
-          path: path 
+          path: path,
+          debug: config.debug,
         }), {
           headers: corsHeaders
         });
       }
 
-      // Debug endpoint for OAuth testing
-      if (path === '/debug/oauth' && request.method === 'GET') {
-        const urlParams = new URLSearchParams(url.search);
-        const token = urlParams.get('token');
-        
-        if (!token) {
-          return new Response('No token provided', { status: 400 });
-        }
-
-        // Verify token and return debug info
-        try {
-          const payload = await verifyJWT(token, env.JWT_SECRET);
-          const authorizedEmails = ['cozy2963@gmail.com', 'andrea@cozyartzmedia.com'];
-          const isSuperAdmin = payload.provider === 'google' && 
-                             payload.email && 
-                             authorizedEmails.includes(payload.email);
-
-          const debugHtml = `
-<!DOCTYPE html>
-<html>
-<head>
-    <title>OAuth Debug</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        .success { color: green; }
-        .info { color: blue; }
-        .error { color: red; }
-        pre { background: #f5f5f5; padding: 15px; border-radius: 5px; }
-    </style>
-</head>
-<body>
-    <h1>OAuth Debug Results</h1>
-    <div class="success">✅ Token verified successfully!</div>
-    
-    <h2>User Data:</h2>
-    <pre>${JSON.stringify(payload, null, 2)}</pre>
-    
-    <h2>Superadmin Check:</h2>
-    <p><strong>Email:</strong> ${payload.email}</p>
-    <p><strong>Provider:</strong> ${payload.provider}</p>
-    <p><strong>Authorized Emails:</strong> ${authorizedEmails.join(', ')}</p>
-    <p><strong>Is SuperAdmin:</strong> <span class="${isSuperAdmin ? 'success' : 'info'}">${isSuperAdmin}</span></p>
-    
-    ${isSuperAdmin ? 
-      '<div class="success"><h3>✅ SuperAdmin Access Detected!</h3><p>Redirecting to SuperAdmin Dashboard in 3 seconds...</p><p>If redirect fails, <a href="https://ba0621af.cmgsite.pages.dev/superadmin">click here</a></p></div>' :
-      '<div class="info"><h3>ℹ️ Regular User Access</h3><p><a href="https://ba0621af.cmgsite.pages.dev/client-portal">Click here to continue to Client Portal</a></p></div>'
-    }
-    
-    <script>
-        console.log('Debug data:', ${JSON.stringify(payload)});
-        localStorage.setItem('auth_token', '${token}');
-        
-        ${isSuperAdmin ? 
-          'setTimeout(() => { window.location.href = "https://ba0621af.cmgsite.pages.dev/superadmin"; }, 3000);' :
-          ''
-        }
-    </script>
-</body>
-</html>`;
-
-          return new Response(debugHtml, {
-            headers: {
-              'Content-Type': 'text/html',
-              'Access-Control-Allow-Origin': '*'
-            }
-          });
-        } catch (error) {
-          return new Response(`Token verification failed: ${error.message}`, { 
-            status: 400,
-            headers: { 'Content-Type': 'text/plain' }
-          });
-        }
+      // Debug endpoint (only enabled in staging/development)
+      if (path === '/debug/oauth' && request.method === 'GET' && config.enableDebugEndpoint) {
+        return handleDebugOAuth(url, env, config, log);
       }
 
       // GitHub OAuth initiation
       if (path === '/api/auth/github' && request.method === 'GET') {
-        if (!env.GITHUB_CLIENT_ID) {
-          return new Response(JSON.stringify({ error: 'GitHub OAuth not configured' }), {
-            status: 500,
-            headers: corsHeaders
-          });
-        }
-
-        const state = generateRandomString(32);
-        const redirectUri = 'https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/github/callback';
-        const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${env.GITHUB_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=user:email&state=${state}`;
-        
-        // For now, we'll skip state validation in production due to Cloudflare Worker limitations
-        // TODO: Implement proper state storage using KV namespace
-        return Response.redirect(githubAuthUrl, 302);
+        return handleGitHubOAuth(env, config, log);
       }
 
       // GitHub OAuth callback
       if (path === '/api/auth/github/callback' && request.method === 'GET') {
-        const urlParams = new URLSearchParams(url.search);
-        const code = urlParams.get('code');
-        const state = urlParams.get('state');
-        const error = urlParams.get('error');
-
-        // Handle authorization errors from GitHub
-        if (error) {
-          return Response.redirect(`https://ba0621af.cmgsite.pages.dev/auth?error=github_${error}`, 302);
-        }
-
-        if (!code) {
-          return Response.redirect('https://ba0621af.cmgsite.pages.dev/auth?error=github_auth_failed', 302);
-        }
-
-        // TODO: Implement proper state validation using KV namespace
-        // For now, we'll skip state validation to get OAuth working
-
-        try {
-          const redirectUri = 'https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/github/callback';
-          
-          // Exchange code for access token
-          const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
-            method: 'POST',
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json',
-              'User-Agent': 'CMGSite-OAuth/1.0'
-            },
-            body: JSON.stringify({
-              client_id: env.GITHUB_CLIENT_ID,
-              client_secret: env.GITHUB_CLIENT_SECRET,
-              code: code,
-              redirect_uri: redirectUri
-            }),
-          });
-
-          if (!tokenResponse.ok) {
-            console.error('GitHub token request failed:', tokenResponse.status, await tokenResponse.text());
-            return Response.redirect('https://ba0621af.cmgsite.pages.dev/auth?error=github_token_request_failed', 302);
-          }
-
-          const tokenData = await tokenResponse.json();
-          
-          if (!tokenData.access_token) {
-            console.error('No access token in response:', tokenData);
-            return Response.redirect(`https://ba0621af.cmgsite.pages.dev/auth?error=github_token_failed&details=${encodeURIComponent(tokenData.error || 'unknown')}`, 302);
-          }
-
-          // Get user info from GitHub
-          const userResponse = await fetch('https://api.github.com/user', {
-            headers: {
-              'Authorization': `Bearer ${tokenData.access_token}`,
-              'User-Agent': 'CMGSite-Auth/1.0',
-              'Accept': 'application/vnd.github.v3+json'
-            },
-          });
-
-          if (!userResponse.ok) {
-            console.error('GitHub user request failed:', userResponse.status, await userResponse.text());
-            return Response.redirect('https://ba0621af.cmgsite.pages.dev/auth?error=github_user_request_failed', 302);
-          }
-
-          const userData = await userResponse.json();
-          
-          // Also get email if not public
-          let userEmail = userData.email;
-          if (!userEmail) {
-            const emailResponse = await fetch('https://api.github.com/user/emails', {
-              headers: {
-                'Authorization': `Bearer ${tokenData.access_token}`,
-                'User-Agent': 'CMGSite-Auth/1.0',
-              },
-            });
-            const emails = await emailResponse.json();
-            const primaryEmail = emails.find(e => e.primary);
-            userEmail = primaryEmail ? primaryEmail.email : `${userData.login}@github.local`;
-          }
-          
-          // Create JWT token for our app
-          const jwtPayload = {
-            sub: `github_${userData.id}`,
-            email: userEmail,
-            name: userData.name || userData.login,
-            avatar_url: userData.avatar_url,
-            provider: 'github',
-            github_username: userData.login,
-            iat: Math.floor(Date.now() / 1000),
-            exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60), // 24 hours
-          };
-
-          const token = await createJWT(jwtPayload, env.JWT_SECRET);
-          
-          // Redirect to debug endpoint temporarily to test OAuth flow
-          return Response.redirect(`https://cmgsite-client-portal.cozyartz-media-group.workers.dev/debug/oauth?token=${token}`, 302);
-
-        } catch (error) {
-          console.error('GitHub OAuth error:', error);
-          return Response.redirect('https://ba0621af.cmgsite.pages.dev/auth?error=github_auth_error', 302);
-        }
+        return handleGitHubCallback(url, env, config, log);
       }
 
       // Google OAuth initiation  
       if (path === '/api/auth/google' && request.method === 'GET') {
-        if (!env.GOOGLE_CLIENT_ID) {
-          return new Response(JSON.stringify({ error: 'Google OAuth not configured' }), {
-            status: 500,
-            headers: corsHeaders
-          });
-        }
-
-        const state = generateRandomString(32);
-        const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${env.GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent('https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/google/callback')}&scope=openid%20email%20profile&response_type=code&state=${state}`;
-        
-        return Response.redirect(googleAuthUrl, 302);
+        return handleGoogleOAuth(env, config, log);
       }
 
       // Google OAuth callback
       if (path === '/api/auth/google/callback' && request.method === 'GET') {
-        const urlParams = new URLSearchParams(url.search);
-        const code = urlParams.get('code');
-        const state = urlParams.get('state');
-
-        if (!code) {
-          return Response.redirect('https://ba0621af.cmgsite.pages.dev/auth?error=google_auth_failed', 302);
-        }
-
-        try {
-          // Exchange code for access token
-          const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: new URLSearchParams({
-              client_id: env.GOOGLE_CLIENT_ID,
-              client_secret: env.GOOGLE_CLIENT_SECRET,
-              code: code,
-              grant_type: 'authorization_code',
-              redirect_uri: 'https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/google/callback',
-            }),
-          });
-
-          const tokenData = await tokenResponse.json();
-          
-          if (!tokenData.access_token) {
-            return Response.redirect('https://ba0621af.cmgsite.pages.dev/auth?error=google_token_failed', 302);
-          }
-
-          // Get user info from Google
-          const userResponse = await fetch(`https://www.googleapis.com/oauth2/v2/userinfo?access_token=${tokenData.access_token}`);
-          const userData = await userResponse.json();
-          
-          // Create JWT token for our app
-          const jwtPayload = {
-            sub: `google_${userData.id}`,
-            email: userData.email,
-            name: userData.name,
-            avatar_url: userData.picture,
-            provider: 'google',
-            iat: Math.floor(Date.now() / 1000),
-            exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60), // 24 hours
-          };
-
-          const token = await createJWT(jwtPayload, env.JWT_SECRET);
-          
-          // Redirect to debug endpoint temporarily to test OAuth flow
-          return Response.redirect(`https://cmgsite-client-portal.cozyartz-media-group.workers.dev/debug/oauth?token=${token}`, 302);
-
-        } catch (error) {
-          console.error('Google OAuth error:', error);
-          return Response.redirect('https://ba0621af.cmgsite.pages.dev/auth?error=google_auth_error', 302);
-        }
+        return handleGoogleCallback(url, env, config, log);
       }
 
       // Email/password login endpoint
       if (path === '/api/auth/login' && request.method === 'POST') {
-        const { email, password } = await request.json();
-        
-        // For now, accept test credentials - replace with real DB lookup
-        if (email === 'test@cozyartzmedia.com' && password === 'TestPass123@') {
-          const jwtPayload = {
-            sub: 'user_test_001',
-            email: 'test@cozyartzmedia.com',
-            name: 'Test User',
-            provider: 'email',
-            iat: Math.floor(Date.now() / 1000),
-            exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60),
-          };
-
-          const token = await createJWT(jwtPayload, env.JWT_SECRET);
-          
-          return new Response(JSON.stringify({
-            token: token,
-            user: {
-              id: 'user_test_001',
-              email: 'test@cozyartzmedia.com',
-              name: 'Test User',
-              avatar_url: '',
-              provider: 'email',
-              role: 'user'
-            },
-            client: {
-              id: 'client_test_001',
-              name: 'Test Client',
-              subscription_tier: 'starter',
-              ai_calls_limit: 100,
-              ai_calls_used: 0,
-              status: 'active',
-              role: 'owner'
-            }
-          }), {
-            headers: corsHeaders
-          });
-        } else {
-          return new Response(JSON.stringify({ error: 'Invalid credentials' }), {
-            status: 401,
-            headers: corsHeaders
-          });
-        }
+        return handleEmailLogin(request, env, config, log);
       }
 
       // Token verification endpoint
       if (path === '/api/auth/verify' && request.method === 'GET') {
-        const token = request.headers.get('Authorization')?.replace('Bearer ', '');
-        
-        if (!token) {
-          return new Response(JSON.stringify({ error: 'No token provided' }), {
-            status: 401,
-            headers: corsHeaders
-          });
-        }
-
-        try {
-          const payload = await verifyJWT(token, env.JWT_SECRET);
-          
-          return new Response(JSON.stringify({
-            user: {
-              id: payload.sub,
-              email: payload.email,
-              name: payload.name,
-              avatar_url: payload.avatar_url || '',
-              provider: payload.provider,
-              github_username: payload.github_username,
-              role: 'user'
-            },
-            client: {
-              id: 'client_test_001',
-              name: 'Test Client',
-              subscription_tier: 'starter',
-              ai_calls_limit: 100,
-              ai_calls_used: 0,
-              status: 'active',
-              role: 'owner'
-            }
-          }), {
-            headers: corsHeaders
-          });
-        } catch (error) {
-          return new Response(JSON.stringify({ error: 'Invalid token' }), {
-            status: 401,
-            headers: corsHeaders
-          });
-        }
+        return handleTokenVerification(request, env, config, log);
       }
 
       // Default response
@@ -395,9 +112,10 @@ export default {
       });
 
     } catch (error) {
+      log('error', 'Unhandled error:', error);
       return new Response(JSON.stringify({ 
         error: 'Internal server error',
-        message: error.message 
+        message: config.debug ? error.message : 'An error occurred',
       }), {
         status: 500,
         headers: corsHeaders
@@ -406,7 +124,394 @@ export default {
   }
 };
 
+// OAuth and auth handlers
+async function handleDebugOAuth(url, env, config, log) {
+  const urlParams = new URLSearchParams(url.search);
+  const token = urlParams.get('token');
+  
+  if (!token) {
+    return new Response('No token provided', { status: 400 });
+  }
+
+  try {
+    const payload = await verifyJWT(token, env.JWT_SECRET);
+    const authorizedEmails = ['cozy2963@gmail.com', 'andrea@cozyartzmedia.com'];
+    const authorizedGitHubUsers = ['cozytag']; // Add actual GitHub usernames
+    
+    const isSuperAdmin = (
+      (payload.provider === 'google' && payload.email && authorizedEmails.includes(payload.email)) ||
+      (payload.provider === 'github' && payload.github_username && authorizedGitHubUsers.includes(payload.github_username))
+    );
+
+    const debugHtml = createDebugHtml(payload, isSuperAdmin, config, token);
+
+    return new Response(debugHtml, {
+      headers: {
+        'Content-Type': 'text/html',
+        'Access-Control-Allow-Origin': '*'
+      }
+    });
+  } catch (error) {
+    return new Response(`Token verification failed: ${error.message}`, { 
+      status: 400,
+      headers: { 'Content-Type': 'text/plain' }
+    });
+  }
+}
+
+async function handleGitHubOAuth(env, config, log) {
+  if (!env.GITHUB_CLIENT_ID) {
+    return new Response(JSON.stringify({ error: 'GitHub OAuth not configured' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  const state = generateRandomString(32);
+  const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${env.GITHUB_CLIENT_ID}&redirect_uri=${encodeURIComponent(config.oauth.github.redirectUri)}&scope=user:email&state=${state}`;
+  
+  log('debug', 'GitHub OAuth redirect:', githubAuthUrl);
+  return Response.redirect(githubAuthUrl, 302);
+}
+
+async function handleGitHubCallback(url, env, config, log) {
+  const urlParams = new URLSearchParams(url.search);
+  const code = urlParams.get('code');
+  const error = urlParams.get('error');
+
+  if (error) {
+    return Response.redirect(buildErrorUrl(config, `github_${error}`), 302);
+  }
+
+  if (!code) {
+    return Response.redirect(buildErrorUrl(config, 'github_auth_failed'), 302);
+  }
+
+  try {
+    // Exchange code for access token
+    const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'User-Agent': 'CMGSite-OAuth/1.0'
+      },
+      body: JSON.stringify({
+        client_id: env.GITHUB_CLIENT_ID,
+        client_secret: env.GITHUB_CLIENT_SECRET,
+        code: code,
+        redirect_uri: config.oauth.github.redirectUri
+      }),
+    });
+
+    if (!tokenResponse.ok) {
+      log('error', 'GitHub token request failed:', tokenResponse.status);
+      return Response.redirect(buildErrorUrl(config, 'github_token_request_failed'), 302);
+    }
+
+    const tokenData = await tokenResponse.json();
+    
+    if (!tokenData.access_token) {
+      log('error', 'No access token in response:', tokenData);
+      return Response.redirect(buildErrorUrl(config, 'github_token_failed'), 302);
+    }
+
+    // Get user info from GitHub
+    const userResponse = await fetch('https://api.github.com/user', {
+      headers: {
+        'Authorization': `Bearer ${tokenData.access_token}`,
+        'User-Agent': 'CMGSite-Auth/1.0',
+        'Accept': 'application/vnd.github.v3+json'
+      },
+    });
+
+    if (!userResponse.ok) {
+      log('error', 'GitHub user request failed:', userResponse.status);
+      return Response.redirect(buildErrorUrl(config, 'github_user_request_failed'), 302);
+    }
+
+    const userData = await userResponse.json();
+    
+    // Get email if not public
+    let userEmail = userData.email;
+    if (!userEmail) {
+      const emailResponse = await fetch('https://api.github.com/user/emails', {
+        headers: {
+          'Authorization': `Bearer ${tokenData.access_token}`,
+          'User-Agent': 'CMGSite-Auth/1.0',
+        },
+      });
+      const emails = await emailResponse.json();
+      const primaryEmail = emails.find(e => e.primary);
+      userEmail = primaryEmail ? primaryEmail.email : `${userData.login}@github.local`;
+    }
+    
+    // Create JWT token
+    const jwtPayload = {
+      sub: `github_${userData.id}`,
+      email: userEmail,
+      name: userData.name || userData.login,
+      avatar_url: userData.avatar_url,
+      provider: 'github',
+      github_username: userData.login,
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60), // 24 hours
+    };
+
+    const token = await createJWT(jwtPayload, env.JWT_SECRET);
+    
+    // Redirect based on environment and debug settings
+    if (config.enableDebugEndpoint) {
+      return Response.redirect(`${config.api.baseUrl}/debug/oauth?token=${token}`, 302);
+    } else {
+      return Response.redirect(`${config.frontend.authUrl}?token=${token}`, 302);
+    }
+
+  } catch (error) {
+    log('error', 'GitHub OAuth error:', error);
+    return Response.redirect(buildErrorUrl(config, 'github_auth_error'), 302);
+  }
+}
+
+async function handleGoogleOAuth(env, config, log) {
+  if (!env.GOOGLE_CLIENT_ID) {
+    return new Response(JSON.stringify({ error: 'Google OAuth not configured' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  const state = generateRandomString(32);
+  const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${env.GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(config.oauth.google.redirectUri)}&scope=openid%20email%20profile&response_type=code&state=${state}`;
+  
+  log('debug', 'Google OAuth redirect:', googleAuthUrl);
+  return Response.redirect(googleAuthUrl, 302);
+}
+
+async function handleGoogleCallback(url, env, config, log) {
+  const urlParams = new URLSearchParams(url.search);
+  const code = urlParams.get('code');
+
+  if (!code) {
+    return Response.redirect(buildErrorUrl(config, 'google_auth_failed'), 302);
+  }
+
+  try {
+    // Exchange code for access token
+    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        client_id: env.GOOGLE_CLIENT_ID,
+        client_secret: env.GOOGLE_CLIENT_SECRET,
+        code: code,
+        grant_type: 'authorization_code',
+        redirect_uri: config.oauth.google.redirectUri,
+      }),
+    });
+
+    const tokenData = await tokenResponse.json();
+    
+    if (!tokenData.access_token) {
+      return Response.redirect(buildErrorUrl(config, 'google_token_failed'), 302);
+    }
+
+    // Get user info from Google
+    const userResponse = await fetch(`https://www.googleapis.com/oauth2/v2/userinfo?access_token=${tokenData.access_token}`);
+    const userData = await userResponse.json();
+    
+    // Create JWT token
+    const jwtPayload = {
+      sub: `google_${userData.id}`,
+      email: userData.email,
+      name: userData.name,
+      avatar_url: userData.picture,
+      provider: 'google',
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60), // 24 hours
+    };
+
+    const token = await createJWT(jwtPayload, env.JWT_SECRET);
+    
+    // Redirect based on environment and debug settings
+    if (config.enableDebugEndpoint) {
+      return Response.redirect(`${config.api.baseUrl}/debug/oauth?token=${token}`, 302);
+    } else {
+      return Response.redirect(`${config.frontend.authUrl}?token=${token}`, 302);
+    }
+
+  } catch (error) {
+    log('error', 'Google OAuth error:', error);
+    return Response.redirect(buildErrorUrl(config, 'google_auth_error'), 302);
+  }
+}
+
+async function handleEmailLogin(request, env, config, log) {
+  const { email, password } = await request.json();
+  
+  // For now, accept test credentials
+  if (email === 'test@cozyartzmedia.com' && password === 'TestPass123@') {
+    const jwtPayload = {
+      sub: 'user_test_001',
+      email: 'test@cozyartzmedia.com',
+      name: 'Test User',
+      provider: 'email',
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60),
+    };
+
+    const token = await createJWT(jwtPayload, env.JWT_SECRET);
+    
+    return new Response(JSON.stringify({
+      token: token,
+      user: {
+        id: 'user_test_001',
+        email: 'test@cozyartzmedia.com',
+        name: 'Test User',
+        avatar_url: '',
+        provider: 'email',
+        role: 'user'
+      },
+      client: {
+        id: 'client_test_001',
+        name: 'Test Client',
+        subscription_tier: 'starter',
+        ai_calls_limit: 100,
+        ai_calls_used: 0,
+        status: 'active',
+        role: 'owner'
+      }
+    }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } else {
+    return new Response(JSON.stringify({ error: 'Invalid credentials' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+async function handleTokenVerification(request, env, config, log) {
+  const token = request.headers.get('Authorization')?.replace('Bearer ', '');
+  
+  if (!token) {
+    return new Response(JSON.stringify({ error: 'No token provided' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  try {
+    const payload = await verifyJWT(token, env.JWT_SECRET);
+    
+    return new Response(JSON.stringify({
+      user: {
+        id: payload.sub,
+        email: payload.email,
+        name: payload.name,
+        avatar_url: payload.avatar_url || '',
+        provider: payload.provider,
+        github_username: payload.github_username,
+        role: 'user'
+      },
+      client: {
+        id: 'client_test_001',
+        name: 'Test Client',
+        subscription_tier: 'starter',
+        ai_calls_limit: 100,
+        ai_calls_used: 0,
+        status: 'active',
+        role: 'owner'
+      }
+    }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ error: 'Invalid token' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
 // Helper functions
+function buildErrorUrl(config, error, details) {
+  const params = new URLSearchParams({ error });
+  if (details) params.set('details', details);
+  return `${config.frontend.authUrl}?${params.toString()}`;
+}
+
+function createDebugHtml(payload, isSuperAdmin, config, token) {
+  const authorizedEmails = ['cozy2963@gmail.com', 'andrea@cozyartzmedia.com'];
+  const redirectUrl = isSuperAdmin ? config.frontend.superAdminUrl : config.frontend.clientPortalUrl;
+  
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OAuth Debug - ${config.environment.toUpperCase()}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .success { color: green; }
+        .info { color: blue; }
+        .error { color: red; }
+        pre { background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        .env-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .env-production { background: #dc3545; color: white; }
+        .env-staging { background: #ffc107; color: black; }
+        .env-development { background: #28a745; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>OAuth Debug Results <span class="env-badge env-${config.environment}">${config.environment.toUpperCase()}</span></h1>
+        <div class="success">✅ Token verified successfully!</div>
+        
+        <h2>Environment Configuration:</h2>
+        <pre>${JSON.stringify({
+          environment: config.environment,
+          debug: config.debug,
+          frontend: config.frontend,
+          enableDebugEndpoint: config.enableDebugEndpoint
+        }, null, 2)}</pre>
+        
+        <h2>User Data:</h2>
+        <pre>${JSON.stringify(payload, null, 2)}</pre>
+        
+        <h2>Superadmin Check:</h2>
+        <p><strong>Email:</strong> ${payload.email}</p>
+        <p><strong>Provider:</strong> ${payload.provider}</p>
+        <p><strong>GitHub Username:</strong> ${payload.github_username || 'N/A'}</p>
+        <p><strong>Authorized Emails:</strong> ${authorizedEmails.join(', ')}</p>
+        <p><strong>Is SuperAdmin:</strong> <span class="${isSuperAdmin ? 'success' : 'info'}">${isSuperAdmin}</span></p>
+        
+        ${isSuperAdmin ? 
+          '<div class="success"><h3>✅ SuperAdmin Access Detected!</h3><p>Redirecting to SuperAdmin Dashboard in 3 seconds...</p><p>If redirect fails, <a href="' + config.frontend.superAdminUrl + '">click here</a></p></div>' :
+          '<div class="info"><h3>ℹ️ Regular User Access</h3><p><a href="' + config.frontend.clientPortalUrl + '">Click here to continue to Client Portal</a></p></div>'
+        }
+        
+        <div style="margin-top: 20px; padding: 10px; background: #e9ecef; border-radius: 4px;">
+            <small><strong>Redirect URL:</strong> ${redirectUrl}</small>
+        </div>
+    </div>
+    
+    <script>
+        console.log('Debug data:', ${JSON.stringify(payload)});
+        localStorage.setItem('auth_token', '${token}');
+        
+        ${isSuperAdmin ? 
+          'setTimeout(() => { window.location.href = "' + redirectUrl + '"; }, 3000);' :
+          ''
+        }
+    </script>
+</body>
+</html>`;
+}
+
 function generateRandomString(length) {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let result = '';

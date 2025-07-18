@@ -10,47 +10,80 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run preview` - Preview production build locally
 - `npm run lint` - Run ESLint to check code quality
 
+### Worker Development
+- `npm run worker:dev` - Start local worker development server on port 8787
+- `npm run worker:deploy` - Deploy worker to production
+- `npm run worker:deploy:staging` - Deploy worker to staging environment
+- `npm run worker:deploy:dev` - Deploy worker to development environment
+
 ### Deployment Commands
-- `wrangler deploy` - Deploy Cloudflare Worker (API backend)
-- `wrangler pages deploy dist` - Deploy frontend to Cloudflare Pages
-- `npm run build && wrangler pages deploy dist` - Build and deploy frontend
+- `npm run deploy:production` - Build and deploy both worker and pages to production
+- `npm run deploy:staging` - Build and deploy both worker and pages to staging
+- `npm run deploy` - Full production deployment (worker + pages)
+- `npm run deploy:worker` - Deploy only worker to production
+- `npm run deploy:pages` - Deploy only pages to production
 
 ### Project Setup
 - `npm install` - Install dependencies
+- Copy `.env.example` to `.env.local` and configure environment variables
 - Dependencies are managed with npm (package-lock.json present)
 
 ## Architecture Overview
 
 ### Technology Stack
 - **Frontend**: React 18.3.1 with TypeScript
+- **Backend**: Cloudflare Worker with environment-aware configuration
 - **Build Tool**: Vite with React plugin
 - **Styling**: Tailwind CSS with PostCSS
 - **Icons**: Lucide React
 - **SEO**: react-helmet-async for metadata management
+- **Authentication**: JWT with OAuth (GitHub/Google)
+- **Environment Management**: Centralized configuration system
 
 ### Project Structure
 ```
 src/
-├── App.tsx                 # Main application component
-├── components/             # React components
-│   ├── Header.tsx         # Navigation with responsive menu
-│   ├── Hero.tsx           # Landing section with animations
-│   ├── Services.tsx       # Service offerings with scroll animations
-│   ├── Portfolio.tsx      # Portfolio showcase
-│   ├── About.tsx          # Company information
-│   ├── Contact.tsx        # Contact form/information
-│   ├── Footer.tsx         # Footer component
-│   └── SEO.tsx            # Comprehensive SEO/metadata component
-├── index.css              # Global styles and Tailwind imports
-└── main.tsx               # React app entry point
+├── App.tsx                    # Main application component
+├── components/                # React components
+│   ├── auth/                 # Authentication components
+│   │   ├── OAuthProvider.tsx # Reusable OAuth button component
+│   │   └── OAuthCallback.tsx # OAuth callback handler
+│   ├── [other components]/   # Organized by feature
+│   └── SEO.tsx              # Comprehensive SEO/metadata component
+├── config/
+│   └── environment.ts        # Environment configuration management
+├── contexts/
+│   └── AuthContext.tsx      # Authentication state management
+├── hooks/
+│   └── useOAuth.ts          # OAuth hooks and utilities
+├── lib/
+│   ├── api.ts               # Centralized API client with retry logic
+│   └── urls.ts              # URL building and routing management
+├── pages/                   # Page components
+│   ├── AuthSimple.tsx       # Authentication page
+│   ├── ClientPortalSimple.tsx # Client dashboard
+│   └── SuperAdminDashboard.tsx # Admin interface
+├── index.css               # Global styles and Tailwind imports
+└── main.tsx                # React app entry point
+worker.js                   # Environment-aware Cloudflare Worker
+wrangler.toml              # Cloudflare configuration with environments
+docs/
+└── OAUTH_SETUP.md         # OAuth configuration guide
 ```
 
 ### Component Architecture
-- **Single-page application** with component-based architecture
-- **Functional components** using React hooks (useState, useEffect, useRef)
-- **TypeScript interfaces** for type safety, especially in SEO component
-- **Intersection Observer API** for scroll-based animations
-- **Props-based communication** between components
+- **Environment-aware configuration** - Centralized config management for all environments
+- **Reusable components** - OAuth providers, API client, URL builders for DRY principle
+- **TypeScript-first** - Full type safety with interfaces and error handling
+- **Hook-based state management** - Custom hooks for OAuth, API calls, and configuration
+- **Clean separation of concerns** - Distinct layers for UI, business logic, and data
+
+### Key Architectural Features
+- **No hardcoded URLs** - All URLs generated from environment configuration
+- **Centralized API client** - Retry logic, token management, error handling
+- **Environment-specific deployment** - Separate configs for dev/staging/production
+- **OAuth component system** - Reusable authentication flows
+- **Comprehensive error handling** - Type-safe error management throughout
 
 ### Styling System
 - **Tailwind CSS** utility-first approach
@@ -66,28 +99,47 @@ src/
 
 ## Development Patterns
 
-### Animation Implementation
-- Use Intersection Observer for performance-efficient scroll animations
-- Implement staggered animations with delays (e.g., 200ms intervals)
-- Apply consistent transform patterns (translate, scale, opacity)
+### Environment Management
+- Use `src/config/environment.ts` for all environment-specific configuration
+- Set environment via `VITE_ENVIRONMENT` in `.env.local` 
+- All URLs built using `src/lib/urls.ts` utilities
+- Never hardcode URLs - always use environment-aware builders
+
+### API Development
+- Use `src/lib/api.ts` for all HTTP requests
+- Implement proper error handling with typed error classes
+- All endpoints configured in `src/lib/urls.ts` 
+- Use the `apiService` singleton for consistent API calls
+
+### OAuth Development
+- Use `src/components/auth/OAuthProvider.tsx` for OAuth buttons
+- Implement OAuth flows with `src/hooks/useOAuth.ts`
+- All OAuth URLs generated from environment configuration
+- Follow OAuth setup guide in `docs/OAUTH_SETUP.md`
 
 ### Component Creation
 - Follow functional component pattern with TypeScript
-- Use consistent export: `export default ComponentName`
-- Implement responsive design with Tailwind breakpoints
-- Add hover effects and transitions for interactive elements
+- Use centralized configuration via `src/config/environment.ts`
+- Implement error boundaries and proper error handling
+- Use hooks for state management and side effects
 
 ## Deployment Information
 
 ### Current Production URLs
-- **Frontend (Cloudflare Pages)**: https://f77fbcbc.cmgsite.pages.dev
+- **Main Domain**: https://cozyartzmedia.com (production frontend)
 - **Backend API (Cloudflare Worker)**: https://cmgsite-client-portal.cozyartz-media-group.workers.dev
-- **Main Domain**: https://cozyartzmedia.com (currently redirects to Pages deployment)
+- **Latest Pages Deployment**: Automatically updated via environment variables
 
-### OAuth Configuration
-- **GitHub OAuth Redirect URI**: https://cozyartzmedia.com/api/auth/github/callback
-- **Google OAuth Redirect URI**: https://cozyartzmedia.com/api/auth/google/callback
-- **Authentication Success Redirect**: https://f77fbcbc.cmgsite.pages.dev/auth
+### Environment Configuration
+- **Production**: Uses `cozyartzmedia.com` domain
+- **Staging**: Uses `staging.cmgsite.pages.dev` domain  
+- **Development**: Uses `localhost:5173` and `localhost:8787`
+
+### OAuth Configuration (Production)
+- **GitHub OAuth Redirect URI**: https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/github/callback
+- **Google OAuth Redirect URI**: https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/google/callback
+- **Authentication Success Redirect**: https://cozyartzmedia.com/auth
+- **OAuth Setup**: See `docs/OAUTH_SETUP.md` for complete configuration guide
 
 ### Required Secrets (Wrangler)
 - `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` - GitHub OAuth credentials
