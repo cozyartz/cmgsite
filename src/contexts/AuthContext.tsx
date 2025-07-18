@@ -76,6 +76,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
      authorizedSuperAdminEmails.includes(user.email))
   );
 
+  // Debug: Log superadmin detection
+  if (user) {
+    console.log('AuthContext - Superadmin check:', {
+      email: user.email,
+      provider: user.provider,
+      github_username: user.github_username,
+      authorizedEmails: authorizedSuperAdminEmails,
+      authorizedGitHubUsers: authorizedSuperAdminGitHubUsers,
+      isGoogleMatch: user.provider === 'google' && user.email && authorizedSuperAdminEmails.includes(user.email),
+      isGitHubMatch: user.provider === 'github' && user.github_username && authorizedSuperAdminGitHubUsers.includes(user.github_username),
+      isSuperAdmin
+    });
+  }
+
 
   useEffect(() => {
     // Check for token in URL params (from OAuth redirect)

@@ -29,6 +29,80 @@ export default {
         });
       }
 
+      // Debug endpoint for OAuth testing
+      if (path === '/debug/oauth' && request.method === 'GET') {
+        const urlParams = new URLSearchParams(url.search);
+        const token = urlParams.get('token');
+        
+        if (!token) {
+          return new Response('No token provided', { status: 400 });
+        }
+
+        // Verify token and return debug info
+        try {
+          const payload = await verifyJWT(token, env.JWT_SECRET);
+          const authorizedEmails = ['cozy2963@gmail.com', 'andrea@cozyartzmedia.com'];
+          const isSuperAdmin = payload.provider === 'google' && 
+                             payload.email && 
+                             authorizedEmails.includes(payload.email);
+
+          const debugHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OAuth Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .success { color: green; }
+        .info { color: blue; }
+        .error { color: red; }
+        pre { background: #f5f5f5; padding: 15px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>OAuth Debug Results</h1>
+    <div class="success">✅ Token verified successfully!</div>
+    
+    <h2>User Data:</h2>
+    <pre>${JSON.stringify(payload, null, 2)}</pre>
+    
+    <h2>Superadmin Check:</h2>
+    <p><strong>Email:</strong> ${payload.email}</p>
+    <p><strong>Provider:</strong> ${payload.provider}</p>
+    <p><strong>Authorized Emails:</strong> ${authorizedEmails.join(', ')}</p>
+    <p><strong>Is SuperAdmin:</strong> <span class="${isSuperAdmin ? 'success' : 'info'}">${isSuperAdmin}</span></p>
+    
+    ${isSuperAdmin ? 
+      '<div class="success"><h3>✅ SuperAdmin Access Detected!</h3><p>Redirecting to SuperAdmin Dashboard in 3 seconds...</p><p>If redirect fails, <a href="https://ba0621af.cmgsite.pages.dev/superadmin">click here</a></p></div>' :
+      '<div class="info"><h3>ℹ️ Regular User Access</h3><p><a href="https://ba0621af.cmgsite.pages.dev/client-portal">Click here to continue to Client Portal</a></p></div>'
+    }
+    
+    <script>
+        console.log('Debug data:', ${JSON.stringify(payload)});
+        localStorage.setItem('auth_token', '${token}');
+        
+        ${isSuperAdmin ? 
+          'setTimeout(() => { window.location.href = "https://ba0621af.cmgsite.pages.dev/superadmin"; }, 3000);' :
+          ''
+        }
+    </script>
+</body>
+</html>`;
+
+          return new Response(debugHtml, {
+            headers: {
+              'Content-Type': 'text/html',
+              'Access-Control-Allow-Origin': '*'
+            }
+          });
+        } catch (error) {
+          return new Response(`Token verification failed: ${error.message}`, { 
+            status: 400,
+            headers: { 'Content-Type': 'text/plain' }
+          });
+        }
+      }
+
       // GitHub OAuth initiation
       if (path === '/api/auth/github' && request.method === 'GET') {
         if (!env.GITHUB_CLIENT_ID) {
@@ -141,8 +215,8 @@ export default {
 
           const token = await createJWT(jwtPayload, env.JWT_SECRET);
           
-          // Redirect to frontend with token
-          return Response.redirect(`https://ba0621af.cmgsite.pages.dev/auth?token=${token}`, 302);
+          // Redirect to debug endpoint temporarily to test OAuth flow
+          return Response.redirect(`https://cmgsite-client-portal.cozyartz-media-group.workers.dev/debug/oauth?token=${token}`, 302);
 
         } catch (error) {
           console.error('GitHub OAuth error:', error);
@@ -214,8 +288,8 @@ export default {
 
           const token = await createJWT(jwtPayload, env.JWT_SECRET);
           
-          // Redirect to debug page temporarily to test OAuth flow
-          return Response.redirect(`https://raw.githubusercontent.com/cozyartz/cmgsite/main/oauth-debug.html?token=${token}`, 302);
+          // Redirect to debug endpoint temporarily to test OAuth flow
+          return Response.redirect(`https://cmgsite-client-portal.cozyartz-media-group.workers.dev/debug/oauth?token=${token}`, 302);
 
         } catch (error) {
           console.error('Google OAuth error:', error);

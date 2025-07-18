@@ -17,25 +17,37 @@ const ClientPortalSimple: React.FC = () => {
       return;
     }
     
+    // Debug: Log user data to understand what's happening
+    console.log('ClientPortalSimple - User data:', {
+      email: user.email,
+      provider: user.provider,
+      github_username: user.github_username,
+      isAdmin,
+      isSuperAdmin
+    });
+    
     // Route superadmin users to superadmin dashboard
     if (isSuperAdmin) {
+      console.log('Routing to superadmin dashboard');
       navigate('/superadmin');
       return;
     }
     
     // Route admin users to admin dashboard
     if (isAdmin) {
+      console.log('Routing to admin dashboard');
       navigate('/admin');
       return;
     }
     
     // Verify token with backend for regular users
+    console.log('Verifying token for regular user');
     verifyToken(token);
   }, [navigate, user, isAdmin, isSuperAdmin, loading]);
 
   const verifyToken = async (token: string) => {
     try {
-      const response = await fetch('https://cozyartzmedia.com/api/auth/verify', {
+      const response = await fetch('https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/verify', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
