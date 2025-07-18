@@ -107,6 +107,29 @@ export default {
         return handleTokenVerification(request, env, config, log);
       }
 
+      // Coupon validation endpoint
+      if (path === '/api/coupons/validate' && request.method === 'POST') {
+        return handleCouponValidation(request, env, config, log);
+      }
+
+      // Billing prepayment quote endpoint
+      if (path === '/api/billing/prepay-quote' && request.method === 'POST') {
+        return handlePrepaymentQuote(request, env, config, log);
+      }
+
+      // Payment endpoints
+      if (path === '/api/payment/create' && request.method === 'POST') {
+        return handlePaymentCreate(request, env, config, log);
+      }
+
+      if (path === '/api/payment/capture' && request.method === 'POST') {
+        return handlePaymentCapture(request, env, config, log);
+      }
+
+      if (path === '/api/payment/prepayment' && request.method === 'POST') {
+        return handlePrepaymentCreate(request, env, config, log);
+      }
+
       // Default response
       return new Response(JSON.stringify({ error: 'Not found' }), {
         status: 404,
@@ -584,4 +607,237 @@ async function verifyJWT(token, secret) {
   }
 
   return payload;
+}
+
+// Coupon validation handler
+async function handleCouponValidation(request, env, config, log) {
+  try {
+    const body = await request.json();
+    const { code } = body;
+
+    if (!code) {
+      return new Response(JSON.stringify({ 
+        valid: false, 
+        error: 'Coupon code is required' 
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+      });
+    }
+
+    // Define available coupons
+    const coupons = {
+      'JON250': {
+        code: 'JON250',
+        discount_amount_cents: 25000, // $250 off
+        discount_type: 'fixed',
+        description: 'Special pricing for Jon Werbeck - $250 off per month',
+        valid: true
+      },
+      'AMYFREE': {
+        code: 'AMYFREE',
+        discount_amount_cents: 100000, // 100% off (free)
+        discount_type: 'percentage',
+        description: '6 months free Starter tier for Amy Tipton',
+        valid: true
+      },
+      'AMYCOMPANY40': {
+        code: 'AMYCOMPANY40',
+        discount_amount_cents: 40, // 40% off
+        discount_type: 'percentage',
+        description: '40% off any tier for first year for Amy\'s company',
+        valid: true
+      }
+    };
+
+    const coupon = coupons[code.toUpperCase()];
+
+    if (coupon) {
+      return new Response(JSON.stringify({
+        valid: true,
+        coupon: coupon
+      }), {
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+      });
+    } else {
+      return new Response(JSON.stringify({
+        valid: false,
+        error: 'Invalid coupon code'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+      });
+    }
+  } catch (error) {
+    log('error', 'Coupon validation error:', error);
+    return new Response(JSON.stringify({
+      valid: false,
+      error: 'Failed to validate coupon'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+    });
+  }
+}
+
+// Prepayment quote handler
+async function handlePrepaymentQuote(request, env, config, log) {
+  try {
+    const body = await request.json();
+    const { tier, couponCode } = body;
+
+    // Define tier pricing (in cents)
+    const tierPricing = {
+      starter: { price: 100000, aiCalls: 100, domainLimit: 1 },
+      starterPlus: { price: 125000, aiCalls: 150, domainLimit: 2 },
+      growth: { price: 150000, aiCalls: 250, domainLimit: 5 },
+      growthPlus: { price: 200000, aiCalls: 400, domainLimit: 10 },
+      enterprise: { price: 250000, aiCalls: 500, domainLimit: 25 },
+      enterprisePlus: { price: 350000, aiCalls: 1000, domainLimit: 50 }
+    };
+
+    const tierData = tierPricing[tier];
+    if (!tierData) {
+      return new Response(JSON.stringify({
+        error: 'Invalid tier'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+      });
+    }
+
+    let basePrice = tierData.price;
+    let couponDiscount = 0;
+
+    // Apply coupon if provided
+    if (couponCode) {
+      const coupons = {
+        'JON250': { discount_amount_cents: 25000, discount_type: 'fixed' },
+        'AMYFREE': { discount_amount_cents: 100, discount_type: 'percentage' },
+        'AMYCOMPANY40': { discount_amount_cents: 40, discount_type: 'percentage' }
+      };
+
+      const coupon = coupons[couponCode.toUpperCase()];
+      if (coupon) {
+        if (coupon.discount_type === 'percentage') {
+          couponDiscount = Math.round(basePrice * (coupon.discount_amount_cents / 100));
+        } else {
+          couponDiscount = coupon.discount_amount_cents;
+        }
+      }
+    }
+
+    const monthlyPrice = Math.max(0, basePrice - couponDiscount);
+    const threeMonthTotal = monthlyPrice * 3;
+    const prepaymentDiscount = 10; // 10% off for prepayment
+    const prepaymentTotal = Math.round(threeMonthTotal * (1 - prepaymentDiscount / 100));
+    const totalSavings = threeMonthTotal - prepaymentTotal;
+    const perMonthEquivalent = Math.round(prepaymentTotal / 3);
+
+    return new Response(JSON.stringify({
+      tier,
+      basePrice,
+      couponDiscount,
+      monthlyPrice,
+      threeMonthTotal,
+      prepaymentTotal,
+      totalSavings,
+      perMonthEquivalent
+    }), {
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+    });
+
+  } catch (error) {
+    log('error', 'Prepayment quote error:', error);
+    return new Response(JSON.stringify({
+      error: 'Failed to generate quote'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+    });
+  }
+}
+
+// Payment creation handler
+async function handlePaymentCreate(request, env, config, log) {
+  try {
+    const body = await request.json();
+    
+    // Mock PayPal order creation for now
+    const orderId = 'ORDER_' + Math.random().toString(36).substr(2, 9).toUpperCase();
+    
+    return new Response(JSON.stringify({
+      orderId,
+      paymentId: orderId,
+      status: 'created'
+    }), {
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+    });
+
+  } catch (error) {
+    log('error', 'Payment creation error:', error);
+    return new Response(JSON.stringify({
+      error: 'Failed to create payment'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+    });
+  }
+}
+
+// Payment capture handler
+async function handlePaymentCapture(request, env, config, log) {
+  try {
+    const body = await request.json();
+    const { orderId, paymentId } = body;
+    
+    // Mock PayPal payment capture for now
+    return new Response(JSON.stringify({
+      id: orderId,
+      status: 'COMPLETED',
+      payment: {
+        id: paymentId,
+        status: 'captured'
+      }
+    }), {
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+    });
+
+  } catch (error) {
+    log('error', 'Payment capture error:', error);
+    return new Response(JSON.stringify({
+      error: 'Failed to capture payment'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+    });
+  }
+}
+
+// Prepayment creation handler
+async function handlePrepaymentCreate(request, env, config, log) {
+  try {
+    const body = await request.json();
+    
+    // Mock prepayment order creation
+    const prepaymentId = 'PREPAY_' + Math.random().toString(36).substr(2, 9).toUpperCase();
+    const orderId = 'ORDER_' + Math.random().toString(36).substr(2, 9).toUpperCase();
+    
+    return new Response(JSON.stringify({
+      orderId,
+      prepaymentId,
+      status: 'created'
+    }), {
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+    });
+
+  } catch (error) {
+    log('error', 'Prepayment creation error:', error);
+    return new Response(JSON.stringify({
+      error: 'Failed to create prepayment'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+    });
+  }
 }
