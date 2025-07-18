@@ -373,10 +373,10 @@ export const partnerWhitelabelConfig: WhitelabelConfig = {
 // Function to get current configuration (in production, this would come from database)
 export function getWhitelabelConfig(): WhitelabelConfig {
   // In production, this would check subdomain/domain and return appropriate config
-  const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+  const hostname = typeof window !== 'undefined' ? window.location.hostname : 'cozyartzmedia.com';
   
   // For development, always return default config
-  if (hostname === 'localhost' || hostname.includes('cozyartz')) {
+  if (hostname.includes('cozyartz') || hostname === 'cozyartzmedia.com') {
     return defaultWhitelabelConfig;
   }
   

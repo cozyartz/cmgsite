@@ -51,34 +51,34 @@ export interface EnvironmentConfig {
   };
 }
 
-// Development environment configuration
+// Development environment configuration - USES PRODUCTION URLS
 const developmentConfig: EnvironmentConfig = {
   name: 'development',
   isDevelopment: true,
   isProduction: false,
   
   api: {
-    baseUrl: 'http://localhost:8787',
+    baseUrl: 'https://cmgsite-client-portal.cozyartz-media-group.workers.dev',
     timeout: 10000,
     retryAttempts: 2,
   },
   
   frontend: {
-    baseUrl: 'http://localhost:5173',
-    authCallbackUrl: 'http://localhost:5173/auth',
-    clientPortalUrl: 'http://localhost:5173/client-portal',
-    superAdminUrl: 'http://localhost:5173/superadmin',
-    adminUrl: 'http://localhost:5173/admin',
+    baseUrl: 'https://cozyartzmedia.com',
+    authCallbackUrl: 'https://cozyartzmedia.com/auth',
+    clientPortalUrl: 'https://cozyartzmedia.com/client-portal',
+    superAdminUrl: 'https://cozyartzmedia.com/superadmin',
+    adminUrl: 'https://cozyartzmedia.com/admin',
   },
   
   oauth: {
     github: {
       enabled: true,
-      redirectUri: 'http://localhost:8787/api/auth/github/callback',
+      redirectUri: 'https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/github/callback',
     },
     google: {
       enabled: true,
-      redirectUri: 'http://localhost:8787/api/auth/google/callback',
+      redirectUri: 'https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/google/callback',
     },
   },
   
@@ -178,8 +178,9 @@ export function getEnvironmentConfig(): EnvironmentConfig {
       environment = 'production';
     } else if (hostname.includes('staging') || hostname.includes('.pages.dev')) {
       environment = 'staging';
-    } else if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      environment = 'development';
+    } else if (hostname === '127.0.0.1') {
+      // Even for local development, we'll use production URLs
+      environment = 'production';
     } else {
       // Default to production for any other domain
       environment = 'production';
