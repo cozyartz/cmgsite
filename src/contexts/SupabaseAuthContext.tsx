@@ -57,19 +57,50 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const isSuperAdmin = profile?.role === 'admin'; // In our system, admin = superadmin
 
   useEffect(() => {
-    // Simplified auth initialization to prevent production blocking
+    // Get initial session
     const initializeAuth = async () => {
       try {
-        // For production, just set loading to false to allow pages to render
-        // Auth features will work when needed
-        setLoading(false);
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+        }
+        
+        if (session) {
+          setSession(session);
+          setUser(session.user);
+          await loadUserProfile(session.user.id);
+        }
       } catch (error) {
         console.error('Error initializing auth:', error);
+      } finally {
         setLoading(false);
       }
     };
 
     initializeAuth();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth state changed:', event, session);
+        
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          await loadUserProfile(session.user.id);
+        } else {
+          setProfile(null);
+        }
+        
+        setLoading(false);
+      }
+    );
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const loadUserProfile = async (userId: string) => {
@@ -147,9 +178,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const signInWithOAuth = async (provider: 'github' | 'google') => {
     setLoading(true);
     try {
-      // Use production worker OAuth endpoints
-      const workerUrl = `https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/${provider}`;
-      window.location.href = workerUrl;
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      
+      if (error) {
+        console.error('OAuth error:', error);
+        throw error;
+      }
+      
+      // OAuth redirect will handle the rest
     } catch (error) {
       setLoading(false);
       throw error;
