@@ -1,11 +1,15 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Calendar } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import CustomerMaxAI from '../components/customer/CustomerMaxAI';
 import GoogleAnalyticsCard from '../components/dashboard/GoogleAnalyticsCard';
 import SearchConsoleCard from '../components/dashboard/SearchConsoleCard';
 import MyBusinessCard from '../components/dashboard/MyBusinessCard';
 import PageSpeedCard from '../components/dashboard/PageSpeedCard';
+import DomainDashboard from '../components/domains/DomainDashboard';
+import DomainSearch from '../components/domains/DomainSearch';
+import DomainConsultationBooking from '../components/booking/DomainConsultationBooking';
 
 const ClientPortalSimple: React.FC = () => {
   const navigate = useNavigate();
@@ -238,6 +242,26 @@ const ClientPortalSimple: React.FC = () => {
           </div>
         </div>
         
+        {/* Domain Services */}
+        <div className="mb-8">
+          <h3 className="text-xl font-semibold text-white mb-4">Domain Services</h3>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4">Book Domain Consultation</h4>
+              <p className="text-gray-600 mb-4">Get expert advice on domain strategy, registration, and management.</p>
+              <a
+                href="/book-consultation"
+                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <Calendar className="w-4 h-4 mr-2" />
+                Book Consultation ($50)
+              </a>
+            </div>
+            <DomainSearch />
+          </div>
+          <DomainDashboard clientId={user?.id} />
+        </div>
+
         {/* AI Assistant */}
         <div className="mb-8">
           <h3 className="text-xl font-semibold text-white mb-4">AI Assistant</h3>
