@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiService } from '../../lib/api';
 import { 
   TrendingUp, 
   DollarSign, 
@@ -56,17 +57,9 @@ const DomainRevenueReport: React.FC<DomainRevenueReportProps> = ({ isAdmin = fal
   const loadRevenueData = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/domains/revenue?range=${dateRange}&package=${selectedPackage}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        }
+      const revenueData = await apiService.call(`/api/domains/revenue?range=${dateRange}&package=${selectedPackage}`, {
+        requireAuth: true
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to load revenue data');
-      }
-
-      const revenueData = await response.json();
       setData(revenueData);
     } catch (error) {
       console.error('Error loading revenue data:', error);

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search, Globe, Star, TrendingUp, Shield, Zap } from 'lucide-react';
+import { apiService } from '../../lib/api';
 
 interface DomainResult {
   domain: string;
@@ -52,16 +53,13 @@ const DomainSearch: React.FC<DomainSearchProps> = ({ onSelectDomain }) => {
     
     setIsSearching(true);
     try {
-      const response = await fetch('/api/domains/search', {
+      const response = await apiService.call('/api/domains/search', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        },
-        body: JSON.stringify({
+        body: {
           baseName: searchTerm.toLowerCase().replace(/[^a-z0-9]/g, ''),
           tlds: selectedTlds
-        })
+        },
+        requireAuth: true
       });
 
       if (!response.ok) {

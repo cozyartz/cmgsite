@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/SupabaseAuthContext';
+import { apiService } from '../../lib/api';
 import { 
   User, 
   Building, 
@@ -72,21 +73,14 @@ const Settings: React.FC = () => {
     setSuccess('');
 
     try {
-      const response = await fetch(`/api/settings/${section}`, {
+      await apiService.call(`/api/settings/${section}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify(data)
+        body: data,
+        requireAuth: true
       });
 
-      if (response.ok) {
-        setSuccess('Settings updated successfully!');
-        setTimeout(() => setSuccess(''), 3000);
-      } else {
-        throw new Error('Failed to update settings');
-      }
+      setSuccess('Settings updated successfully!');
+      setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Update failed');
     } finally {

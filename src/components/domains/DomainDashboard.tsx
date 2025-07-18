@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiService } from '../../lib/api';
 import { 
   Globe, 
   Settings, 
@@ -46,17 +47,9 @@ const DomainDashboard: React.FC<DomainDashboardProps> = ({ clientId }) => {
   const loadDomains = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/domains/list${clientId ? `?clientId=${clientId}` : ''}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        }
+      const data = await apiService.call(`/api/domains/list${clientId ? `?clientId=${clientId}` : ''}`, {
+        requireAuth: true
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to load domains');
-      }
-
-      const data = await response.json();
       setDomains(data.domains || []);
     } catch (error) {
       console.error('Error loading domains:', error);
@@ -101,16 +94,12 @@ const DomainDashboard: React.FC<DomainDashboardProps> = ({ clientId }) => {
   const refreshDomain = async (domainId: string) => {
     setRefreshing(domainId);
     try {
-      const response = await fetch(`/api/domains/${domainId}/refresh`, {
+      await apiService.call(`/api/domains/${domainId}/refresh`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        }
+        requireAuth: true
       });
 
-      if (response.ok) {
-        await loadDomains();
-      }
+      await loadDomains();
     } catch (error) {
       console.error('Error refreshing domain:', error);
     } finally {

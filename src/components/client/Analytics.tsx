@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/SupabaseAuthContext';
+import { apiService } from '../../lib/api';
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -44,16 +45,11 @@ const Analytics: React.FC = () => {
   const fetchAnalytics = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/analytics?timeRange=${timeRange}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
+      const response = await apiService.call(`/api/analytics?timeRange=${timeRange}`, {
+        requireAuth: true
       });
       
-      if (response.ok) {
-        const data = await response.json();
-        setAnalyticsData(data);
-      }
+      setAnalyticsData(response);
     } catch (error) {
       console.error('Failed to fetch analytics:', error);
     } finally {

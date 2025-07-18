@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/SupabaseAuthContext';
 import SubscriptionManager from '../payment/SubscriptionManager';
+import { apiService } from '../../lib/api';
 import { 
   CreditCard, 
   Download, 
@@ -46,21 +47,10 @@ const Billing: React.FC = () => {
 
   const fetchBillingData = async () => {
     try {
-      const [invoicesRes, usageRes] = await Promise.all([
-        fetch('/api/billing/invoices', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-          }
-        }),
-        fetch('/api/billing/usage', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-          }
-        })
+      const [invoicesData, usageData] = await Promise.all([
+        apiService.call('/api/billing/invoices', { requireAuth: true }),
+        apiService.call('/api/billing/usage', { requireAuth: true })
       ]);
-
-      if (invoicesRes.ok && usageRes.ok) {
-        const invoicesData = await invoicesRes.json();
         const usageData = await usageRes.json();
         setInvoices(invoicesData);
         setUsageStats(usageData);
@@ -187,11 +177,10 @@ const Billing: React.FC = () => {
 
   const upgradePlan = async (planName: string) => {
     try {
-      const response = await fetch('/api/billing/upgrade', {
+      const response = await apiService.get('/api/billing/upgrade', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           plan: planName.toLowerCase(),

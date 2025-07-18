@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiService } from '../../lib/api';
 import {
   Calendar,
   Plus,
@@ -62,13 +63,10 @@ const ContentCalendar: React.FC = () => {
   const loadContentItems = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/content/calendar', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        }
+      const response = await apiService.call('/api/content/calendar', {
+        requireAuth: true
       });
-      const data = await response.json();
-      setContentItems(data.items || getDemoContent());
+      setContentItems(response.items || getDemoContent());
     } catch (error) {
       console.error('Error loading content:', error);
       setContentItems(getDemoContent());

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiService } from '../../lib/api';
 import {
   Save,
   Copy,
@@ -67,13 +68,10 @@ const TemplateLibrary: React.FC = () => {
   const loadTemplates = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/templates', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        }
+      const response = await apiService.call('/api/templates', {
+        requireAuth: true
       });
-      const data = await response.json();
-      setTemplates(data.templates || getDemoTemplates());
+      setTemplates(response.templates || getDemoTemplates());
     } catch (error) {
       console.error('Error loading templates:', error);
       setTemplates(getDemoTemplates());

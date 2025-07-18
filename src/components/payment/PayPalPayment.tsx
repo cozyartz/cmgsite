@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { PayPalScriptProvider, PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
 import { useAuth } from '../../contexts/SupabaseAuthContext';
+import { apiService } from '../../lib/api';
 import { CreditCard, Shield, Lock, CheckCircle, Loader2 } from 'lucide-react';
 
 interface PayPalPaymentProps {
@@ -69,7 +70,7 @@ const PayPalPayment: React.FC<PayPalPaymentProps> = ({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          // Authorization will be handled by the API client
         },
         body: JSON.stringify(payload)
       });
@@ -104,7 +105,7 @@ const PayPalPayment: React.FC<PayPalPaymentProps> = ({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          // Authorization will be handled by the API client
         },
         body: JSON.stringify({
           orderId: data.orderID,

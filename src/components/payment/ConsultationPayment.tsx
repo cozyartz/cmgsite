@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/SupabaseAuthContext';
 import PayPalPayment from './PayPalPayment';
+import { apiService } from '../../lib/api';
 import { 
   Calendar, 
   Clock, 
@@ -103,26 +104,18 @@ const ConsultationPayment: React.FC<ConsultationPaymentProps> = ({
   const handlePaymentSuccess = async (paymentResult: any) => {
     try {
       // Create consultation booking
-      const response = await fetch('/api/consultations/book', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify({
-          clientId: client?.id,
-          consultationType: selectedType!.id,
-          duration: selectedDuration,
-          scheduledAt: scheduledDate,
-          notes,
-          paymentId: paymentResult.payment.id,
-          amount: calculateTotal()
-        })
+      const response = await apiService.post('/api/consultations/book', {
+        clientId: client?.id,
+        consultationType: selectedType!.id,
+        duration: selectedDuration,
+        scheduledAt: scheduledDate,
+        notes,
+        paymentId: paymentResult.payment.id,
+        amount: calculateTotal()
       });
 
-      if (response.ok) {
-        const consultation = await response.json();
-        onSuccess?.(consultation);
+      if (response.data) {
+        onSuccess?.(response.data);
         setShowPayment(false);
         // Show success message
         alert('Consultation booked successfully!');

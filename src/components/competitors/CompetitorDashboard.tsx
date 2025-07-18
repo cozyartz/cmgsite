@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiService } from '../../lib/api';
 import {
   Eye,
   TrendingUp,
@@ -117,13 +118,10 @@ const CompetitorDashboard: React.FC = () => {
   const loadCompetitors = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/competitors', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        }
+      const response = await apiService.call('/api/competitors', {
+        requireAuth: true
       });
-      const data = await response.json();
-      setCompetitors(data.competitors || getDemoCompetitors());
+      setCompetitors(response.competitors || getDemoCompetitors());
     } catch (error) {
       console.error('Error loading competitors:', error);
       setCompetitors(getDemoCompetitors());
@@ -134,14 +132,11 @@ const CompetitorDashboard: React.FC = () => {
 
   const scanCompetitor = async (competitorId: string) => {
     try {
-      const response = await fetch(`/api/competitors/${competitorId}/scan`, {
+      await apiService.call(`/api/competitors/${competitorId}/scan`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        }
+        requireAuth: true
       });
-      if (response.ok) {
-        await loadCompetitors();
+      await loadCompetitors();
       }
     } catch (error) {
       console.error('Error scanning competitor:', error);

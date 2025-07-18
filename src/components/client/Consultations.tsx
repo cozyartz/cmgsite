@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/SupabaseAuthContext';
+import { apiService } from '../../lib/api';
 import ConsultationPayment from '../payment/ConsultationPayment';
 import { 
   Calendar, 
@@ -41,16 +42,11 @@ const Consultations: React.FC = () => {
 
   const fetchConsultations = async () => {
     try {
-      const response = await fetch('/api/consultations', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
+      const response = await apiService.call('/api/consultations', {
+        requireAuth: true
       });
       
-      if (response.ok) {
-        const data = await response.json();
-        setConsultations(data);
-      }
+      setConsultations(response);
     } catch (error) {
       console.error('Failed to fetch consultations:', error);
     } finally {
@@ -169,23 +165,18 @@ const Consultations: React.FC = () => {
 
   const bookConsultation = async (type: string, scheduledAt: string) => {
     try {
-      const response = await fetch('/api/consultations', {
+      await apiService.call('/api/consultations', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify({
+        body: {
           type,
           scheduledAt,
           clientId: client?.id
-        })
+        },
+        requireAuth: true
       });
 
-      if (response.ok) {
-        setShowBookingModal(false);
-        fetchConsultations();
-      }
+      setShowBookingModal(false);
+      fetchConsultations();
     } catch (error) {
       console.error('Failed to book consultation:', error);
     }

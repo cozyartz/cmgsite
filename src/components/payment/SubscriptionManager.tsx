@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/SupabaseAuthContext';
 import PayPalPayment from './PayPalPayment';
+import { apiService } from '../../lib/api';
 import { 
   CreditCard, 
   Calendar, 
@@ -91,21 +92,14 @@ const SubscriptionManager: React.FC = () => {
       });
 
       // Create subscription record
-      const response = await fetch('/api/subscriptions/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify({
-          clientId: client?.id,
-          planId: selectedPlan!.id,
-          paymentId: paymentResult.payment.id,
-          amount: selectedPlan!.priceInCents
-        })
+      const response = await apiService.post('/api/subscriptions/create', {
+        clientId: client?.id,
+        planId: selectedPlan!.id,
+        paymentId: paymentResult.payment.id,
+        amount: selectedPlan!.priceInCents
       });
 
-      if (response.ok) {
+      if (response.data) {
         setShowPayment(false);
         setSelectedPlan(null);
         // Show success message

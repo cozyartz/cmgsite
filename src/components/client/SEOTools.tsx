@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/SupabaseAuthContext';
+import { apiService } from '../../lib/api';
 import { 
   Search, 
   FileText, 
@@ -66,26 +67,18 @@ const SEOTools: React.FC = () => {
 
     setIsGenerating(true);
     try {
-      const response = await fetch('/api/ai/generate', {
+      const response = await apiService.call('/api/ai/generate', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify({
+        body: {
           type: toolType,
           prompt: userPrompt,
           clientId: client?.id
-        })
+        },
+        requireAuth: true
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setGeneratedContent(data.content);
-        // Update usage count in context
-      } else {
-        alert('Failed to generate content');
-      }
+      setGeneratedContent(response.content);
+      // Update usage count in context
     } catch (error) {
       console.error('Generation error:', error);
       alert('Failed to generate content');

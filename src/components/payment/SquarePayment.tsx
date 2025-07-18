@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/SupabaseAuthContext';
+import { apiService } from '../../lib/api';
 import { CreditCard, Shield, Lock, CheckCircle } from 'lucide-react';
 
 interface SquarePaymentProps {
@@ -83,28 +84,19 @@ const SquarePayment: React.FC<SquarePaymentProps> = ({
       
       if (result.status === 'OK') {
         // Send payment request to backend
-        const response = await fetch('/api/payment/process', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-          },
-          body: JSON.stringify({
-            sourceId: result.token,
-            amount: amount * 100, // Convert to cents
-            currency: 'USD',
-            description,
-            clientId: client?.id,
-            subscriptionPlan
-          })
+        const response = await apiService.post('/api/payment/process', {
+          sourceId: result.token,
+          amount: amount * 100, // Convert to cents
+          currency: 'USD',
+          description,
+          clientId: client?.id,
+          subscriptionPlan
         });
 
-        if (response.ok) {
-          const paymentResult = await response.json();
-          onSuccess(paymentResult);
+        if (response.data) {
+          onSuccess(response.data);
         } else {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Payment failed');
+          throw new Error(response.error || 'Payment failed');
         }
       } else {
         throw new Error('Card tokenization failed');

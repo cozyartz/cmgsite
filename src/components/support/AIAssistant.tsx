@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, Send, X, Bot, User, HelpCircle } from 'lucide-react';
+import { apiService } from '../../lib/api';
 
 interface Message {
   id: string;
@@ -75,18 +76,16 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
 
     try {
       // Send to AI assistant API
-      const response = await fetch('/api/ai/assistant', {
+      const response = await apiService.call('/api/ai/assistant', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        },
-        body: JSON.stringify({
+        body: {
           message: inputValue,
           context,
           userId,
           userEmail,
           messageHistory: messages.slice(-10) // Last 10 messages for context
+        },
+        requireAuth: true
         })
       });
 

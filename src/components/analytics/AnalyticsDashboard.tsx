@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiService } from '../../lib/api';
 import {
   TrendingUp,
   TrendingDown,
@@ -63,13 +64,10 @@ const AnalyticsDashboard: React.FC = () => {
     setLoading(true);
     try {
       // Simulate API call - replace with actual Google Analytics integration
-      const response = await fetch('/api/analytics/data', {
+      const response = await apiService.call('/api/analytics/data', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        },
-        body: JSON.stringify({ timeRange: selectedTimeRange })
+        body: { timeRange: selectedTimeRange },
+        requireAuth: true
       });
       
       const data = await response.json();

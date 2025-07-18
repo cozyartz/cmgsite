@@ -3,6 +3,7 @@ import { Check, Tag, Calendar, DollarSign } from 'lucide-react';
 import { formatCurrency, calculatePrepaymentTotal, type PricingTier } from '../config/whitelabel';
 import { useNavigate } from 'react-router-dom';
 import PayPalPayment from './payment/PayPalPayment';
+import { apiService } from '../lib/api';
 
 interface PricingPlan {
   id: string;
@@ -153,27 +154,21 @@ export default function PricingWithCoupons() {
     setCouponError('');
 
     try {
-      const response = await fetch('/api/coupons/validate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ code: couponCode.trim() })
+      const response = await apiService.post('/api/coupons/validate', { 
+        code: couponCode.trim() 
       });
 
-      const data = await response.json();
-
-      if (data.valid) {
+      if (response.data?.valid) {
         setCouponInfo({
-          code: data.coupon.code,
-          discount_amount_cents: data.coupon.discount_amount_cents,
-          discount_type: data.coupon.discount_type,
-          description: data.coupon.description,
+          code: response.data.coupon.code,
+          discount_amount_cents: response.data.coupon.discount_amount_cents,
+          discount_type: response.data.coupon.discount_type,
+          description: response.data.coupon.description,
           valid: true
         });
         setCouponError('');
       } else {
-        setCouponError(data.error || 'Invalid coupon code');
+        setCouponError(response.error || 'Invalid coupon code');
         setCouponInfo(null);
       }
     } catch (error) {
@@ -188,24 +183,15 @@ export default function PricingWithCoupons() {
     setIsLoadingQuote(true);
 
     try {
-      const response = await fetch('/api/billing/prepay-quote', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ 
-          tier: selectedTier,
-          couponCode: couponInfo?.code || couponCode.trim()
-        })
+      const response = await apiService.post('/api/billing/prepay-quote', { 
+        tier: selectedTier,
+        couponCode: couponInfo?.code || couponCode.trim()
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setPrepaymentQuote(data);
+      if (response.data) {
+        setPrepaymentQuote(response.data);
       } else {
-        console.error('Failed to get quote:', data.error);
+        console.error('Failed to get quote:', response.error);
       }
     } catch (error) {
       console.error('Quote error:', error);

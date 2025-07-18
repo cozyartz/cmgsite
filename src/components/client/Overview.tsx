@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/SupabaseAuthContext';
+import { apiService } from '../../lib/api';
 import { 
   TrendingUp, 
   Users, 
@@ -74,16 +75,11 @@ const Overview: React.FC = () => {
 
   const fetchMetrics = async () => {
     try {
-      const response = await fetch('/api/dashboard/metrics', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
+      const response = await apiService.call('/api/dashboard/metrics', {
+        requireAuth: true
       });
       
-      if (response.ok) {
-        const data = await response.json();
-        setMetrics(data);
-      }
+      setMetrics(response);
     } catch (error) {
       console.error('Failed to fetch metrics:', error);
     }

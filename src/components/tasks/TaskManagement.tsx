@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiService } from '../../lib/api';
 import {
   Plus,
   Filter,
@@ -105,13 +106,10 @@ const TaskManagement: React.FC = () => {
   const loadTasks = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/tasks', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        }
+      const response = await apiService.call('/api/tasks', {
+        requireAuth: true
       });
-      const data = await response.json();
-      setTasks(data.tasks || getDemoTasks());
+      setTasks(response.tasks || getDemoTasks());
     } catch (error) {
       console.error('Error loading tasks:', error);
       setTasks(getDemoTasks());
