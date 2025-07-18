@@ -52,7 +52,7 @@ const MaxHeadroomAI: React.FC = () => {
     
     // Technology stack queries
     if (lowerMessage.includes('technology') || lowerMessage.includes('tech stack') || lowerMessage.includes('cloudflare')) {
-      return "Tech stack analysis: OPTIMAL! *cyber-flow* Frontend: Astro for static generation, React for interactivity, Next.js for full-stack apps. Backend: Cloudflare Workers for edge compute, D1 for SQLite databases, R2 for object storage. Styling: 85% Tailwind CSS, shadcn/ui components. AI Integration: Claude Code SDK, Anthropic APIs. Authentication: NextAuth.js, Lucia Auth, custom JWT. Everything's optimized for the edge!";
+      return "Tech stack analysis: OPTIMAL! *cyber-flow* Frontend: Astro for static generation, React for interactivity, Next.js for full-stack apps. Backend: Cloudflare Workers for edge compute, D1 for SQLite databases, R2 for object storage. Styling: 85% Tailwind CSS, shadcn/ui components. AI Integration: Cloudflare AI Workers. Authentication: NextAuth.js, Lucia Auth, custom JWT. Everything's optimized for the edge!";
     }
     
     // Business and client queries
@@ -77,7 +77,7 @@ const MaxHeadroomAI: React.FC = () => {
     
     // AI and tech features
     if (lowerMessage.includes('ai') || lowerMessage.includes('artificial') || lowerMessage.includes('tech') || lowerMessage.includes('feature')) {
-      return "Now we're talking my language! *digital sparkle* The AI services are processing beautifully - users are loving the content generation features. Your Claude integrations are performing like digital poetry in motion! Want me to analyze usage patterns or suggest optimization strategies for the neural network performance?";
+      return "Now we're talking my language! *digital sparkle* The AI services are processing beautifully - users are loving the content generation features. Your Cloudflare AI integrations are performing like digital poetry in motion! Want me to analyze usage patterns or suggest optimization strategies for the neural network performance?";
     }
     
     // Competition and marketing
@@ -97,7 +97,7 @@ const MaxHeadroomAI: React.FC = () => {
     
     // Project-specific queries
     if (lowerMessage.includes('astrolms') || lowerMessage.includes('serveros') || lowerMessage.includes('autonimo')) {
-      return "Project deep-dive activated! *project scan* AstroLMS: Next.js learning platform with AI features, multi-database architecture, HIPAA/FERPA compliance. ServerOS: Legal services platform with complete tenant isolation, emergency protocols. autonimo: AI lifestyle image generation with Claude integration. cartx: Multi-tenant landing pages for business generation. Each project showcases different architectural patterns and business use cases!";
+      return "Project deep-dive activated! *project scan* AstroLMS: Next.js learning platform with AI features, multi-database architecture, HIPAA/FERPA compliance. ServerOS: Legal services platform with complete tenant isolation, emergency protocols. autonimo: AI lifestyle image generation with Cloudflare AI. cartx: Multi-tenant landing pages for business generation. Each project showcases different architectural patterns and business use cases!";
     }
     
     // General help or unclear queries

@@ -18,17 +18,10 @@ API_BASE_URL = "https://cmgsite-client-portal.cozyartz-media-group.workers.dev"
 GITHUB_REDIRECT_URI = "https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/github/callback"
 GOOGLE_REDIRECT_URI = "https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/google/callback"
 # Feature flags
-DEBUG_MODE = "true"
-ENABLE_DEBUG_ENDPOINT = "true"
+DEBUG_MODE = "false"
+ENABLE_DEBUG_ENDPOINT = "false"
 
-# Pages configuration
-pages_build_output_dir = "dist"
-
-# Pages project configuration
-[pages]
-name = "cmgsite"
-compatibility_date = "2024-01-01"
-build = { command = "npm run build", cwd = "." }
+# Pages configuration is handled separately via wrangler pages deploy
 
 # D1 Database for client data
 [[d1_databases]]
