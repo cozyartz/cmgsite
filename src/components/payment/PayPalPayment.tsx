@@ -65,7 +65,7 @@ const PayPalPayment: React.FC<PayPalPaymentProps> = ({
             cancelUrl: `${window.location.origin}/client-portal/payment/cancel`
           };
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8787'}${endpoint}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://cmgsite-client-portal.cozyartz-media-group.workers.dev'}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -100,7 +100,7 @@ const PayPalPayment: React.FC<PayPalPaymentProps> = ({
       
       const paymentId = sessionStorage.getItem('paymentId');
       
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8787'}/api/payment/capture`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://cmgsite-client-portal.cozyartz-media-group.workers.dev'}/api/payment/capture`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

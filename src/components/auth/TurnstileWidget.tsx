@@ -37,12 +37,14 @@ const TurnstileWidget: React.FC<TurnstileWidgetProps> = ({
   };
 
   // Don't render if we don't have a valid site key
-  if (!siteKey || siteKey === 'placeholder-key') {
+  if (!siteKey || siteKey === 'placeholder-key' || siteKey === 'your_turnstile_site_key_here') {
     return (
       <div className="flex justify-center my-4">
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
           <p className="text-yellow-800 text-sm">
             Turnstile CAPTCHA is not configured. Please set VITE_TURNSTILE_SITE_KEY environment variable.
+            <br />
+            <span className="text-xs text-gray-600">Current key: {siteKey}</span>
           </p>
         </div>
       </div>

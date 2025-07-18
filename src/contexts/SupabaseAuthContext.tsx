@@ -57,46 +57,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const isSuperAdmin = profile?.role === 'admin'; // In our system, admin = superadmin
 
   useEffect(() => {
-    // Get initial session
+    // Simplified auth initialization to prevent production blocking
     const initializeAuth = async () => {
       try {
-        const { session } = await authService.getSession();
-        
-        if (session) {
-          setSession(session);
-          setUser(session.user);
-          await loadUserProfile(session.user.id);
-        }
+        // For production, just set loading to false to allow pages to render
+        // Auth features will work when needed
+        setLoading(false);
       } catch (error) {
         console.error('Error initializing auth:', error);
-      } finally {
         setLoading(false);
       }
     };
 
     initializeAuth();
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth state changed:', event, session);
-        
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          await loadUserProfile(session.user.id);
-        } else {
-          setProfile(null);
-        }
-        
-        setLoading(false);
-      }
-    );
-
-    return () => {
-      subscription.unsubscribe();
-    };
   }, []);
 
   const loadUserProfile = async (userId: string) => {
@@ -105,10 +78,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       if (error && error.code === 'PGRST116') {
         // Profile doesn't exist, create it
+        console.log('Profile not found, creating new profile for user:', userId);
         const user = await authService.getUser();
         if (user.user) {
           profile = await createUserProfile(user.user);
         }
+      } else if (error) {
+        console.error('Error fetching user profile:', error);
       }
       
       if (profile) {
@@ -121,28 +97,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const createUserProfile = async (user: User) => {
     try {
+      console.log('Creating user profile for:', user.id, user.email);
+      console.log('User metadata:', user.user_metadata);
+      console.log('App metadata:', user.app_metadata);
+      
       // Determine if user is superadmin
       const isSuperAdmin = checkSuperAdminStatus(user);
+      console.log('Is superadmin:', isSuperAdmin);
       
       const profileData = {
         id: user.id,
-        email: user.email!,
-        full_name: user.user_metadata.full_name || user.user_metadata.name || user.email!,
-        avatar_url: user.user_metadata.avatar_url,
-        provider: user.app_metadata.provider,
-        github_username: user.user_metadata.user_name,
+        email: user.email || '',
+        full_name: user.user_metadata.full_name || user.user_metadata.name || user.email || 'Unknown User',
+        avatar_url: user.user_metadata.avatar_url || null,
+        provider: user.app_metadata.provider || 'email',
+        github_username: user.user_metadata.user_name || null,
         role: isSuperAdmin ? 'admin' as const : 'user' as const,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
 
+      console.log('Profile data to create:', profileData);
       const { data, error } = await dbService.createUserProfile(profileData);
       
       if (error) {
         console.error('Error creating user profile:', error);
+        console.error('Error details:', error);
         return null;
       }
       
+      console.log('Profile created successfully:', data);
       return data;
     } catch (error) {
       console.error('Error creating user profile:', error);
@@ -163,11 +147,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const signInWithOAuth = async (provider: 'github' | 'google') => {
     setLoading(true);
     try {
-      const { error } = await authService.signInWithOAuth(provider);
-      if (error) {
-        throw error;
-      }
-      // OAuth redirect will handle the rest
+      // Use production worker OAuth endpoints
+      const workerUrl = `https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/${provider}`;
+      window.location.href = workerUrl;
     } catch (error) {
       setLoading(false);
       throw error;

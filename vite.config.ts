@@ -10,9 +10,9 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8787', // Local Cloudflare Worker (run with: npm run worker:dev)
+        target: 'https://cmgsite-client-portal.cozyartz-media-group.workers.dev', // Production Cloudflare Worker
         changeOrigin: true,
-        secure: false,
+        secure: true,
       },
     },
   },
