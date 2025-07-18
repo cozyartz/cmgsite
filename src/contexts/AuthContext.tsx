@@ -32,6 +32,7 @@ interface AuthContextType {
   register: (email: string, password: string, name: string) => Promise<void>;
   switchClient: (clientId: string) => Promise<void>;
   updateClient: (updates: Partial<Client>) => Promise<void>;
+  refreshSession: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -53,69 +54,43 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [client, setClient] = useState<Client | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Restricted super admin access - GitHub OAuth or specific Google email
-  const authorizedSuperAdminGitHubUsers = [
-    'cozyartz',        // Primary admin GitHub username
-    'AmyCozartLundin'  // Amy's GitHub username
-  ];
-  
-  const authorizedSuperAdminEmails = [
-    'cozy2963@gmail.com',     // Andrea's Google email
-    'andrea@cozyartzmedia.com' // Andrea's business email
-  ];
-  
+  // Role-based access control
   const isAdmin = user?.role === 'admin';
-  const isSuperAdmin = (
-    // GitHub OAuth with authorized usernames
-    (user?.provider === 'github' && 
-     user?.github_username &&
-     authorizedSuperAdminGitHubUsers.includes(user.github_username)) ||
-    // Google OAuth with authorized emails
-    (user?.provider === 'google' && 
-     user?.email &&
-     authorizedSuperAdminEmails.includes(user.email))
-  );
+  const isSuperAdmin = user?.role === 'admin';
 
-  // Debug: Log superadmin detection
+  // Debug: Log role-based access detection
   if (user) {
-    console.log('AuthContext - Superadmin check:', {
+    console.log('AuthContext - Role check:', {
       email: user.email,
       provider: user.provider,
-      github_username: user.github_username,
-      authorizedEmails: authorizedSuperAdminEmails,
-      authorizedGitHubUsers: authorizedSuperAdminGitHubUsers,
-      isGoogleMatch: user.provider === 'google' && user.email && authorizedSuperAdminEmails.includes(user.email),
-      isGitHubMatch: user.provider === 'github' && user.github_username && authorizedSuperAdminGitHubUsers.includes(user.github_username),
+      role: user.role,
+      isAdmin,
       isSuperAdmin
     });
   }
 
 
   useEffect(() => {
-    // Check for token in URL params (from OAuth redirect)
-    const urlParams = new URLSearchParams(window.location.search);
-    const tokenParam = urlParams.get('token');
-    
-    if (tokenParam) {
-      // Store token and remove from URL
-      localStorage.setItem('auth_token', tokenParam);
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-    
-    // Check for existing session on mount
+    // Only check for existing session on mount
+    // AuthSimple component handles URL token processing
     checkSession();
   }, []);
 
   const checkSession = async () => {
+    console.log('AuthContext: Starting checkSession');
     
     // Set a timeout to prevent hanging
     const timeoutId = setTimeout(() => {
+      console.log('AuthContext: Session check timeout after 5 seconds');
       setLoading(false);
     }, 5000); // 5 second timeout
 
     try {
       const token = localStorage.getItem('auth_token');
+      console.log('AuthContext: Token from localStorage:', token ? 'present' : 'not found');
+      
       if (!token) {
+        console.log('AuthContext: No token found, clearing timeout and stopping');
         clearTimeout(timeoutId);
         setLoading(false);
         return;
@@ -135,11 +110,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       clearTimeout(timeoutSignal);
       
+      console.log('AuthContext: API response status:', response.status, response.ok);
+      
       if (response.ok) {
         const { user, client } = await response.json();
+        console.log('AuthContext: User data received:', user);
+        console.log('AuthContext: User role:', user?.role);
         setUser(user);
         setClient(client);
       } else {
+        console.log('AuthContext: API response not ok, removing token');
         localStorage.removeItem('auth_token');
       }
     } catch (error) {
@@ -306,6 +286,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const refreshSession = async () => {
+    console.log('AuthContext: Manual session refresh triggered');
+    await checkSession();
+  };
+
   const value: AuthContextType = {
     user,
     client,
@@ -317,6 +302,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     register,
     switchClient,
     updateClient,
+    refreshSession,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

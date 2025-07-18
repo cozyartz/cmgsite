@@ -407,6 +407,17 @@ async function handleTokenVerification(request, env, config, log) {
   try {
     const payload = await verifyJWT(token, env.JWT_SECRET);
     
+    // Check if user is superadmin
+    const authorizedEmails = ['cozy2963@gmail.com', 'andrea@cozyartzmedia.com'];
+    const authorizedGitHubUsers = ['cozytag'];
+    
+    const isSuperAdmin = (
+      (payload.provider === 'google' && payload.email && authorizedEmails.includes(payload.email)) ||
+      (payload.provider === 'github' && payload.github_username && authorizedGitHubUsers.includes(payload.github_username))
+    );
+    
+    log('debug', 'Token verification:', { email: payload.email, github_username: payload.github_username, isSuperAdmin });
+    
     return new Response(JSON.stringify({
       user: {
         id: payload.sub,
@@ -415,7 +426,7 @@ async function handleTokenVerification(request, env, config, log) {
         avatar_url: payload.avatar_url || '',
         provider: payload.provider,
         github_username: payload.github_username,
-        role: 'user'
+        role: isSuperAdmin ? 'admin' : 'user'
       },
       client: {
         id: 'client_test_001',
@@ -446,7 +457,7 @@ function buildErrorUrl(config, error, details) {
 
 function createDebugHtml(payload, isSuperAdmin, config, token) {
   const authorizedEmails = ['cozy2963@gmail.com', 'andrea@cozyartzmedia.com'];
-  const redirectUrl = isSuperAdmin ? config.frontend.superAdminUrl : config.frontend.clientPortalUrl;
+  const redirectUrl = `${config.frontend.authUrl}?token=${token}`;
   
   return `
 <!DOCTYPE html>
@@ -490,8 +501,8 @@ function createDebugHtml(payload, isSuperAdmin, config, token) {
         <p><strong>Is SuperAdmin:</strong> <span class="${isSuperAdmin ? 'success' : 'info'}">${isSuperAdmin}</span></p>
         
         ${isSuperAdmin ? 
-          '<div class="success"><h3>✅ SuperAdmin Access Detected!</h3><p>Redirecting to SuperAdmin Dashboard in 3 seconds...</p><p>If redirect fails, <a href="' + config.frontend.superAdminUrl + '">click here</a></p></div>' :
-          '<div class="info"><h3>ℹ️ Regular User Access</h3><p><a href="' + config.frontend.clientPortalUrl + '">Click here to continue to Client Portal</a></p></div>'
+          '<div class="success"><h3>✅ SuperAdmin Access Detected!</h3><p>Redirecting to auth page for dashboard routing in 3 seconds...</p><p>If redirect fails, <a href="' + redirectUrl + '">click here</a></p></div>' :
+          '<div class="info"><h3>ℹ️ Regular User Access</h3><p>Redirecting to auth page for dashboard routing in 3 seconds...</p><p>If redirect fails, <a href="' + redirectUrl + '">click here</a></p></div>'
         }
         
         <div style="margin-top: 20px; padding: 10px; background: #e9ecef; border-radius: 4px;">
@@ -501,12 +512,16 @@ function createDebugHtml(payload, isSuperAdmin, config, token) {
     
     <script>
         console.log('Debug data:', ${JSON.stringify(payload)});
+        console.log('SuperAdmin status:', ${isSuperAdmin});
+        console.log('Storing token in localStorage and redirecting to auth page');
+        
+        // Store token in localStorage for immediate access
         localStorage.setItem('auth_token', '${token}');
         
-        ${isSuperAdmin ? 
-          'setTimeout(() => { window.location.href = "' + redirectUrl + '"; }, 3000);' :
-          ''
-        }
+        // Always redirect to auth page - let frontend handle dashboard routing
+        setTimeout(() => { 
+          window.location.href = "${redirectUrl}"; 
+        }, 3000);
     </script>
 </body>
 </html>`;

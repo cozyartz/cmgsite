@@ -9,7 +9,7 @@ import { oauth, errors, routes } from '../lib/urls';
 const AuthSimple: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, user, isAdmin, isSuperAdmin, loading } = useAuth();
+  const { login, user, isAdmin, isSuperAdmin, loading, refreshSession } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -39,14 +39,16 @@ const AuthSimple: React.FC = () => {
       window.history.replaceState({}, '', '/auth');
     }
     
-    // If there's a token, store it and clean up URL - AuthContext will handle it
+    // If there's a token, store it and trigger session refresh
     if (token) {
+      console.log('AuthSimple: Token found in URL, storing and refreshing session');
       localStorage.setItem('auth_token', token);
       // Clean up the URL
       window.history.replaceState({}, '', '/auth');
-      // Let the routing effect handle navigation after AuthContext processes the token
+      // Trigger session refresh to process the new token
+      refreshSession();
     }
-  }, [location, navigate]);
+  }, [location, navigate, refreshSession]);
 
   // Effect to route authenticated users to the correct dashboard
   useEffect(() => {
@@ -67,16 +69,25 @@ const AuthSimple: React.FC = () => {
   // OAuth hooks
   const { isLoading: oauthLoading, error: oauthError, startOAuth } = useOAuth();
   const { processCallback, clearCallbackParams } = useOAuthCallback();
+  
+  // Individual loading states for each OAuth provider
+  const [githubLoading, setGithubLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   // OAuth login handlers
   const handleOAuthLogin = async (provider: 'github' | 'google') => {
     try {
-      setFormLoading(true);
+      if (provider === 'github') {
+        setGithubLoading(true);
+      } else {
+        setGoogleLoading(true);
+      }
       setError('');
       await startOAuth(provider);
     } catch (error) {
       setError(error instanceof Error ? error.message : `Failed to start ${provider} authentication`);
-      setFormLoading(false);
+      setGithubLoading(false);
+      setGoogleLoading(false);
     }
   };
 
@@ -124,16 +135,16 @@ const AuthSimple: React.FC = () => {
         <div className="space-y-4">
           <OAuthProvider
             provider="github"
-            disabled={formLoading || oauthLoading}
-            loading={oauthLoading}
+            disabled={formLoading || githubLoading || googleLoading}
+            loading={githubLoading}
             onStartAuth={() => handleOAuthLogin('github')}
             onError={setError}
           />
           
           <OAuthProvider
             provider="google"
-            disabled={formLoading || oauthLoading}
-            loading={oauthLoading}
+            disabled={formLoading || githubLoading || googleLoading}
+            loading={googleLoading}
             onStartAuth={() => handleOAuthLogin('google')}
             onError={setError}
           />

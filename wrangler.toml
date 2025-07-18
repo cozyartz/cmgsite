@@ -18,8 +18,8 @@ API_BASE_URL = "https://cmgsite-client-portal.cozyartz-media-group.workers.dev"
 GITHUB_REDIRECT_URI = "https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/github/callback"
 GOOGLE_REDIRECT_URI = "https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/google/callback"
 # Feature flags
-DEBUG_MODE = "false"
-ENABLE_DEBUG_ENDPOINT = "false"
+DEBUG_MODE = "true"
+ENABLE_DEBUG_ENDPOINT = "true"
 
 # Pages configuration
 pages_build_output_dir = "dist"
