@@ -174,7 +174,7 @@ export function getEnvironmentConfig(): EnvironmentConfig {
   if (!environment && typeof window !== 'undefined') {
     const hostname = window.location.hostname;
     
-    if (hostname === 'cozyartzmedia.com') {
+    if (hostname === 'cozyartzmedia.com' || hostname === 'www.cozyartzmedia.com') {
       environment = 'production';
     } else if (hostname.includes('staging') || hostname.includes('.pages.dev')) {
       environment = 'staging';
@@ -186,8 +186,13 @@ export function getEnvironmentConfig(): EnvironmentConfig {
     }
   }
   
-  // Final fallback to development
-  environment = environment || 'development';
+  // Force production for production builds
+  if (import.meta.env.PROD) {
+    environment = 'production';
+  }
+  
+  // Final fallback to production (safer default)
+  environment = environment || 'production';
   
   console.log(`[Environment] Detected environment: ${environment} (hostname: ${typeof window !== 'undefined' ? window.location.hostname : 'server'})`);
   
