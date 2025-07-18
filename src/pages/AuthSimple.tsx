@@ -4,17 +4,17 @@ import { useAuth } from '../contexts/AuthContext';
 import { OAuthProvider } from '../components/auth/OAuthProvider';
 import { useOAuth, useOAuthCallback } from '../hooks/useOAuth';
 import { apiService } from '../lib/api';
-import { oauth, errors } from '../lib/urls';
+import { oauth, errors, routes } from '../lib/urls';
 
 const AuthSimple: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuth();
+  const { login, user, isAdmin, isSuperAdmin, loading } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
-  const [loading, setLoading] = useState(false);
+  const [formLoading, setFormLoading] = useState(false);
   const [error, setError] = useState('');
 
   // Check for OAuth callback and errors in URL
@@ -39,15 +39,30 @@ const AuthSimple: React.FC = () => {
       window.history.replaceState({}, '', '/auth');
     }
     
-    // If there's a token, let AuthContext handle it and redirect to client portal
-    // The AuthContext will determine the proper routing (superadmin vs regular user)
+    // If there's a token, store it and clean up URL - AuthContext will handle it
     if (token) {
-      // Small delay to let AuthContext process the token
-      setTimeout(() => {
-        navigate('/client-portal');
-      }, 100);
+      localStorage.setItem('auth_token', token);
+      // Clean up the URL
+      window.history.replaceState({}, '', '/auth');
+      // Let the routing effect handle navigation after AuthContext processes the token
     }
   }, [location, navigate]);
+
+  // Effect to route authenticated users to the correct dashboard
+  useEffect(() => {
+    if (!loading && user) {
+      if (isSuperAdmin) {
+        console.log('Routing to superadmin dashboard');
+        navigate('/superadmin');
+      } else if (isAdmin) {
+        console.log('Routing to admin dashboard');
+        navigate('/admin');
+      } else {
+        console.log('Routing to client portal');
+        navigate('/client-portal');
+      }
+    }
+  }, [user, loading, isSuperAdmin, isAdmin, navigate]);
 
   // OAuth hooks
   const { isLoading: oauthLoading, error: oauthError, startOAuth } = useOAuth();
@@ -56,19 +71,19 @@ const AuthSimple: React.FC = () => {
   // OAuth login handlers
   const handleOAuthLogin = async (provider: 'github' | 'google') => {
     try {
-      setLoading(true);
+      setFormLoading(true);
       setError('');
       await startOAuth(provider);
     } catch (error) {
       setError(error instanceof Error ? error.message : `Failed to start ${provider} authentication`);
-      setLoading(false);
+      setFormLoading(false);
     }
   };
 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setFormLoading(true);
     setError('');
 
     try {
@@ -84,7 +99,7 @@ const AuthSimple: React.FC = () => {
       console.error('Login error:', error);
       setError(error instanceof Error ? error.message : 'Login failed. Please check your credentials.');
     } finally {
-      setLoading(false);
+      setFormLoading(false);
     }
   };
 
@@ -109,7 +124,7 @@ const AuthSimple: React.FC = () => {
         <div className="space-y-4">
           <OAuthProvider
             provider="github"
-            disabled={loading || oauthLoading}
+            disabled={formLoading || oauthLoading}
             loading={oauthLoading}
             onStartAuth={() => handleOAuthLogin('github')}
             onError={setError}
@@ -117,7 +132,7 @@ const AuthSimple: React.FC = () => {
           
           <OAuthProvider
             provider="google"
-            disabled={loading || oauthLoading}
+            disabled={formLoading || oauthLoading}
             loading={oauthLoading}
             onStartAuth={() => handleOAuthLogin('google')}
             onError={setError}
@@ -147,10 +162,10 @@ const AuthSimple: React.FC = () => {
               />
               <button 
                 type="submit"
-                disabled={loading}
+                disabled={formLoading}
                 className="w-full bg-teal-600 text-white py-3 px-4 rounded hover:bg-teal-700 disabled:opacity-50"
               >
-                {loading ? 'Signing in...' : 'Sign In'}
+                {formLoading ? 'Signing in...' : 'Sign In'}
               </button>
             </form>
             
