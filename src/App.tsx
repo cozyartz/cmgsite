@@ -3,7 +3,10 @@ import { Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import AuthPage from './pages/AuthPage';
 import ClientPortal from './pages/ClientPortal';
+import AdminDashboard from './pages/AdminDashboard';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
+import Pricing from './pages/Pricing';
+import SEOServices from './pages/SEOServices';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/SupabaseAuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -18,12 +21,26 @@ function App() {
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/auth/callback" element={<AuthPage />} />
             
+            {/* Public Pages */}
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/seo-services" element={<SEOServices />} />
+            
             {/* Protected Routes */}
             <Route 
               path="/client-portal" 
               element={
                 <ProtectedRoute>
                   <ClientPortal />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* Admin Dashboard for Clients */}
+            <Route 
+              path="/admin-dashboard" 
+              element={
+                <ProtectedRoute requireAdmin={true}>
+                  <AdminDashboard />
                 </ProtectedRoute>
               } 
             />

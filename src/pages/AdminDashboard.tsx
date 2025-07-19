@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/SupabaseAuthContext';
 import { useNavigate } from 'react-router-dom';
+import SuperAdminNavigation from '../components/SuperAdminNavigation';
 import {
   Users,
   TrendingUp,
@@ -193,8 +194,13 @@ const AdminDashboard: React.FC = () => {
     );
   }
 
+  const isSuperAdmin = user?.user_metadata?.role === 'superadmin';
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-teal-900 relative overflow-hidden">
+      {/* Conditional SuperAdmin Navigation */}
+      {isSuperAdmin && <SuperAdminNavigation />}
+      
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl animate-pulse"></div>

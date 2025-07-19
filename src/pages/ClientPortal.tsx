@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAuth } from '../contexts/SupabaseAuthContext';
+import SuperAdminNavigation from '../components/SuperAdminNavigation';
 
 const ClientPortal: React.FC = () => {
   const { user, signOut } = useAuth();
@@ -8,23 +9,25 @@ const ClientPortal: React.FC = () => {
     await signOut();
   };
 
+  const isSuperAdmin = user?.user_metadata?.role === 'superadmin';
+
   return (
     <div className="min-h-screen bg-gray-100">
+      {/* Conditional SuperAdmin Navigation */}
+      {isSuperAdmin && <SuperAdminNavigation />}
+      
       <header className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
-            <h1 className="text-xl font-bold text-gray-900">Client Portal</h1>
+            <div>
+              <h1 className="text-xl font-bold text-gray-900">Client Portal</h1>
+              <p className="text-sm text-gray-600">Basic client access and tools</p>
+            </div>
             <div className="flex items-center space-x-4">
               <div className="text-right">
                 <p className="text-sm font-medium text-gray-900">{user?.user_metadata?.full_name || user?.email}</p>
-                <p className="text-xs text-gray-500">Client</p>
+                <p className="text-xs text-gray-500">Client Access</p>
               </div>
-              <button
-                onClick={handleLogout}
-                className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-md text-sm transition-colors"
-              >
-                Sign Out
-              </button>
             </div>
           </div>
         </div>
