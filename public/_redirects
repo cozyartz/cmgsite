@@ -1,17 +1,1 @@
-# SPA fallback for React Router
 /*    /index.html   200
-
-# Redirect legacy auth paths
-/login    /auth    302
-/signup   /auth?mode=signup    302
-/dashboard    /client-portal    302
-
-# API and static assets (don't fallback these)
-/api/*    /api/:splat    200
-/assets/*    /assets/:splat    200
-/*.js    /:splat    200
-/*.css    /:splat    200
-/*.ico    /:splat    200
-/*.png    /:splat    200
-/*.jpg    /:splat    200
-/*.svg    /:splat    200

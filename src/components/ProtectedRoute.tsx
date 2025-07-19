@@ -1,78 +1,51 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/SupabaseAuthContext';
-import { isSuperAdmin, isAdmin, hasRouteAccess } from '../utils/roleUtils';
-import { Loader2 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requireAdmin?: boolean;
   requireSuperAdmin?: boolean;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
   children, 
-  requireAdmin = false, 
   requireSuperAdmin = false 
 }) => {
-  const { user, profile, loading } = useAuth();
+  const { loading, isAuthenticated, isSuperAdmin } = useAuth();
   const location = useLocation();
 
-  // Show loading spinner while checking authentication
+  // Show loading while auth is being determined
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <h2 className="text-xl font-semibold text-gray-900">Loading...</h2>
           <p className="text-gray-600">Checking authentication...</p>
         </div>
       </div>
     );
   }
 
-  // Redirect to login if not authenticated
-  if (!user) {
+  // Not authenticated - redirect to auth
+  if (!isAuthenticated) {
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
-  // If profile is still loading, show loading state instead of blocking access
-  if (!profile) {
+  // Authenticated but needs superadmin access
+  if (requireSuperAdmin && !isSuperAdmin) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600">Loading your profile...</p>
+          <div className="w-16 h-16 text-gray-400 mx-auto mb-4">🚫</div>
+          <h2 className="text-xl font-semibold text-gray-900">Access Denied</h2>
+          <p className="text-gray-600">You need superadmin privileges to access this page.</p>
         </div>
       </div>
     );
   }
 
-  // Check access permissions using utility functions
-  const userIsSuperAdmin = isSuperAdmin(user, profile);
-  const userIsAdmin = isAdmin(user, profile);
-  
-  console.log(`🔐 ProtectedRoute check for ${location.pathname}:`, {
-    userEmail: user.email,
-    userIsSuperAdmin,
-    userIsAdmin,
-    requireSuperAdmin,
-    requireAdmin,
-    profileRole: profile?.role
-  });
-  
-  if (requireSuperAdmin && !userIsSuperAdmin) {
-    console.log(`❌ Access denied to ${location.pathname} - requires superadmin, user is not superadmin`);
-    return <Navigate to="/client-portal" replace />;
-  }
-
-  if (requireAdmin && !userIsAdmin) {
-    console.log(`❌ Access denied to ${location.pathname} - requires admin, user is not admin`);
-    return <Navigate to="/client-portal" replace />;
-  }
-
-  // Log successful access
-  console.log(`✅ Access granted to ${location.pathname} for user: ${user.email}`);
-
+  // All checks passed - render children
   return <>{children}</>;
 };
 
