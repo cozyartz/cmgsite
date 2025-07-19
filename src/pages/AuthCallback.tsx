@@ -49,11 +49,17 @@ const AuthCallback: React.FC = () => {
   // Handle redirect when user and profile are loaded
   useEffect(() => {
     if (!loading && user && status === 'success') {
+      // Always determine route based on user data, even without profile loaded yet
       const redirectPath = getDashboardRoute(user, profile);
       const userRole = getUserRoleString(user, profile);
       
       console.log(`User: ${user.email}, Role: ${userRole}, Redirecting to: ${redirectPath}`);
+      
       setMessage(`Welcome ${userRole}! Redirecting to your dashboard in ${redirectCountdown} seconds...`);
+      
+      // For superadmins, reduce countdown since we don't need to wait for profile
+      const initialCountdown = isSuperAdmin(user, profile) ? 1 : 3;
+      setRedirectCountdown(initialCountdown);
       
       const countdownInterval = setInterval(() => {
         setRedirectCountdown(prev => {
@@ -68,7 +74,7 @@ const AuthCallback: React.FC = () => {
 
       return () => clearInterval(countdownInterval);
     }
-  }, [loading, user, profile, status, navigate, redirectCountdown]);
+  }, [loading, user, profile, status, navigate]);
 
   // Handle manual redirect button
   const handleManualRedirect = () => {

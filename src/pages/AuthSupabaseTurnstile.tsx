@@ -12,9 +12,9 @@ import {
   Lock,
   User,
   ArrowRight,
-  Palette,
-  Camera,
-  Video,
+  Search,
+  TrendingUp,
+  BarChart3,
   Globe
 } from 'lucide-react';
 import TurnstileWidget from '../components/auth/TurnstileWidget';
@@ -177,7 +177,7 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
             <Sparkles className="w-8 h-8 text-teal-400 absolute inset-0 m-auto animate-pulse" />
           </div>
           <h2 className="text-2xl font-bold text-white mt-6">Welcome back!</h2>
-          <p className="text-gray-300">Loading your creative workspace...</p>
+          <p className="text-gray-300">Loading your SEO dashboard...</p>
         </div>
       </div>
     );
@@ -201,7 +201,7 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
             We've sent a secure magic link to <strong className="text-teal-400">{email}</strong>
           </p>
           <p className="text-sm text-gray-400 mb-4">
-            Click the link to {authMode === 'signup' ? 'complete your account setup' : 'access your creative workspace'}
+            Click the link to {authMode === 'signup' ? 'complete your account setup' : 'access your SEO dashboard'}
           </p>
 
           {selectedPlan && (
@@ -233,22 +233,22 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
           <div className="text-center lg:text-left">
             <div className="flex items-center justify-center lg:justify-start mb-6">
               <div className="w-12 h-12 bg-gradient-to-r from-teal-400 to-purple-500 rounded-xl flex items-center justify-center mr-3">
-                <Palette className="w-6 h-6 text-white" />
+                <Search className="w-6 h-6 text-white" />
               </div>
               <h1 className="text-3xl font-bold text-white">Cozyartz</h1>
             </div>
             
             <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight">
-              {authMode === 'signup' ? 'Join Our Creative' : 'Your Creative'}
+              {authMode === 'signup' ? 'Boost Your' : 'Your SEO'}
               <span className="block bg-gradient-to-r from-teal-400 to-purple-500 bg-clip-text text-transparent">
-                {authMode === 'signup' ? 'Community' : 'Workspace Awaits'}
+                {authMode === 'signup' ? 'Search Rankings' : 'Dashboard Awaits'}
               </span>
             </h2>
             
             <p className="text-xl text-gray-300 mb-8">
               {authMode === 'signup' 
-                ? 'Start your creative journey with our professional team and advanced tools.'
-                : 'Access your projects, collaborate with our team, and bring your creative visions to life.'
+                ? 'Transform your online presence with our advanced SEO strategies and proven ranking techniques.'
+                : 'Access your SEO campaigns, track your rankings, and monitor your search performance growth.'
               }
             </p>
 
@@ -264,21 +264,21 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
             <div className="space-y-4">
               <div className="flex items-center text-gray-300">
                 <div className="w-8 h-8 bg-teal-500/20 rounded-lg flex items-center justify-center mr-3">
-                  <Globe className="w-4 h-4 text-teal-400" />
+                  <Search className="w-4 h-4 text-teal-400" />
                 </div>
-                <span>Web Design & Development</span>
+                <span>Advanced Keyword Research & Optimization</span>
               </div>
               <div className="flex items-center text-gray-300">
                 <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center mr-3">
-                  <Camera className="w-4 h-4 text-purple-400" />
+                  <TrendingUp className="w-4 h-4 text-purple-400" />
                 </div>
-                <span>Photography & Visual Design</span>
+                <span>Search Ranking Improvement</span>
               </div>
               <div className="flex items-center text-gray-300">
                 <div className="w-8 h-8 bg-pink-500/20 rounded-lg flex items-center justify-center mr-3">
-                  <Video className="w-4 h-4 text-pink-400" />
+                  <BarChart3 className="w-4 h-4 text-pink-400" />
                 </div>
-                <span>Video Production & Animation</span>
+                <span>Performance Analytics & Reporting</span>
               </div>
             </div>
           </div>
@@ -291,11 +291,11 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
             {/* Mobile Branding */}
             <div className="lg:hidden text-center mb-8">
               <div className="w-12 h-12 bg-gradient-to-r from-teal-400 to-purple-500 rounded-xl flex items-center justify-center mx-auto mb-3">
-                <Palette className="w-6 h-6 text-white" />
+                <Search className="w-6 h-6 text-white" />
               </div>
-              <h1 className="text-2xl font-bold text-white">Cozyartz Media</h1>
+              <h1 className="text-2xl font-bold text-white">Cozyartz SEO</h1>
               <p className="text-gray-300 text-sm">
-                {authMode === 'signup' ? 'Create Account' : 'Client Portal'}
+                {authMode === 'signup' ? 'Create Account' : 'SEO Dashboard'}
               </p>
             </div>
 
