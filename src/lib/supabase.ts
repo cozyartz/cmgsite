@@ -4,11 +4,13 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://uncynkmprbzgzvonafoe.supabase.co'
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVuY3lua21wcmJ6Z3p2b25hZm9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI4NTcxOTksImV4cCI6MjA2ODQzMzE5OX0.F22zq5RHTzmrpIA1E2yBAE25Pqo6rpQjLcfw2EmXLd8'
 
-// Create Supabase client
+// Create Supabase client with FORCED production URLs
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    // Set the redirect URL for OAuth - use production URL
+    // FORCE production URL - override any localhost configuration
     redirectTo: 'https://cozyartzmedia.com/auth/callback',
+    // Force production site URL - no localhost ever
+    siteUrl: 'https://cozyartzmedia.com',
     // Auto refresh tokens
     autoRefreshToken: true,
     // Persist session in localStorage
@@ -25,7 +27,10 @@ export const authService = {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
+        // FORCE production redirect - no localhost ever
         redirectTo: 'https://cozyartzmedia.com/auth/callback',
+        // Force production site URL in OAuth state
+        siteUrl: 'https://cozyartzmedia.com',
       },
     })
     return { data, error }
