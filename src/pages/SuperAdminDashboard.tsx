@@ -148,15 +148,15 @@ const SuperAdminDashboard: React.FC = () => {
     color: string;
     trend?: 'up' | 'down' | 'neutral';
   }) => (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+    <div className="bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-600/50 p-6 hover:bg-slate-700/60 transition-all duration-300">
       <div className="flex items-center justify-between">
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
-          <p className="text-2xl font-bold text-gray-900 mb-2">{value}</p>
+          <p className="text-sm font-medium text-slate-400 mb-1">{title}</p>
+          <p className="text-2xl font-bold text-white mb-2">{value}</p>
           {change && (
             <div className={`text-sm flex items-center ${
-              trend === 'up' ? 'text-green-600' : 
-              trend === 'down' ? 'text-red-600' : 'text-gray-600'
+              trend === 'up' ? 'text-green-400' : 
+              trend === 'down' ? 'text-red-400' : 'text-slate-400'
             }`}>
               {trend === 'up' && <ArrowUp className="w-4 h-4 mr-1" />}
               {trend === 'down' && <ArrowUp className="w-4 h-4 mr-1 rotate-180" />}
@@ -165,18 +165,20 @@ const SuperAdminDashboard: React.FC = () => {
           )}
         </div>
         <div className={`p-3 rounded-lg ${
-          color === 'green' ? 'bg-green-100' :
-          color === 'blue' ? 'bg-blue-100' :
-          color === 'red' ? 'bg-red-100' :
-          color === 'yellow' ? 'bg-yellow-100' :
-          'bg-gray-100'
+          color === 'green' ? 'bg-green-500/20' :
+          color === 'blue' ? 'bg-blue-500/20' :
+          color === 'red' ? 'bg-red-500/20' :
+          color === 'yellow' ? 'bg-yellow-500/20' :
+          color === 'purple' ? 'bg-purple-500/20' :
+          'bg-slate-500/20'
         }`}>
           <Icon className={`w-6 h-6 ${
-            color === 'green' ? 'text-green-600' :
-            color === 'blue' ? 'text-blue-600' :
-            color === 'red' ? 'text-red-600' :
-            color === 'yellow' ? 'text-yellow-600' :
-            'text-gray-600'
+            color === 'green' ? 'text-green-400' :
+            color === 'blue' ? 'text-blue-400' :
+            color === 'red' ? 'text-red-400' :
+            color === 'yellow' ? 'text-yellow-400' :
+            color === 'purple' ? 'text-purple-400' :
+            'text-slate-400'
           }`} />
         </div>
       </div>
@@ -185,19 +187,19 @@ const SuperAdminDashboard: React.FC = () => {
 
   const LoadingSpinner = () => (
     <div className="flex items-center justify-center py-12">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-      <span className="ml-2 text-gray-600">Loading dashboard data...</span>
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-400"></div>
+      <span className="ml-2 text-slate-300">Loading dashboard data...</span>
     </div>
   );
 
   const ErrorMessage = ({ message }: { message: string }) => (
-    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+    <div className="bg-red-900/20 border border-red-500/30 rounded-xl p-4 mb-6">
       <div className="flex items-center">
-        <AlertTriangle className="w-5 h-5 text-red-600 mr-2" />
-        <span className="text-red-800">{message}</span>
+        <AlertTriangle className="w-5 h-5 text-red-400 mr-2" />
+        <span className="text-red-200">{message}</span>
         <button 
           onClick={handleRefresh}
-          className="ml-auto text-red-600 hover:text-red-800 font-medium"
+          className="ml-auto text-red-400 hover:text-red-300 font-medium transition-colors"
         >
           Try Again
         </button>
@@ -212,8 +214,8 @@ const SuperAdminDashboard: React.FC = () => {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">Superadmin Dashboard</h2>
-                <p className="text-gray-600">Welcome back, {user?.user_metadata?.full_name || user?.email}!</p>
+                <h2 className="text-2xl font-bold text-white">Superadmin Dashboard</h2>
+                <p className="text-slate-300">Welcome back, {user?.user_metadata?.full_name || user?.email}!</p>
               </div>
               <div className="flex items-center space-x-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-4 py-2 rounded-lg">
                 <Crown className="w-5 h-5" />
@@ -267,58 +269,66 @@ const SuperAdminDashboard: React.FC = () => {
             {!dashboardData.loading && (
               <>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                  <div className="bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-600/50 p-6">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold text-gray-900">System Status</h3>
-                      <div className="flex items-center space-x-2 text-sm text-gray-500">
+                      <h3 className="text-lg font-semibold text-white">System Status</h3>
+                      <div className="flex items-center space-x-2 text-sm text-slate-400">
                         <Clock className="w-4 h-4" />
                         <span>Last updated: {dashboardData.lastUpdate?.toLocaleTimeString()}</span>
                       </div>
                     </div>
                     <div className="space-y-4">
                       {dashboardData.systemHealth?.services?.map((service, index: number) => (
-                        <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                        <div key={index} className="flex items-center justify-between py-2 border-b border-slate-700/30 last:border-0">
                           <div className="flex items-center space-x-3">
                             <div className={`w-2 h-2 rounded-full ${
-                              service.status === 'healthy' ? 'bg-green-500' :
-                              service.status === 'degraded' ? 'bg-yellow-500' : 'bg-red-500'
+                              service.status === 'healthy' ? 'bg-green-400' :
+                              service.status === 'degraded' ? 'bg-yellow-400' : 'bg-red-400'
                             }`}></div>
-                            <span className="text-gray-700 font-medium">{service.name}</span>
+                            <span className="text-slate-200 font-medium">{service.name}</span>
                           </div>
                           <div className="flex items-center space-x-2">
                             {service.response_time_ms && (
-                              <span className="text-xs text-gray-500">{service.response_time_ms}ms</span>
+                              <span className="text-xs text-slate-500">{service.response_time_ms}ms</span>
                             )}
-                            <span className={`text-sm font-medium capitalize ${getStatusColor(service.status)}`}>
+                            <span className={`text-sm font-medium capitalize ${
+                              service.status === 'healthy' ? 'text-green-400' :
+                              service.status === 'degraded' ? 'text-yellow-400' : 'text-red-400'
+                            }`}>
                               {service.status}
                             </span>
                           </div>
                         </div>
                       )) || (
-                        <div className="text-center py-4 text-gray-500">No health data available</div>
+                        <div className="text-center py-4 text-slate-400">No health data available</div>
                       )}
                     </div>
                   </div>
 
-                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+                  <div className="bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-600/50 p-6">
+                    <h3 className="text-lg font-semibold text-white mb-4">Recent Activity</h3>
                     <div className="space-y-3">
                       {dashboardData.userActivity.slice(0, 5).map((user) => (
                         <div key={user.id} className="flex items-center justify-between py-2">
                           <div className="flex items-center space-x-3">
-                            <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                              <Users className="w-4 h-4 text-gray-600" />
+                            <div className="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center">
+                              <Users className="w-4 h-4 text-slate-400" />
                             </div>
                             <div>
-                              <p className="text-sm font-medium text-gray-900">{user.full_name}</p>
-                              <p className="text-xs text-gray-500">{user.email}</p>
+                              <p className="text-sm font-medium text-white">{user.full_name}</p>
+                              <p className="text-xs text-slate-400">{user.email}</p>
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className={`text-xs px-2 py-1 rounded-full ${getPlanColor(user.subscription_plan || 'free')}`}>
+                            <div className={`text-xs px-2 py-1 rounded-full ${
+                              user.subscription_plan === 'enterprise' ? 'text-orange-300 bg-orange-500/20' :
+                              user.subscription_plan === 'growth' ? 'text-purple-300 bg-purple-500/20' :
+                              user.subscription_plan === 'starter' ? 'text-blue-300 bg-blue-500/20' :
+                              'text-gray-300 bg-gray-500/20'
+                            }`}>
                               {user.subscription_plan || 'Free'}
                             </div>
-                            <p className="text-xs text-gray-500 mt-1">
+                            <p className="text-xs text-slate-500 mt-1">
                               {user.recent_activity_count} actions
                             </p>
                           </div>
@@ -883,25 +893,25 @@ const SuperAdminDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Global Navigation */}
       <SuperAdminNavigation />
       
       {/* Schema Status Notification */}
       {schemaStatus && !schemaStatus.isInstalled && (
-        <div className="bg-amber-50 border-l-4 border-amber-400 p-4">
+        <div className="bg-amber-900/20 border-l-4 border-amber-400 p-4">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-start">
               <AlertTriangle className="flex-shrink-0 w-5 h-5 text-amber-400 mt-0.5" />
               <div className="ml-3">
-                <p className="text-sm text-amber-800">
+                <p className="text-sm text-amber-200">
                   <strong>Database Schema Not Complete:</strong> Some analytics components are missing.
                   Missing: {schemaStatus.missingComponents.join(', ')}
                 </p>
                 <div className="mt-2">
                   <button 
                     onClick={() => alert(schemaStatus.instructions)}
-                    className="text-xs bg-amber-200 hover:bg-amber-300 text-amber-900 px-3 py-1 rounded-md transition-colors"
+                    className="text-xs bg-amber-600 hover:bg-amber-500 text-white px-3 py-1 rounded-md transition-colors"
                   >
                     View Setup Instructions
                   </button>
@@ -913,27 +923,27 @@ const SuperAdminDashboard: React.FC = () => {
       )}
       
       {/* Header */}
-      <header className="bg-white shadow">
+      <header className="bg-slate-800/60 backdrop-blur-sm border-b border-slate-600/50 shadow-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                <Crown className="w-8 h-8 text-purple-600" />
+                <Crown className="w-8 h-8 text-purple-400" />
                 <div>
-                  <h1 className="text-xl font-bold text-gray-900">Cozyartz SuperAdmin</h1>
-                  <p className="text-sm text-gray-600">Internal Business Intelligence Dashboard</p>
+                  <h1 className="text-xl font-bold text-white">Cozyartz SuperAdmin</h1>
+                  <p className="text-sm text-slate-300">Internal Business Intelligence Dashboard</p>
                 </div>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">{user?.user_metadata?.full_name || user?.email}</p>
+                <p className="text-sm font-medium text-white">{user?.user_metadata?.full_name || user?.email}</p>
                 <div className="flex items-center space-x-2">
-                  <span className="text-xs text-gray-500">SuperAdmin</span>
-                  <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Unlimited Access</span>
+                  <span className="text-xs text-slate-400">SuperAdmin</span>
+                  <span className="text-xs bg-green-600 text-white px-2 py-1 rounded-full">Unlimited Access</span>
                 </div>
                 {dashboardData.lastUpdate && (
-                  <p className="text-xs text-gray-400">Updated: {dashboardData.lastUpdate.toLocaleTimeString()}</p>
+                  <p className="text-xs text-slate-500">Updated: {dashboardData.lastUpdate.toLocaleTimeString()}</p>
                 )}
               </div>
             </div>
@@ -942,17 +952,17 @@ const SuperAdminDashboard: React.FC = () => {
       </header>
 
       {/* Navigation Tabs */}
-      <nav className="bg-white shadow-sm border-b">
+      <nav className="bg-slate-800/40 backdrop-blur-sm border-b border-slate-600/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-8">
+          <div className="flex space-x-8 overflow-x-auto">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setCurrentTab(tab.id)}
-                className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
                   currentTab === tab.id
-                    ? 'border-purple-500 text-purple-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-purple-400 text-purple-400'
+                    : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-500'
                 }`}
               >
                 <tab.icon className="w-4 h-4" />
