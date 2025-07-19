@@ -1,24 +1,19 @@
-# Apache .htaccess for clean URLs and proper redirects
-
+# Apache .htaccess for React SPA routing
 RewriteEngine On
 
 # Force HTTPS
 RewriteCond %{HTTPS} off
 RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-# Handle service page URLs
-RewriteRule ^ai-services/?$ /ai-services.html [L]
-RewriteRule ^seo-services/?$ /seo-services.html [L]
-RewriteRule ^instructional-design-services/?$ /instructional-design-services.html [L]
-RewriteRule ^multimedia-services/?$ /multimedia-services.html [L]
-RewriteRule ^drone-services/?$ /drone-services.html [L]
-RewriteRule ^web-graphic-design-services/?$ /web-graphic-design-services.html [L]
+# Handle static assets - serve directly
+RewriteRule ^assets/ - [L]
+RewriteRule ^favicon\.ico$ - [L]
+RewriteRule ^robots\.txt$ - [L]
+RewriteRule ^sitemap\.xml$ - [L]
+RewriteRule \.(png|jpg|jpeg|gif|svg|css|js|ico|webp|pdf)$ - [L]
 
-# Handle file caching
-<FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg)$">
-    ExpiresActive On
-    ExpiresDefault "access plus 1 year"
-</FilesMatch>
+# Handle API routes (if any) - don't rewrite
+RewriteRule ^api/ - [L]
 
 # Security headers
 Header always set X-Content-Type-Options nosniff
@@ -26,5 +21,19 @@ Header always set X-Frame-Options DENY
 Header always set X-XSS-Protection "1; mode=block"
 Header always set Referrer-Policy "strict-origin-when-cross-origin"
 
-# Fallback to index.html for SPA routes not handled above
-FallbackResource /index.html
+# Cache static assets
+<FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg|webp)$">
+    ExpiresActive On
+    ExpiresDefault "access plus 1 year"
+    Header set Cache-Control "public, immutable"
+</FilesMatch>
+
+# SPA Fallback - redirect all other requests to index.html
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/api/
+RewriteRule . /index.html [L]
+
+# Set proper MIME types
+AddType application/javascript .js
+AddType text/css .css

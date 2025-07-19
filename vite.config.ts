@@ -19,20 +19,12 @@ export default defineConfig({
   build: {
     chunkSizeWarningLimit: 800, // Increase limit to 800 kB
     rollupOptions: {
-      input: {
-        main: './index.html',
-        'ai-services': './ai-services.html',
-        'seo-services': './seo-services.html', 
-        'instructional-design-services': './instructional-design-services.html',
-        'multimedia-services': './multimedia-services.html',
-        'drone-services': './drone-services.html',
-        'web-graphic-design-services': './web-graphic-design-services.html',
-        'pricing': './pricing.html'
-      },
+      // Remove multiple entry points - we're building a SPA
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
-          ui: ['lucide-react', 'react-helmet-async']
+          ui: ['lucide-react', 'react-helmet-async'],
+          auth: ['@supabase/supabase-js']
         }
       }
     }

@@ -1,0 +1,24 @@
+# Cloudflare Pages routing configuration
+# Routes that should be served as static files
+
+# Static assets
+/assets/*
+/favicon.ico
+/robots.txt
+/sitemap.xml
+/*.png
+/*.jpg
+/*.jpeg
+/*.gif
+/*.svg
+/*.css
+/*.js
+/*.ico
+/*.webp
+/*.pdf
+
+# API routes (served by Worker)
+/api/*
+
+# All other routes should fallback to index.html (SPA)
+/*
