@@ -87,6 +87,7 @@ function App() {
           
           {/* Authentication Routes */}
           <Route path="/auth" element={<AuthSupabaseTurnstile />} />
+          <Route path="/auth/*" element={<AuthSupabaseTurnstile />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/auth/debug" element={<AuthDebugPage />} />

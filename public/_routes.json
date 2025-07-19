@@ -1,9 +1,25 @@
 {
   "version": 1,
+  "description": "SPA routing configuration for Cozyartz Media Group",
   "include": [
     "/*"
   ],
   "exclude": [
+    "/assets/*",
+    "/favicon.ico",
+    "/robots.txt",
+    "/sitemap.xml",
+    "/manifest.json",
+    "/*.png",
+    "/*.jpg",
+    "/*.jpeg",
+    "/*.gif",
+    "/*.svg",
+    "/*.css",
+    "/*.js",
+    "/*.ico",
+    "/*.webp",
+    "/*.pdf",
     "/api/*"
   ]
 }

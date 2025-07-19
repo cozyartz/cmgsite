@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "VITE_ENVIRONMENT=production vite build",
-    "build:spa": "VITE_ENVIRONMENT=production vite build && cp public/_routes dist/ && cp public/_redirects dist/",
+    "build:pages": "VITE_ENVIRONMENT=production vite build && cp public/_routes.json dist/ && cp public/_redirects dist/",
+    "build:spa": "VITE_ENVIRONMENT=production vite build && cp public/_routes.json dist/ && cp public/_redirects dist/",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
@@ -25,11 +26,11 @@
     "worker:deploy": "wrangler deploy",
     "worker:deploy:staging": "wrangler deploy --env staging",
     "worker:deploy:dev": "wrangler deploy --env development",
-    "deploy": "VITE_ENVIRONMENT=production VITE_TURNSTILE_SITE_KEY=0x4AAAAAABlo_LdXn1ErLBXD npm run build:spa && npm run deploy:worker && npm run deploy:pages",
+    "deploy": "VITE_ENVIRONMENT=production VITE_TURNSTILE_SITE_KEY=0x4AAAAAABlo_LdXn1ErLBXD npm run build:pages && npm run deploy:worker && npm run deploy:pages",
     "deploy:worker": "wrangler deploy --env=\"\"",
     "deploy:pages": "wrangler pages deploy dist",
     "deploy:staging": "npm run build && wrangler deploy --env staging && wrangler pages deploy dist",
-    "deploy:production": "VITE_ENVIRONMENT=production VITE_TURNSTILE_SITE_KEY=0x4AAAAAABlo_LdXn1ErLBXD npm run build:spa && wrangler deploy --env=\"\" && wrangler pages deploy dist"
+    "deploy:production": "VITE_ENVIRONMENT=production VITE_TURNSTILE_SITE_KEY=0x4AAAAAABlo_LdXn1ErLBXD npm run build:pages && wrangler deploy --env=\"\" && wrangler pages deploy dist"
   },
   "dependencies": {
     "@cloudflare/ai": "^1.2.2",

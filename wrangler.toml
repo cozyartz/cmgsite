@@ -3,10 +3,10 @@ main = "worker.js"
 compatibility_date = "2024-01-01"
 compatibility_flags = ["nodejs_compat"]
 account_id = "51826042d6e31c694331efeb1be34123"
+pages_build_output_dir = "dist"
 
 [vars]
 ENVIRONMENT = "production"
-pages_build_output_dir = "dist"
 # Frontend URLs (will be set based on environment)
 FRONTEND_BASE_URL = "https://cozyartzmedia.com"
 FRONTEND_AUTH_URL = "https://cozyartzmedia.com/auth"
@@ -19,8 +19,8 @@ API_BASE_URL = "https://cmgsite-client-portal.cozyartz-media-group.workers.dev"
 GITHUB_REDIRECT_URI = "https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/github/callback"
 GOOGLE_REDIRECT_URI = "https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/google/callback"
 # Feature flags
-DEBUG_MODE = "true"
-ENABLE_DEBUG_ENDPOINT = "true"
+DEBUG_MODE = "false"
+ENABLE_DEBUG_ENDPOINT = "false"
 
 # D1 Database for client data
 [[d1_databases]]
