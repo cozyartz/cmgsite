@@ -27,7 +27,7 @@ const PayPalPayment: React.FC<PayPalPaymentProps> = ({
   tier,
   couponCode
 }) => {
-  const { client, user } = useAuth();
+  const { user, profile } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
 
@@ -60,7 +60,7 @@ const PayPalPayment: React.FC<PayPalPaymentProps> = ({
         : {
             amount,
             description,
-            clientId: client?.id,
+            clientId: profile?.id,
             userEmail: user?.email,
             returnUrl: 'https://cozyartzmedia.com/client-portal/payment/success',
             cancelUrl: 'https://cozyartzmedia.com/client-portal/payment/cancel'
