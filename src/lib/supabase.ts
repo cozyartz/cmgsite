@@ -1,36 +1,51 @@
 import { createClient } from '@supabase/supabase-js'
 
-// Supabase configuration
+// Supabase configuration - FORCE PRODUCTION ONLY
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://uncynkmprbzgzvonafoe.supabase.co'
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVuY3lua21wcmJ6Z3p2b25hZm9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI4NTcxOTksImV4cCI6MjA2ODQzMzE5OX0.F22zq5RHTzmrpIA1E2yBAE25Pqo6rpQjLcfw2EmXLd8'
+
+// FORCE production URLs from environment
+const siteUrl = import.meta.env.VITE_SITE_URL || 'https://cozyartzmedia.com'
+const callbackUrl = import.meta.env.VITE_CALLBACK_URL || 'https://cozyartzmedia.com/auth/callback'
 
 // Create Supabase client with FORCED production URLs
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     // FORCE production URL - override any localhost configuration
-    redirectTo: 'https://cozyartzmedia.com/auth/callback',
+    redirectTo: callbackUrl,
     // Force production site URL - no localhost ever
-    siteUrl: 'https://cozyartzmedia.com',
+    siteUrl: siteUrl,
     // Auto refresh tokens
     autoRefreshToken: true,
     // Persist session in localStorage
     persistSession: true,
     // Detect session in URL
     detectSessionInUrl: true,
+    // FORCE production flow URL
+    flowType: 'pkce',
+  },
+  global: {
+    headers: {
+      'X-Client-Info': 'supabase-js-web',
+      'X-Site-URL': siteUrl,
+    },
   },
 })
 
 // Auth helper functions
 export const authService = {
-  // Sign in with OAuth provider
+  // Sign in with OAuth provider - AGGRESSIVE LOCALHOST OVERRIDE
   signInWithOAuth: async (provider: 'github' | 'google') => {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
         // FORCE production redirect - no localhost ever
-        redirectTo: 'https://cozyartzmedia.com/auth/callback',
-        // Force production site URL in OAuth state
-        siteUrl: 'https://cozyartzmedia.com',
+        redirectTo: callbackUrl,
+        // Explicit query parameters to override Supabase dashboard config
+        queryParams: {
+          redirect_to: callbackUrl,
+          site_url: siteUrl,
+        },
       },
     })
     return { data, error }
