@@ -8,6 +8,7 @@ import UserManagement from '../components/admin/UserManagement';
 // REMOVED: EnvironmentManager - Security risk exposing secrets in UI
 import AdvancedExportTools from '../components/admin/AdvancedExportTools';
 import MaxHeadroomAI from '../components/admin/MaxHeadroomAI';
+import PowerTools from '../components/admin/PowerTools';
 
 type SuperAdminTab = 'overview' | 'users' | 'analytics' | 'revenue' | 'performance' | 'clientTools' | 'maxai' | 'settings' | 'powertools' | 'exports';
 
@@ -383,7 +384,7 @@ const SuperAdminDashboard: React.FC = () => {
         return <UserManagement isVisible={true} />;
       
       case 'powertools':
-        return <UserManagement isVisible={true} />;
+        return <PowerTools isVisible={true} />;
       
       case 'exports':
         return <AdvancedExportTools isVisible={true} />;
