@@ -5,11 +5,11 @@ import { Crown, Users, TrendingUp, DollarSign, Activity, CheckCircle, ArrowUp, B
 import { AnalyticsService, DashboardStats, UserActivity, RevenueData, formatCurrency, formatNumber, formatPercent, getStatusColor, getPlanColor } from '../lib/analytics';
 import SuperAdminNavigation from '../components/SuperAdminNavigation';
 import UserManagement from '../components/admin/UserManagement';
-import EnvironmentManager from '../components/admin/EnvironmentManager';
+// REMOVED: EnvironmentManager - Security risk exposing secrets in UI
 import AdvancedExportTools from '../components/admin/AdvancedExportTools';
 import MaxHeadroomAI from '../components/admin/MaxHeadroomAI';
 
-type SuperAdminTab = 'overview' | 'users' | 'analytics' | 'revenue' | 'performance' | 'clientTools' | 'maxai' | 'settings' | 'powertools' | 'exports' | 'environment';
+type SuperAdminTab = 'overview' | 'users' | 'analytics' | 'revenue' | 'performance' | 'clientTools' | 'maxai' | 'settings' | 'powertools' | 'exports';
 
 interface SystemHealth {
   overall_status: 'healthy' | 'degraded' | 'unhealthy';
@@ -163,7 +163,7 @@ const SuperAdminDashboard: React.FC = () => {
     { id: 'performance' as SuperAdminTab, label: 'Performance', icon: Activity },
     { id: 'powertools' as SuperAdminTab, label: 'Power Tools', icon: Crown },
     { id: 'exports' as SuperAdminTab, label: 'Advanced Exports', icon: Download },
-    { id: 'environment' as SuperAdminTab, label: 'Environment', icon: Zap },
+    // REMOVED: Environment tab - Security risk exposing secrets
     { id: 'clientTools' as SuperAdminTab, label: 'Client Tools', icon: Activity },
     { id: 'maxai' as SuperAdminTab, label: 'MAX AI', icon: Bot },
     { id: 'settings' as SuperAdminTab, label: 'Settings', icon: Users }
@@ -380,8 +380,7 @@ const SuperAdminDashboard: React.FC = () => {
       case 'exports':
         return <AdvancedExportTools isVisible={true} />;
       
-      case 'environment':
-        return <EnvironmentManager isVisible={true} />;
+      // REMOVED: Environment case - Security risk exposing secrets
       
       case 'maxai':
         return (
