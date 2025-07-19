@@ -4,9 +4,6 @@ compatibility_date = "2024-01-01"
 compatibility_flags = ["nodejs_compat"]
 account_id = "51826042d6e31c694331efeb1be34123"
 
-# Explicitly set Pages project configuration
-pages_build_output_dir = "dist"
-
 [vars]
 ENVIRONMENT = "production"
 # Frontend URLs (will be set based on environment)
@@ -24,7 +21,6 @@ GOOGLE_REDIRECT_URI = "https://cmgsite-client-portal.cozyartz-media-group.worker
 DEBUG_MODE = "true"
 ENABLE_DEBUG_ENDPOINT = "true"
 
-
 # D1 Database for client data
 [[d1_databases]]
 binding = "DB"
@@ -39,11 +35,6 @@ bucket_name = "cmgsite-client-portal-files"
 # Workers AI binding
 [ai]
 binding = "AI"
-
-# AI Gateway configuration (remove - not yet supported)
-# [ai_gateway]
-# binding = "AI_GATEWAY"
-# id = "cmgsite-gateway"
 
 # KV for session storage
 [[kv_namespaces]]

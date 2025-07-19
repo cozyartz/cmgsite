@@ -14,6 +14,8 @@ export const supabase = createClient(env.supabaseUrl, env.supabaseAnonKey, {
     flowType: 'pkce',
     // Storage key for session persistence
     storageKey: 'cmgsite-auth-token',
+    // Use custom auth domain
+    url: 'https://auth.cozyartzmedia.com',
   },
   global: {
     headers: {
