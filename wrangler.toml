@@ -4,6 +4,9 @@ compatibility_date = "2024-01-01"
 compatibility_flags = ["nodejs_compat"]
 account_id = "51826042d6e31c694331efeb1be34123"
 
+# Explicitly set Pages project configuration
+pages_build_output_dir = "dist"
+
 [vars]
 ENVIRONMENT = "production"
 # Frontend URLs (will be set based on environment)
@@ -21,8 +24,6 @@ GOOGLE_REDIRECT_URI = "https://cmgsite-client-portal.cozyartz-media-group.worker
 DEBUG_MODE = "true"
 ENABLE_DEBUG_ENDPOINT = "true"
 
-# Pages configuration
-pages_build_output_dir = "dist"
 
 # D1 Database for client data
 [[d1_databases]]
