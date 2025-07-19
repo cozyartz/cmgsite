@@ -60,8 +60,10 @@ function App() {
             <Route path="*" element={<Home />} />
           </Routes>
           
-          {/* Global AI Assistant - Available on all pages */}
-          <ClientMaxAI />
+          {/* Global AI Assistant - Available on authenticated pages only */}
+          <ErrorBoundary>
+            <ClientMaxAI />
+          </ErrorBoundary>
         </div>
       </AuthProvider>
     </ErrorBoundary>

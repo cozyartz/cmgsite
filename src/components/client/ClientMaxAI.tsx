@@ -29,6 +29,11 @@ const ClientMaxAI: React.FC<ClientMaxAIProps> = ({ className = '' }) => {
   });
   const [clientData, setClientData] = useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  // Don't render if user is not authenticated
+  if (!user) {
+    return null;
+  }
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
