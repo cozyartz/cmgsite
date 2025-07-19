@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/SupabaseAuthContext';
 import { 
   Github, 
@@ -107,7 +107,6 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
   };
 
   const handleMagicLinkAuth = async (e: React.FormEvent) => {
-import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
     e.preventDefault();
     if (!turnstileToken) {
       setError('Please complete the security verification');
