@@ -73,12 +73,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     let mounted = true;
+    let timeoutId: NodeJS.Timeout;
+
+    // Timeout to prevent infinite loading
+    const authTimeout = setTimeout(() => {
+      if (mounted && loading) {
+        console.warn('⚠️ Auth initialization timeout, proceeding without authentication');
+        setLoading(false);
+      }
+    }, 5000); // 5 second timeout
 
     // Get initial session
     const initializeAuth = async () => {
       try {
         console.log('🔐 Initializing authentication...');
-        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        // Quick session check with timeout
+        const sessionPromise = supabase.auth.getSession();
+        const timeoutPromise = new Promise((_, reject) => {
+          timeoutId = setTimeout(() => reject(new Error('Session check timeout')), 3000);
+        });
+        
+        const { data: { session }, error } = await Promise.race([sessionPromise, timeoutPromise]) as any;
+        
+        if (timeoutId) clearTimeout(timeoutId);
         
         if (error) {
           console.error('❌ Error getting session:', error);
@@ -92,12 +110,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           console.log('✅ Session found for:', session.user.email);
           setSession(session);
           setUser(session.user);
-          await loadUserProfile(session.user);
+          // Load profile in background, don't block UI
+          loadUserProfile(session.user).catch(console.error);
         } else {
           console.log('ℹ️ No active session found');
         }
       } catch (error) {
         console.error('❌ Error initializing auth:', error);
+        // Don't let auth errors break the app
       } finally {
         if (mounted) {
           setLoading(false);
@@ -107,28 +127,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     initializeAuth();
 
-    // Listen for auth changes
+    // Listen for auth changes with error handling
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('🔄 Auth state changed:', event, session?.user?.email);
         
         if (!mounted) return;
         
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          await loadUserProfile(session.user);
-        } else {
-          setProfile(null);
+        try {
+          setSession(session);
+          setUser(session?.user ?? null);
+          
+          if (session?.user) {
+            // Load profile in background
+            loadUserProfile(session.user).catch(console.error);
+          } else {
+            setProfile(null);
+          }
+        } catch (error) {
+          console.error('❌ Error handling auth state change:', error);
+        } finally {
+          setLoading(false);
         }
-        
-        setLoading(false);
       }
     );
 
     return () => {
       mounted = false;
+      clearTimeout(authTimeout);
+      if (timeoutId) clearTimeout(timeoutId);
       subscription.unsubscribe();
     };
   }, []);
@@ -137,15 +164,49 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       console.log('👤 Loading profile for user:', user.id, user.email);
       
-      // First try to get existing profile
-      let { data: profile, error } = await dbService.getUserProfile(user.id);
+      // Add timeout to profile loading
+      const profilePromise = dbService.getUserProfile(user.id);
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Profile loading timeout')), 5000);
+      });
+      
+      let { data: profile, error } = await Promise.race([profilePromise, timeoutPromise]) as any;
       
       if (error && error.code === 'PGRST116') {
         // Profile doesn't exist, create it
         console.log('📝 Profile not found, creating new profile...');
         profile = await createUserProfile(user);
+      } else if (error && error.message === 'Profile loading timeout') {
+        console.warn('⚠️ Profile loading timeout, using minimal profile');
+        // Create minimal profile for immediate access
+        const isSuperAdmin = checkSuperAdminStatus(user);
+        setProfile({
+          id: user.id,
+          email: user.email || '',
+          full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+          avatar_url: user.user_metadata?.avatar_url || null,
+          provider: user.app_metadata?.provider || 'email',
+          github_username: user.user_metadata?.user_name || null,
+          role: isSuperAdmin ? 'admin' : 'user',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        });
+        return;
       } else if (error) {
         console.error('❌ Error fetching user profile:', error);
+        // Still provide minimal access
+        const isSuperAdmin = checkSuperAdminStatus(user);
+        setProfile({
+          id: user.id,
+          email: user.email || '',
+          full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+          avatar_url: user.user_metadata?.avatar_url || null,
+          provider: user.app_metadata?.provider || 'email',
+          github_username: user.user_metadata?.user_name || null,
+          role: isSuperAdmin ? 'admin' : 'user',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        });
         return;
       }
       
@@ -155,6 +216,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     } catch (error) {
       console.error('❌ Error loading user profile:', error);
+      // Fallback: create minimal profile to prevent app blocking
+      const isSuperAdmin = checkSuperAdminStatus(user);
+      setProfile({
+        id: user.id,
+        email: user.email || '',
+        full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+        avatar_url: user.user_metadata?.avatar_url || null,
+        provider: user.app_metadata?.provider || 'email',
+        github_username: user.user_metadata?.user_name || null,
+        role: isSuperAdmin ? 'admin' : 'user',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      });
     }
   };
 
@@ -182,18 +256,38 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       };
 
       console.log('📋 Profile data to create:', profileData);
-      const { data, error } = await dbService.createUserProfile(profileData);
+      
+      // Add timeout to profile creation
+      const createPromise = dbService.createUserProfile(profileData);
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Profile creation timeout')), 5000);
+      });
+      
+      const { data, error } = await Promise.race([createPromise, timeoutPromise]) as any;
       
       if (error) {
         console.error('❌ Error creating user profile:', error);
-        return null;
+        // Return the profile data anyway for immediate access
+        return profileData;
       }
       
       console.log('✅ Profile created successfully:', data);
       return data;
     } catch (error) {
       console.error('❌ Error creating user profile:', error);
-      return null;
+      // Return basic profile data for immediate access
+      const isSuperAdmin = checkSuperAdminStatus(user);
+      return {
+        id: user.id,
+        email: user.email || '',
+        full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+        avatar_url: user.user_metadata?.avatar_url || null,
+        provider: user.app_metadata?.provider || 'email',
+        github_username: user.user_metadata?.user_name || null,
+        role: isSuperAdmin ? 'admin' : 'user',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
     }
   };
 
@@ -212,6 +306,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.log('✅ OAuth initiated successfully');
       // OAuth redirect will handle the rest, don't set loading to false here
     } catch (error) {
+      console.error('OAuth error caught:', error);
       setLoading(false);
       throw error;
     }

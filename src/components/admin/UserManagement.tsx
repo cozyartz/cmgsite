@@ -143,7 +143,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ isVisible }) => {
   };
 
   const filterAndSortUsers = () => {
-    let filtered = users.filter(user => {
+    const filtered = users.filter(user => {
       const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            user.email.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === 'all' || user.status === statusFilter;

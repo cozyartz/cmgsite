@@ -15,13 +15,19 @@ const AuthCallback: React.FC = () => {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        console.log('🔄 Processing auth callback...');
+        console.log('🔄 Processing auth callback...', {
+          pathname: window.location.pathname,
+          search: window.location.search,
+          hash: window.location.hash
+        });
         
-        // Check for auth fragments in URL (OAuth/magic link callback)
+        // Check for auth parameters in URL
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
         const searchParams = new URLSearchParams(window.location.search);
         
-        // Check for error in URL
+        // Check for OAuth code parameter
+        const code = searchParams.get('code');
+        const accessToken = hashParams.get('access_token') || searchParams.get('access_token');
         const error = hashParams.get('error') || searchParams.get('error');
         const errorDescription = hashParams.get('error_description') || searchParams.get('error_description');
         
@@ -32,39 +38,42 @@ const AuthCallback: React.FC = () => {
           return;
         }
 
-        // Check for access token or let Supabase handle session detection
-        const accessToken = hashParams.get('access_token');
-        
-        if (accessToken) {
-          console.log('✅ Access token found in URL, letting Supabase handle session...');
-          // Let Supabase auth state change handler manage the session
+        // If we have a code or access token, let Supabase handle it
+        if (code || accessToken) {
+          console.log('✅ OAuth callback detected:', code ? 'code' : 'access_token');
           setStatus('success');
           setMessage('Authentication successful! Setting up your session...');
-        } else {
-          // Try to get existing session
-          const { data, error: sessionError } = await supabase.auth.getSession();
           
-          if (sessionError) {
-            console.error('❌ Session error:', sessionError);
-            setStatus('error');
-            setMessage(`Session error: ${sessionError.message}`);
-            return;
-          }
-
-          if (data.session) {
-            console.log('✅ Existing session found:', data.session.user.email);
-            setStatus('success');
-            setMessage('Authentication successful! Determining your access level...');
-          } else {
-            console.log('❌ No session found');
-            setStatus('error');
-            setMessage('No session found. Please try logging in again.');
-          }
+          // Clean up URL immediately
+          window.history.replaceState({}, '', '/auth/callback');
+          
+          // Let Supabase auth context handle the session
+          return;
         }
         
-        // Clean up URL
-        if (window.location.hash || window.location.search.includes('access_token')) {
-          window.history.replaceState({}, '', '/auth/callback');
+        // Try to get existing session
+        const { data, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error('❌ Session error:', sessionError);
+          setStatus('error');
+          setMessage(`Session error: ${sessionError.message}`);
+          return;
+        }
+
+        if (data.session) {
+          console.log('✅ Existing session found:', data.session.user.email);
+          setStatus('success');
+          setMessage('Authentication successful! Determining your access level...');
+        } else {
+          console.log('❌ No session found, checking for delayed auth...');
+          // Wait a bit for auth state to update
+          setTimeout(() => {
+            if (!user) {
+              setStatus('error');
+              setMessage('Authentication timed out. Please try logging in again.');
+            }
+          }, 5000);
         }
         
       } catch (error) {
@@ -75,17 +84,23 @@ const AuthCallback: React.FC = () => {
     };
 
     handleAuthCallback();
-  }, []);
+  }, [user]);
 
   // Handle redirect when user is authenticated
   useEffect(() => {
     if (!loading && user && status === 'success') {
-      // Force SuperAdmin check for your email
-      const isYourEmail = user.email === 'cozy2963@gmail.com';
-      const redirectPath = isYourEmail ? '/superadmin' : getDashboardRoute(user, profile);
-      const userRole = isYourEmail ? 'Super Administrator' : getUserRoleString(user, profile);
+      // Simple redirect logic for your specific email
+      let redirectPath = '/client-portal';
       
-      console.log(`🎯 User: ${user.email}, Is SuperAdmin: ${isYourEmail}, Role: ${userRole}, Redirecting to: ${redirectPath}`);
+      if (user.email === 'cozy2963@gmail.com' || user.email === 'andrea@cozyartzmedia.com') {
+        redirectPath = '/superadmin';
+      } else if (profile?.role === 'admin') {
+        redirectPath = '/admin';
+      }
+      
+      const userRole = user.email === 'cozy2963@gmail.com' ? 'Super Administrator' : (profile?.role === 'admin' ? 'Administrator' : 'User');
+      
+      console.log(`🎯 User: ${user.email}, Role: ${userRole}, Redirecting to: ${redirectPath}`);
       
       setMessage(`Welcome ${userRole}! Redirecting to your dashboard...`);
       
@@ -101,8 +116,15 @@ const AuthCallback: React.FC = () => {
 
   // Handle manual redirect button
   const handleManualRedirect = () => {
-    const redirectPath = getDashboardRoute(user, profile);
-    navigate(redirectPath);
+    let redirectPath = '/client-portal';
+    
+    if (user?.email === 'cozy2963@gmail.com' || user?.email === 'andrea@cozyartzmedia.com') {
+      redirectPath = '/superadmin';
+    } else if (profile?.role === 'admin') {
+      redirectPath = '/admin';
+    }
+    
+    navigate(redirectPath, { replace: true });
   };
 
   const renderContent = () => {

@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/SupabaseAuthContext';
 import Header from '../components/Header';
 import Hero from '../components/Hero';
 import Services from '../components/Services';
@@ -10,6 +12,39 @@ import Footer from '../components/Footer';
 import SEO from '../components/SEO';
 
 const Home = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { user, loading } = useAuth();
+
+  // Handle OAuth callback codes that land on home page
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const code = urlParams.get('code');
+    const error = urlParams.get('error');
+    
+    // If we have OAuth parameters, redirect to auth callback
+    if (code || error) {
+      console.log('🔄 OAuth callback detected on home page, redirecting...');
+      window.location.href = `/auth/callback${location.search}`;
+      return;
+    }
+  }, [location]);
+
+  // If user is authenticated, redirect to dashboard
+  useEffect(() => {
+    if (!loading && user) {
+      console.log('🎯 User is logged in, redirecting to dashboard:', user.email);
+      
+      // Determine dashboard route
+      let dashboardPath = '/client-portal';
+      if (user.email === 'cozy2963@gmail.com' || user.email === 'andrea@cozyartzmedia.com') {
+        dashboardPath = '/superadmin';
+      }
+      
+      // Clean redirect to dashboard
+      window.location.href = dashboardPath;
+    }
+  }, [user, loading]);
   return (
     <div className="min-h-screen">
       <SEO
