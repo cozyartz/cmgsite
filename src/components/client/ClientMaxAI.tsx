@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, Send, X, Bot, AlertTriangle, Crown } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { AnalyticsService } from '../../lib/analytics';
+import { supabase } from '../../lib/supabase';
 
 interface Message {
   id: string;
@@ -15,7 +16,7 @@ interface ClientMaxAIProps {
 }
 
 const ClientMaxAI: React.FC<ClientMaxAIProps> = ({ className = '' }) => {
-  const { client } = useAuth();
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
@@ -26,6 +27,7 @@ const ClientMaxAI: React.FC<ClientMaxAIProps> = ({ className = '' }) => {
     aiCallsLimit: 100,
     canMakeRequest: true
   });
+  const [clientData, setClientData] = useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -38,17 +40,39 @@ const ClientMaxAI: React.FC<ClientMaxAIProps> = ({ className = '' }) => {
 
   useEffect(() => {
     // Load user's AI usage limits when component mounts
-    loadUsageLimits();
-  }, [client]);
+    if (user) {
+      loadUsageLimits();
+      loadClientData();
+    }
+  }, [user]);
 
   const loadUsageLimits = async () => {
-    if (!client) return;
+    if (!user) return;
     
     try {
-      const limits = await AnalyticsService.getUserUsageLimits(client.id);
+      const limits = await AnalyticsService.getUserUsageLimits(user.id);
       setUsageData(limits);
     } catch (error) {
       console.error('Error loading usage limits:', error);
+    }
+  };
+
+  const loadClientData = async () => {
+    if (!user) return;
+    
+    try {
+      // Load user profile data
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      
+      if (profile) {
+        setClientData(profile);
+      }
+    } catch (error) {
+      console.error('Error loading client data:', error);
     }
   };
 
@@ -70,45 +94,120 @@ const ClientMaxAI: React.FC<ClientMaxAIProps> = ({ className = '' }) => {
     }
   }, [isOpen, usageData]);
 
-  const getAIResponse = (message: string): string => {
+  const getAIResponse = async (message: string): Promise<string> => {
     const lowerMessage = message.toLowerCase();
     
+    // Account and profile queries
+    if (lowerMessage.includes('my account') || lowerMessage.includes('my profile') || lowerMessage.includes('who am i')) {
+      if (clientData) {
+        return `Here's your account information:\n\n` +
+          `📧 Email: ${clientData.email}\n` +
+          `👤 Name: ${clientData.full_name || 'Not set'}\n` +
+          `🎯 Role: ${clientData.role || 'user'}\n` +
+          `📅 Member since: ${new Date(clientData.created_at).toLocaleDateString()}\n` +
+          `🔄 Last login: ${clientData.last_login ? new Date(clientData.last_login).toLocaleString() : 'N/A'}`;
+      }
+      return "I'm having trouble accessing your account information. Please try again later.";
+    }
+    
     // Usage and limits queries
-    if (lowerMessage.includes('usage') || lowerMessage.includes('limit') || lowerMessage.includes('calls')) {
+    if (lowerMessage.includes('usage') || lowerMessage.includes('limit') || lowerMessage.includes('calls') || lowerMessage.includes('how many')) {
+      await loadUsageLimits(); // Refresh data
       if (usageData.hasUnlimitedAccess) {
-        return "You have unlimited AI access! As a premium user, you can make as many AI requests as you need without any restrictions.";
+        return "🌟 You have unlimited AI access! As a premium user, you can make as many AI requests as you need without any restrictions.";
       } else {
         const remaining = usageData.aiCallsLimit - usageData.aiCallsUsed;
-        return `You've used ${usageData.aiCallsUsed} of ${usageData.aiCallsLimit} AI calls this month. You have ${remaining} calls remaining. Consider upgrading to get unlimited access!`;
+        const percentage = ((usageData.aiCallsUsed / usageData.aiCallsLimit) * 100).toFixed(1);
+        return `📊 AI Usage Report:\n\n` +
+          `• Used: ${usageData.aiCallsUsed} calls (${percentage}%)\n` +
+          `• Limit: ${usageData.aiCallsLimit} calls/month\n` +
+          `• Remaining: ${remaining} calls\n\n` +
+          `💡 Tip: Consider upgrading to get unlimited access!`;
+      }
+    }
+    
+    // Analytics and stats queries
+    if (lowerMessage.includes('stats') || lowerMessage.includes('analytics') || lowerMessage.includes('data')) {
+      try {
+        // Get user's recent activity
+        const { data: activities } = await supabase
+          .from('user_analytics')
+          .select('event_type, created_at')
+          .eq('user_id', user?.id)
+          .order('created_at', { ascending: false })
+          .limit(10);
+        
+        const eventCounts = activities?.reduce((acc: any, activity) => {
+          acc[activity.event_type] = (acc[activity.event_type] || 0) + 1;
+          return acc;
+        }, {}) || {};
+        
+        return `📈 Your Activity Analytics:\n\n` +
+          `Recent Events:\n${Object.entries(eventCounts).map(([event, count]) => `• ${event}: ${count}`).join('\n')}\n\n` +
+          `Total events tracked: ${activities?.length || 0}`;
+      } catch (error) {
+        return "I can track your usage analytics including AI calls, feature usage, and activity patterns. What specific data would you like to see?";
       }
     }
     
     // Help with platform features
     if (lowerMessage.includes('help') || lowerMessage.includes('features') || lowerMessage.includes('platform')) {
-      return "I can help you with various tasks including content generation, SEO optimization, business planning, and more. You can also ask me about your account usage, subscription details, or how to use specific features.";
+      return "🚀 I can help you with:\n\n" +
+        "• 📝 Content generation and copywriting\n" +
+        "• 🔍 SEO optimization and keyword research\n" +
+        "• 📊 Business strategy and planning\n" +
+        "• 💡 Marketing campaigns and ideas\n" +
+        "• 📈 Account usage and analytics\n" +
+        "• ⚙️ Platform features and settings\n\n" +
+        "What would you like to explore?";
     }
     
     // SEO and content queries
     if (lowerMessage.includes('seo') || lowerMessage.includes('content') || lowerMessage.includes('marketing')) {
-      return "I can assist with SEO strategies, content creation, keyword research, and marketing plans. Would you like me to help you create optimized content or analyze your current SEO performance?";
+      return "🔍 SEO & Content Services:\n\n" +
+        "I can help you with:\n" +
+        "• Keyword research and analysis\n" +
+        "• Content optimization strategies\n" +
+        "• Meta descriptions and title tags\n" +
+        "• Blog post ideas and outlines\n" +
+        "• Social media content calendars\n" +
+        "• Email marketing campaigns\n\n" +
+        "What type of content do you need help with?";
     }
     
     // Business queries
     if (lowerMessage.includes('business') || lowerMessage.includes('strategy') || lowerMessage.includes('growth')) {
-      return "I can help with business strategy, growth planning, market analysis, and operational optimization. What specific aspect of your business would you like to focus on?";
+      return "💼 Business Strategy Assistant:\n\n" +
+        "I can help analyze and plan:\n" +
+        "• Market positioning and competitive analysis\n" +
+        "• Revenue optimization strategies\n" +
+        "• Customer acquisition tactics\n" +
+        "• Operational efficiency improvements\n" +
+        "• Growth forecasting and planning\n\n" +
+        "Which area would you like to focus on?";
     }
     
     // Subscription queries
     if (lowerMessage.includes('upgrade') || lowerMessage.includes('subscription') || lowerMessage.includes('plan')) {
-      return "To upgrade your plan for unlimited AI access and premium features, visit your billing section. Higher tier plans include unlimited AI calls, priority support, and advanced features.";
+      const plans = {
+        starter: { calls: 100, price: '$29/mo' },
+        growth: { calls: 500, price: '$99/mo' },
+        enterprise: { calls: 'Unlimited', price: '$299/mo' }
+      };
+      
+      return "💎 Subscription Plans:\n\n" +
+        "**Starter** - $29/mo\n• 100 AI calls/month\n• Basic features\n\n" +
+        "**Growth** - $99/mo\n• 500 AI calls/month\n• Priority support\n• Advanced features\n\n" +
+        "**Enterprise** - $299/mo\n• Unlimited AI calls\n• White-glove support\n• Custom integrations\n\n" +
+        "Ready to upgrade? Visit your billing section!";
     }
     
     // Default response
-    return "I'm here to help! I can assist with content creation, SEO optimization, business strategy, and answer questions about your account. What would you like to work on?";
+    return "I'm MAX, your AI assistant! I can help with content creation, SEO optimization, business strategy, and provide insights about your account usage. What would you like to work on today?";
   };
 
   const sendMessage = async () => {
-    if (!inputValue.trim() || isLoading) return;
+    if (!inputValue.trim() || isLoading || !user) return;
 
     // Check if user can make AI request
     if (!usageData.canMakeRequest && !usageData.hasUnlimitedAccess) {
@@ -130,19 +229,33 @@ const ClientMaxAI: React.FC<ClientMaxAIProps> = ({ className = '' }) => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = inputValue;
     setInputValue('');
     setIsLoading(true);
 
-    // Simulate AI processing delay
-    setTimeout(() => {
+    try {
+      // Track the AI usage
+      await AnalyticsService.trackAIUsage(
+        user.id,
+        'client_max_ai',
+        'chat_response',
+        0, // tokens (we're not using real AI yet)
+        0, // cost
+        true,
+        { query: currentInput }
+      );
+
+      // Get AI response
+      const response = await getAIResponse(currentInput);
+      
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
-        content: getAIResponse(inputValue),
+        content: response,
         isBot: true,
         timestamp: new Date()
       };
+      
       setMessages(prev => [...prev, botResponse]);
-      setIsLoading(false);
       
       // Update usage count (only for non-unlimited users)
       if (!usageData.hasUnlimitedAccess) {
@@ -151,8 +264,43 @@ const ClientMaxAI: React.FC<ClientMaxAIProps> = ({ className = '' }) => {
           aiCallsUsed: prev.aiCallsUsed + 1,
           canMakeRequest: prev.aiCallsUsed + 1 < prev.aiCallsLimit
         }));
+        
+        // Also update in database
+        await supabase
+          .from('profiles')
+          .update({ ai_calls_used: usageData.aiCallsUsed + 1 })
+          .eq('id', user.id);
       }
-    }, 1000);
+      
+      // Track successful interaction
+      await AnalyticsService.trackEvent(user.id, 'ai_chat_interaction', {
+        success: true,
+        query_type: detectQueryType(currentInput)
+      });
+      
+    } catch (error) {
+      console.error('Error processing message:', error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: "I'm having trouble processing your request. Please try again later.",
+        isBot: true,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Helper function to categorize queries
+  const detectQueryType = (query: string): string => {
+    const lower = query.toLowerCase();
+    if (lower.includes('usage') || lower.includes('limit')) return 'usage_query';
+    if (lower.includes('account') || lower.includes('profile')) return 'account_query';
+    if (lower.includes('seo') || lower.includes('content')) return 'content_query';
+    if (lower.includes('business') || lower.includes('strategy')) return 'business_query';
+    if (lower.includes('upgrade') || lower.includes('plan')) return 'subscription_query';
+    return 'general_query';
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {

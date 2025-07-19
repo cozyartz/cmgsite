@@ -10,6 +10,7 @@ import SEOServices from './pages/SEOServices';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/SupabaseAuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
+import ClientMaxAI from './components/client/ClientMaxAI';
 
 function App() {
   return (
@@ -58,6 +59,9 @@ function App() {
             {/* Fallback */}
             <Route path="*" element={<Home />} />
           </Routes>
+          
+          {/* Global AI Assistant - Available on all pages */}
+          <ClientMaxAI />
         </div>
       </AuthProvider>
     </ErrorBoundary>
