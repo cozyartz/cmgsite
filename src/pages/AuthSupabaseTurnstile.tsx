@@ -64,17 +64,22 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
     }
   }, [location]);
 
-  // Redirect authenticated users
+  // Redirect authenticated users to their appropriate dashboard
   useEffect(() => {
     if (!loading && user) {
-      if (isSuperAdmin) {
-        navigate('/superadmin');
-      } else if (isAdmin) {
-        console.log('Redirecting admin to admin dashboard');
-        navigate('/admin');
-      } else {
-        navigate('/client-portal');
-      }
+      console.log('🎯 Auth redirect logic:', {
+        email: user.email,
+        isSuperAdmin,
+        isAdmin,
+        provider: user.app_metadata?.provider
+      });
+      
+      // Use the role utils for consistent routing
+      const { getDashboardRoute } = require('../utils/roleUtils');
+      const dashboardRoute = getDashboardRoute(user, null);
+      
+      console.log(`🚀 Redirecting to: ${dashboardRoute}`);
+      navigate(dashboardRoute, { replace: true });
     }
   }, [user, loading, isSuperAdmin, isAdmin, navigate]);
 

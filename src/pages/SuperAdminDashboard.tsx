@@ -57,7 +57,7 @@ interface AdminStats {
 type SuperAdminTab = 'overview' | 'users' | 'analytics' | 'clientTools' | 'maxai' | 'settings';
 
 const SuperAdminDashboard: React.FC = () => {
-  const { user, isSuperAdmin, logout } = useAuth();
+  const { user, isSuperAdmin, signOut: logout } = useAuth();
   const navigate = useNavigate();
   const [currentTab, setCurrentTab] = useState<SuperAdminTab>('overview');
   const [stats, setStats] = useState<AdminStats>({

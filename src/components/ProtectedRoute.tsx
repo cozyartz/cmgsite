@@ -48,18 +48,30 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   // Check access permissions using utility functions
-  if (requireSuperAdmin && !isSuperAdmin(user, profile)) {
-    console.log(`Access denied to ${location.pathname} - requires superadmin, user role: ${profile?.role || 'no-profile'}`);
+  const userIsSuperAdmin = isSuperAdmin(user, profile);
+  const userIsAdmin = isAdmin(user, profile);
+  
+  console.log(`🔐 ProtectedRoute check for ${location.pathname}:`, {
+    userEmail: user.email,
+    userIsSuperAdmin,
+    userIsAdmin,
+    requireSuperAdmin,
+    requireAdmin,
+    profileRole: profile?.role
+  });
+  
+  if (requireSuperAdmin && !userIsSuperAdmin) {
+    console.log(`❌ Access denied to ${location.pathname} - requires superadmin, user is not superadmin`);
     return <Navigate to="/client-portal" replace />;
   }
 
-  if (requireAdmin && !isAdmin(user, profile)) {
-    console.log(`Access denied to ${location.pathname} - requires admin, user role: ${profile?.role || 'no-profile'}`);
+  if (requireAdmin && !userIsAdmin) {
+    console.log(`❌ Access denied to ${location.pathname} - requires admin, user is not admin`);
     return <Navigate to="/client-portal" replace />;
   }
 
   // Log successful access
-  console.log(`Access granted to ${location.pathname} for user: ${user.email}, role: ${profile.role}`);
+  console.log(`✅ Access granted to ${location.pathname} for user: ${user.email}`);
 
   return <>{children}</>;
 };

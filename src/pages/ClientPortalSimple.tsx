@@ -13,7 +13,7 @@ import DomainConsultationBooking from '../components/booking/DomainConsultationB
 
 const ClientPortalSimple: React.FC = () => {
   const navigate = useNavigate();
-  const { user, isAdmin, isSuperAdmin, loading } = useAuth();
+  const { user, isAdmin, isSuperAdmin, loading, signOut: logout } = useAuth();
 
   useEffect(() => {
     if (loading) return;
@@ -27,72 +27,49 @@ const ClientPortalSimple: React.FC = () => {
     // Debug: Log user data to understand what's happening
     console.log('ClientPortalSimple - User data:', {
       email: user.email,
-      provider: user.provider,
-      github_username: user.github_username,
+      provider: user.app_metadata?.provider,
+      github_username: user.user_metadata?.user_name,
       isAdmin,
       isSuperAdmin
     });
     
-    // Route superadmin users to superadmin dashboard
-    if (isSuperAdmin) {
-      console.log('Routing to superadmin dashboard');
-      navigate('/superadmin');
+    // Use role utils for consistent routing
+    const { getDashboardRoute, isSuperAdmin: checkSuperAdmin, isAdmin: checkAdmin } = require('../utils/roleUtils');
+    
+    // Check roles using utility functions
+    const userIsSuperAdmin = checkSuperAdmin(user);
+    const userIsAdmin = checkAdmin(user);
+    
+    if (userIsSuperAdmin) {
+      console.log('🔴 User is SuperAdmin, routing to superadmin dashboard');
+      navigate('/superadmin', { replace: true });
       return;
     }
     
-    // Route admin users to admin dashboard
-    if (isAdmin) {
-      console.log('Routing to admin dashboard');
-      navigate('/admin');
+    if (userIsAdmin) {
+      console.log('🟡 User is Admin, routing to admin dashboard');
+      navigate('/admin', { replace: true });
       return;
     }
     
-    // Verify token with backend for regular users
-    console.log('Verifying token for regular user');
-    verifyToken(token);
+    // User is regular client, stay on client portal
+    console.log('🟢 User is regular client, staying on client portal');
   }, [navigate, user, isAdmin, isSuperAdmin, loading]);
 
-  const verifyToken = async (token: string) => {
-    try {
-      const response = await fetch('https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/auth/verify', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      
-      if (!response.ok) {
-        throw new Error('Token invalid');
-      }
-      
-      const userData = await response.json();
-      // Update user data if needed
-      localStorage.setItem('user_data', JSON.stringify(userData.user));
-      
-    } catch (error) {
-      console.error('Token verification failed:', error);
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('user_data');
-      navigate('/auth');
-    }
-  };
+  // Token verification is handled by Supabase auth context
 
   const getUserEmail = () => {
-    const userData = localStorage.getItem('user_data');
-    if (userData) {
-      try {
-        const user = JSON.parse(userData);
-        return user.email;
-      } catch (e) {
-        return 'test@cozyartzmedia.com';
-      }
-    }
-    return 'test@cozyartzmedia.com';
+    return user?.email || 'guest@cozyartzmedia.com';
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user_data');
-    navigate('/auth');
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/auth');
+    } catch (error) {
+      console.error('Logout error:', error);
+      navigate('/auth');
+    }
   };
 
   return (

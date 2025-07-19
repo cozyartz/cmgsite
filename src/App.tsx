@@ -12,6 +12,7 @@ import AuthSupabaseTurnstile from './pages/AuthSupabaseTurnstile';
 import SignUp from './pages/SignUp';
 import AuthCallback from './pages/AuthCallback';
 import AuthDebugPage from './pages/AuthDebugPage';
+import AuthDebug from './components/AuthDebug';
 import ClientPortalSimple from './pages/ClientPortalSimple';
 import AdminDashboard from './pages/AdminDashboard';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
@@ -88,6 +89,7 @@ function App() {
           {/* Authentication Routes */}
           <Route path="/auth" element={<AuthSupabaseTurnstile />} />
           <Route path="/auth/*" element={<AuthSupabaseTurnstile />} />
+          <Route path="/auth-debug" element={<AuthDebug />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/auth/debug" element={<AuthDebugPage />} />
