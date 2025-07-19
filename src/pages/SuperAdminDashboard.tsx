@@ -4,8 +4,12 @@ import { useAuth } from '../contexts/SupabaseAuthContext';
 import { Crown, Users, TrendingUp, DollarSign, Activity, CheckCircle, ArrowUp, Bot, Zap, Download, Calendar, BarChart3, PieChart, LineChart, AlertTriangle, Clock, RefreshCw } from 'lucide-react';
 import { AnalyticsService, DashboardStats, UserActivity, RevenueData, formatCurrency, formatNumber, formatPercent, getStatusColor, getPlanColor } from '../lib/analytics';
 import SuperAdminNavigation from '../components/SuperAdminNavigation';
+import UserManagement from '../components/admin/UserManagement';
+import EnvironmentManager from '../components/admin/EnvironmentManager';
+import AdvancedExportTools from '../components/admin/AdvancedExportTools';
+import MaxHeadroomAI from '../components/admin/MaxHeadroomAI';
 
-type SuperAdminTab = 'overview' | 'users' | 'analytics' | 'revenue' | 'performance' | 'clientTools' | 'maxai' | 'settings';
+type SuperAdminTab = 'overview' | 'users' | 'analytics' | 'revenue' | 'performance' | 'clientTools' | 'maxai' | 'settings' | 'powertools' | 'exports' | 'environment';
 
 interface SystemHealth {
   overall_status: 'healthy' | 'degraded' | 'unhealthy';
@@ -128,8 +132,11 @@ const SuperAdminDashboard: React.FC = () => {
     { id: 'analytics' as SuperAdminTab, label: 'Analytics', icon: BarChart3 },
     { id: 'revenue' as SuperAdminTab, label: 'Revenue', icon: DollarSign },
     { id: 'performance' as SuperAdminTab, label: 'Performance', icon: Activity },
-    { id: 'clientTools' as SuperAdminTab, label: 'Client Tools', icon: Zap },
-    { id: 'maxai' as SuperAdminTab, label: 'MAX AI (Admin)', icon: Bot },
+    { id: 'powertools' as SuperAdminTab, label: 'Power Tools', icon: Crown },
+    { id: 'exports' as SuperAdminTab, label: 'Advanced Exports', icon: Download },
+    { id: 'environment' as SuperAdminTab, label: 'Environment', icon: Zap },
+    { id: 'clientTools' as SuperAdminTab, label: 'Client Tools', icon: Activity },
+    { id: 'maxai' as SuperAdminTab, label: 'MAX AI', icon: Bot },
     { id: 'settings' as SuperAdminTab, label: 'Settings', icon: Users }
   ];
 
@@ -326,80 +333,78 @@ const SuperAdminDashboard: React.FC = () => {
         );
 
       case 'users':
+        return <UserManagement isVisible={true} />;
+      
+      case 'powertools':
+        return <UserManagement isVisible={true} />;
+      
+      case 'exports':
+        return <AdvancedExportTools isVisible={true} />;
+      
+      case 'environment':
+        return <EnvironmentManager isVisible={true} />;
+      
+      case 'maxai':
         return (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900">User Management</h2>
-              <div className="flex items-center space-x-3">
-                <button 
-                  onClick={() => exportData('users', 'csv')}
-                  className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>Export CSV</span>
-                </button>
-                <button 
-                  onClick={handleRefresh}
-                  disabled={refreshing}
-                  className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
-                >
-                  <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-                  <span>Refresh</span>
-                </button>
-              </div>
-            </div>
-
-            {dashboardData.loading ? (
-              <LoadingSpinner />
-            ) : (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plan</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Activity</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Spending</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Login</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {dashboardData.userActivity.map((user) => (
-                        <tr key={user.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div>
-                              <div className="text-sm font-medium text-gray-900">{user.full_name}</div>
-                              <div className="text-sm text-gray-500">{user.email}</div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user.status)}`}>
-                              {user.status}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPlanColor(user.subscription_plan || 'free')}`}>
-                              {user.subscription_plan || 'Free'}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {user.recent_activity_count} actions
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {formatCurrency(user.total_spent_cents)}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {user.last_login ? new Date(user.last_login).toLocaleDateString() : 'Never'}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+          <div className="relative">
+            <MaxHeadroomAI />
+            {/* Regular MAX AI Admin content */}
+            <div className="space-y-6 mt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">MAX AI (Admin)</h2>
+                  <p className="text-gray-600">Artificial Intelligence tools and management</p>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white px-4 py-2 rounded-lg">
+                    <Bot className="w-5 h-5" />
+                    <span className="font-semibold">AI Powered</span>
+                  </div>
+                  <button 
+                    onClick={handleRefresh}
+                    disabled={refreshing}
+                    className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
+                  >
+                    <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+                    <span>Refresh</span>
+                  </button>
                 </div>
               </div>
-            )}
+
+              {/* AI Usage Stats */}
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <StatCard
+                  icon={Bot}
+                  title="Total AI Calls"
+                  value={formatNumber(dashboardData.stats?.api_calls_today || 0)}
+                  change="✨ Unlimited Access"
+                  color="purple"
+                  trend="up"
+                />
+                <StatCard
+                  icon={Activity}
+                  title="Active Models"
+                  value="4"
+                  change="Claude, GPT-4, Cloudflare AI"
+                  color="blue"
+                />
+                <StatCard
+                  icon={DollarSign}
+                  title="AI Costs (Internal)"
+                  value="$0.00"
+                  change="No charge for internal use"
+                  color="green"
+                />
+                <StatCard
+                  icon={CheckCircle}
+                  title="Success Rate"
+                  value="98.7%"
+                  change="99.2% average"
+                  color="green"
+                  trend="up"
+                />
+              </div>
+            </div>
           </div>
         );
 
@@ -711,211 +716,6 @@ const SuperAdminDashboard: React.FC = () => {
           </div>
         );
 
-      case 'maxai':
-        return (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">MAX AI (Admin)</h2>
-                <p className="text-gray-600">Artificial Intelligence tools and management</p>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="flex items-center space-x-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white px-4 py-2 rounded-lg">
-                  <Bot className="w-5 h-5" />
-                  <span className="font-semibold">AI Powered</span>
-                </div>
-                <button 
-                  onClick={handleRefresh}
-                  disabled={refreshing}
-                  className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
-                >
-                  <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-                  <span>Refresh</span>
-                </button>
-              </div>
-            </div>
-
-            {/* AI Usage Stats */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-              <StatCard
-                icon={Bot}
-                title="Total AI Calls"
-                value={formatNumber(dashboardData.stats?.api_calls_today || 0)}
-                change="✨ Unlimited Access"
-                color="purple"
-                trend="up"
-              />
-              <StatCard
-                icon={Activity}
-                title="Active Models"
-                value="4"
-                change="Claude, GPT-4, Cloudflare AI"
-                color="blue"
-              />
-              <StatCard
-                icon={DollarSign}
-                title="AI Costs (Internal)"
-                value="$0.00"
-                change="No charge for internal use"
-                color="green"
-              />
-              <StatCard
-                icon={CheckCircle}
-                title="Success Rate"
-                value="98.7%"
-                change="99.2% average"
-                color="green"
-                trend="up"
-              />
-            </div>
-            
-            {/* SuperAdmin Notice */}
-            <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-lg p-4">
-              <div className="flex items-center space-x-3">
-                <Crown className="w-6 h-6 text-purple-600" />
-                <div>
-                  <h3 className="text-lg font-semibold text-purple-900">SuperAdmin Unlimited Access</h3>
-                  <p className="text-purple-700">
-                    As a Cozyartz Media Group SuperAdmin, you have unlimited access to all AI tools and services at no cost. 
-                    All usage is tracked for internal analytics but does not count against any limits.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* AI Tools Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-              {/* Claude AI */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Claude AI</h3>
-                  <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-                    <Bot className="w-5 h-5 text-orange-600" />
-                  </div>
-                </div>
-                <p className="text-gray-600 mb-4">Anthropic's Claude for advanced reasoning</p>
-                <div className="space-y-2 mb-4">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Usage today:</span>
-                    <span className="font-medium">234 calls</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Tokens used:</span>
-                    <span className="font-medium">89.2K</span>
-                  </div>
-                </div>
-                <button className="w-full px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
-                  Manage Claude
-                </button>
-              </div>
-
-              {/* GPT-4 */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900">GPT-4</h3>
-                  <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                    <Bot className="w-5 h-5 text-green-600" />
-                  </div>
-                </div>
-                <p className="text-gray-600 mb-4">OpenAI GPT-4 for general tasks</p>
-                <div className="space-y-2 mb-4">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Usage today:</span>
-                    <span className="font-medium">156 calls</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Tokens used:</span>
-                    <span className="font-medium">67.8K</span>
-                  </div>
-                </div>
-                <button className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                  Manage GPT-4
-                </button>
-              </div>
-
-              {/* Cloudflare AI */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Cloudflare AI</h3>
-                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <Bot className="w-5 h-5 text-blue-600" />
-                  </div>
-                </div>
-                <p className="text-gray-600 mb-4">Edge AI processing and inference</p>
-                <div className="space-y-2 mb-4">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Usage today:</span>
-                    <span className="font-medium">89 calls</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Models active:</span>
-                    <span className="font-medium">3</span>
-                  </div>
-                </div>
-                <button className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                  Manage Cloudflare AI
-                </button>
-              </div>
-
-              {/* AI Content Generation */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Content Generation</h3>
-                  <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <PieChart className="w-5 h-5 text-purple-600" />
-                  </div>
-                </div>
-                <p className="text-gray-600 mb-4">AI-powered content creation tools</p>
-                <div className="space-y-3">
-                  <button className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
-                    Blog Generator
-                  </button>
-                  <button className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-                    Image Generation
-                  </button>
-                </div>
-              </div>
-
-              {/* AI Analytics */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900">AI Analytics</h3>
-                  <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
-                    <BarChart3 className="w-5 h-5 text-indigo-600" />
-                  </div>
-                </div>
-                <p className="text-gray-600 mb-4">Usage patterns and optimization</p>
-                <div className="space-y-3">
-                  <button className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
-                    Usage Reports
-                  </button>
-                  <button className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-                    Cost Analysis
-                  </button>
-                </div>
-              </div>
-
-              {/* AI Model Training */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Model Training</h3>
-                  <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
-                    <Activity className="w-5 h-5 text-yellow-600" />
-                  </div>
-                </div>
-                <p className="text-gray-600 mb-4">Custom model fine-tuning</p>
-                <div className="space-y-3">
-                  <button className="w-full px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors">
-                    Training Dashboard
-                  </button>
-                  <button className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-                    Dataset Manager
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
 
       case 'settings':
         return (

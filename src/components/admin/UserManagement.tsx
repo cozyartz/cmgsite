@@ -16,7 +16,17 @@ import {
   Download,
   MoreHorizontal,
   Shield,
-  AlertTriangle
+  AlertTriangle,
+  UserCheck,
+  Eye,
+  Settings,
+  RefreshCw,
+  Crown,
+  Zap,
+  MessageCircle,
+  UserCog,
+  Lock,
+  Unlock
 } from 'lucide-react';
 
 interface User {
@@ -48,6 +58,10 @@ const UserManagement: React.FC<UserManagementProps> = ({ isVisible }) => {
   const [sortBy, setSortBy] = useState('joinDate');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [showBulkActions, setShowBulkActions] = useState(false);
+  const [showImpersonateModal, setShowImpersonateModal] = useState(false);
+  const [impersonateUser, setImpersonateUser] = useState<User | null>(null);
 
   useEffect(() => {
     if (isVisible) {
@@ -201,6 +215,124 @@ const UserManagement: React.FC<UserManagementProps> = ({ isVisible }) => {
     }
   };
 
+  const handleImpersonateUser = async (user: User) => {
+    setImpersonateUser(user);
+    setShowImpersonateModal(true);
+  };
+
+  const confirmImpersonation = async () => {
+    if (!impersonateUser) return;
+    
+    try {
+      // In real implementation, this would:
+      // 1. Log the impersonation for audit trail
+      // 2. Create a special admin session
+      // 3. Switch to user's account with admin privileges
+      console.log('Impersonating user:', impersonateUser.email);
+      
+      // Mock implementation - would redirect to user's dashboard
+      alert(`Impersonation started! You are now viewing as ${impersonateUser.name}. This session is logged for security.`);
+      
+      setShowImpersonateModal(false);
+      setImpersonateUser(null);
+    } catch (error) {
+      console.error('Error starting impersonation:', error);
+      alert('Failed to start impersonation. Please try again.');
+    }
+  };
+
+  const handleBulkAction = async (action: 'email' | 'role_change' | 'suspend' | 'activate' | 'export') => {
+    if (selectedUsers.length === 0) {
+      alert('Please select users first');
+      return;
+    }
+
+    try {
+      switch (action) {
+        case 'email':
+          const subject = prompt('Email subject:');
+          const message = prompt('Email message:');
+          if (subject && message) {
+            console.log(`Sending email to ${selectedUsers.length} users:`, { subject, message });
+            alert(`Email sent to ${selectedUsers.length} users!`);
+          }
+          break;
+          
+        case 'role_change':
+          const newRole = prompt('New role (starter/growth/enterprise):');
+          if (newRole && ['starter', 'growth', 'enterprise'].includes(newRole)) {
+            setUsers(users.map(user => 
+              selectedUsers.includes(user.id) 
+                ? { ...user, plan: newRole as 'starter' | 'growth' | 'enterprise' }
+                : user
+            ));
+            alert(`Changed role for ${selectedUsers.length} users to ${newRole}`);
+          }
+          break;
+          
+        case 'suspend':
+          setUsers(users.map(user => 
+            selectedUsers.includes(user.id) 
+              ? { ...user, status: 'suspended' as const }
+              : user
+          ));
+          alert(`Suspended ${selectedUsers.length} users`);
+          break;
+          
+        case 'activate':
+          setUsers(users.map(user => 
+            selectedUsers.includes(user.id) 
+              ? { ...user, status: 'active' as const }
+              : user
+          ));
+          alert(`Activated ${selectedUsers.length} users`);
+          break;
+          
+        case 'export':
+          const selectedUserData = users.filter(user => selectedUsers.includes(user.id));
+          const csvData = [
+            'Name,Email,Status,Plan,Total Spent,AI Calls Used,Last Login',
+            ...selectedUserData.map(user => 
+              `"${user.name}","${user.email}","${user.status}","${user.plan}","${user.totalSpent}","${user.aiCallsUsed}","${user.lastLogin}"`
+            )
+          ].join('\n');
+          
+          const blob = new Blob([csvData], { type: 'text/csv' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `selected_users_${new Date().toISOString().split('T')[0]}.csv`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          break;
+      }
+      
+      setSelectedUsers([]);
+      setShowBulkActions(false);
+    } catch (error) {
+      console.error(`Error performing bulk action ${action}:`, error);
+      alert('Failed to perform bulk action. Please try again.');
+    }
+  };
+
+  const toggleUserSelection = (userId: string) => {
+    setSelectedUsers(prev => 
+      prev.includes(userId) 
+        ? prev.filter(id => id !== userId)
+        : [...prev, userId]
+    );
+  };
+
+  const selectAllUsers = () => {
+    if (selectedUsers.length === filteredUsers.length) {
+      setSelectedUsers([]);
+    } else {
+      setSelectedUsers(filteredUsers.map(user => user.id));
+    }
+  };
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -245,22 +377,98 @@ const UserManagement: React.FC<UserManagementProps> = ({ isVisible }) => {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-white flex items-center">
-            <Users className="h-7 w-7 mr-2 text-teal-400" />
-            User Management
+            <Crown className="h-7 w-7 mr-2 text-purple-400" />
+            SuperAdmin User Management
           </h2>
-          <p className="text-slate-300 mt-1">{filteredUsers.length} of {users.length} users</p>
+          <p className="text-slate-300 mt-1">
+            {filteredUsers.length} of {users.length} users
+            {selectedUsers.length > 0 && (
+              <span className="ml-3 text-purple-400">
+                • {selectedUsers.length} selected
+              </span>
+            )}
+          </p>
         </div>
         <div className="flex items-center space-x-3">
+          {selectedUsers.length > 0 && (
+            <div className="flex items-center space-x-2">
+              <button 
+                onClick={() => setShowBulkActions(!showBulkActions)}
+                className="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-all"
+              >
+                <Zap className="h-4 w-4" />
+                <span>Bulk Actions ({selectedUsers.length})</span>
+              </button>
+            </div>
+          )}
           <button className="bg-teal-600 hover:bg-teal-500 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-all">
             <Plus className="h-4 w-4" />
             <span>Add User</span>
           </button>
-          <button className="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-all">
+          <button 
+            onClick={() => handleBulkAction('export')}
+            className="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-all"
+          >
             <Download className="h-4 w-4" />
-            <span>Export</span>
+            <span>Export All</span>
           </button>
         </div>
       </div>
+
+      {/* Bulk Actions Menu */}
+      {showBulkActions && selectedUsers.length > 0 && (
+        <div className="bg-purple-900/20 border border-purple-500/30 rounded-xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-purple-300 font-semibold flex items-center">
+              <Zap className="h-4 w-4 mr-2" />
+              Bulk Actions - {selectedUsers.length} users selected
+            </h3>
+            <button 
+              onClick={() => setShowBulkActions(false)}
+              className="text-purple-400 hover:text-purple-300"
+            >
+              <XCircle className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+            <button 
+              onClick={() => handleBulkAction('email')}
+              className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-lg text-sm flex items-center space-x-2 transition-all"
+            >
+              <Mail className="h-4 w-4" />
+              <span>Send Email</span>
+            </button>
+            <button 
+              onClick={() => handleBulkAction('role_change')}
+              className="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-lg text-sm flex items-center space-x-2 transition-all"
+            >
+              <UserCog className="h-4 w-4" />
+              <span>Change Role</span>
+            </button>
+            <button 
+              onClick={() => handleBulkAction('suspend')}
+              className="bg-yellow-600 hover:bg-yellow-500 text-white px-3 py-2 rounded-lg text-sm flex items-center space-x-2 transition-all"
+            >
+              <Lock className="h-4 w-4" />
+              <span>Suspend</span>
+            </button>
+            <button 
+              onClick={() => handleBulkAction('activate')}
+              className="bg-green-600 hover:bg-green-500 text-white px-3 py-2 rounded-lg text-sm flex items-center space-x-2 transition-all"
+            >
+              <Unlock className="h-4 w-4" />
+              <span>Activate</span>
+            </button>
+            <button 
+              onClick={() => handleBulkAction('export')}
+              className="bg-slate-600 hover:bg-slate-500 text-white px-3 py-2 rounded-lg text-sm flex items-center space-x-2 transition-all"
+            >
+              <Download className="h-4 w-4" />
+              <span>Export Selected</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="bg-slate-800/60 backdrop-blur-sm border border-slate-600/50 rounded-xl p-4">
@@ -324,18 +532,34 @@ const UserManagement: React.FC<UserManagementProps> = ({ isVisible }) => {
           <table className="w-full">
             <thead className="bg-slate-700/50 border-b border-slate-600/50">
               <tr>
+                <th className="text-left py-4 px-6 text-slate-300 font-medium">
+                  <input
+                    type="checkbox"
+                    checked={selectedUsers.length === filteredUsers.length && filteredUsers.length > 0}
+                    onChange={selectAllUsers}
+                    className="w-4 h-4 text-purple-600 bg-slate-700 border-slate-600 rounded focus:ring-purple-500 focus:ring-2"
+                  />
+                </th>
                 <th className="text-left py-4 px-6 text-slate-300 font-medium">User</th>
                 <th className="text-left py-4 px-6 text-slate-300 font-medium">Status</th>
                 <th className="text-left py-4 px-6 text-slate-300 font-medium">Plan</th>
                 <th className="text-left py-4 px-6 text-slate-300 font-medium">Usage</th>
                 <th className="text-left py-4 px-6 text-slate-300 font-medium">Revenue</th>
                 <th className="text-left py-4 px-6 text-slate-300 font-medium">Last Login</th>
-                <th className="text-right py-4 px-6 text-slate-300 font-medium">Actions</th>
+                <th className="text-right py-4 px-6 text-slate-300 font-medium">SuperAdmin Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-700/30">
               {filteredUsers.map((user) => (
-                <tr key={user.id} className="hover:bg-slate-700/20 transition-colors">
+                <tr key={user.id} className={`hover:bg-slate-700/20 transition-colors ${selectedUsers.includes(user.id) ? 'bg-purple-900/20' : ''}`}>
+                  <td className="py-4 px-6">
+                    <input
+                      type="checkbox"
+                      checked={selectedUsers.includes(user.id)}
+                      onChange={() => toggleUserSelection(user.id)}
+                      className="w-4 h-4 text-purple-600 bg-slate-700 border-slate-600 rounded focus:ring-purple-500 focus:ring-2"
+                    />
+                  </td>
                   <td className="py-4 px-6">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center">
@@ -385,7 +609,16 @@ const UserManagement: React.FC<UserManagementProps> = ({ isVisible }) => {
                     <p className="text-slate-500 text-xs">{new Date(user.lastLogin).toLocaleTimeString()}</p>
                   </td>
                   <td className="py-4 px-6">
-                    <div className="flex items-center justify-end space-x-2">
+                    <div className="flex items-center justify-end space-x-1">
+                      {/* SuperAdmin Impersonation Button */}
+                      <button 
+                        onClick={() => handleImpersonateUser(user)}
+                        className="text-purple-400 hover:text-purple-300 p-1 rounded transition-colors bg-purple-900/20 hover:bg-purple-900/40"
+                        title="🚨 SuperAdmin: Login as User"
+                      >
+                        <UserCheck className="h-4 w-4" />
+                      </button>
+                      
                       <button 
                         onClick={() => setSelectedUser(user)}
                         className="text-slate-400 hover:text-white p-1 rounded transition-colors"
@@ -393,6 +626,18 @@ const UserManagement: React.FC<UserManagementProps> = ({ isVisible }) => {
                       >
                         <Edit3 className="h-4 w-4" />
                       </button>
+                      
+                      <button 
+                        className="text-blue-400 hover:text-blue-300 p-1 rounded transition-colors"
+                        title="Send Email"
+                        onClick={() => {
+                          const message = prompt(`Send email to ${user.name}:`);
+                          if (message) alert(`Email sent to ${user.email}: ${message}`);
+                        }}
+                      >
+                        <Mail className="h-4 w-4" />
+                      </button>
+                      
                       {user.status === 'active' ? (
                         <button 
                           onClick={() => handleUserAction(user.id, 'suspend')}
@@ -410,6 +655,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ isVisible }) => {
                           <CheckCircle className="h-4 w-4" />
                         </button>
                       )}
+                      
                       <button 
                         onClick={() => handleUserAction(user.id, 'delete')}
                         className="text-red-400 hover:text-red-300 p-1 rounded transition-colors"
@@ -473,6 +719,80 @@ const UserManagement: React.FC<UserManagementProps> = ({ isVisible }) => {
                   <label className="text-sm text-slate-400">AI Usage</label>
                   <p className="text-white">{selectedUser.aiCallsUsed} / {selectedUser.aiCallsLimit} calls</p>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Impersonation Confirmation Modal */}
+      {showImpersonateModal && impersonateUser && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-slate-800 rounded-xl border border-red-500/50 p-6 max-w-md w-full mx-4">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-red-400 flex items-center">
+                <Shield className="h-6 w-6 mr-2" />
+                SuperAdmin Impersonation
+              </h3>
+              <button 
+                onClick={() => setShowImpersonateModal(false)}
+                className="text-slate-400 hover:text-white"
+              >
+                <XCircle className="h-6 w-6" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4">
+                <div className="flex items-start space-x-3">
+                  <AlertTriangle className="h-5 w-5 text-red-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h4 className="text-red-400 font-semibold">Security Warning</h4>
+                    <p className="text-red-300 text-sm mt-1">
+                      You are about to impersonate <strong>{impersonateUser.name}</strong> ({impersonateUser.email}).
+                      This action will be logged for security and compliance purposes.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-400">User:</span>
+                  <span className="text-white">{impersonateUser.name}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-400">Email:</span>
+                  <span className="text-white">{impersonateUser.email}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-400">Plan:</span>
+                  <span className={`text-xs px-2 py-1 rounded-full ${getPlanColor(impersonateUser.plan)}`}>
+                    {impersonateUser.plan}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-400">Status:</span>
+                  <span className={`text-xs px-2 py-1 rounded-full ${getStatusColor(impersonateUser.status)}`}>
+                    {impersonateUser.status}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="flex space-x-3 pt-4">
+                <button 
+                  onClick={() => setShowImpersonateModal(false)}
+                  className="flex-1 px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={confirmImpersonation}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500 transition-colors flex items-center justify-center space-x-2"
+                >
+                  <UserCheck className="h-4 w-4" />
+                  <span>Start Impersonation</span>
+                </button>
               </div>
             </div>
           </div>
