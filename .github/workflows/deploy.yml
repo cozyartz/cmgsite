@@ -5,7 +5,7 @@ on:
     branches: [ main ]
 
 env:
-  NODE_VERSION: '18'
+  NODE_VERSION: '20'
 
 jobs:
   # Build and Deploy
@@ -39,7 +39,7 @@ jobs:
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: 51826042d6e31c694331efeb1be34123
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: cmgsite
           directory: dist
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
