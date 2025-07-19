@@ -9,13 +9,7 @@ export default defineConfig({
     exclude: ['lucide-react'],
   },
   server: {
-    proxy: {
-      '/api': {
-        target: 'https://cmgsite-client-portal.cozyartz-media-group.workers.dev', // Production Cloudflare Worker
-        changeOrigin: true,
-        secure: true,
-      },
-    },
+    // No proxy needed - using Supabase directly
   },
   build: {
     chunkSizeWarningLimit: 500, // Keep warning at reasonable size

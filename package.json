@@ -22,15 +22,9 @@
     "test:roles": "node test-role-routing.mjs",
     "test:pricing": "node test-pricing-page.mjs",
     "prepare": "husky install",
-    "worker:dev": "wrangler dev worker.js --port 8787",
-    "worker:deploy": "wrangler deploy",
-    "worker:deploy:staging": "wrangler deploy --env staging",
-    "worker:deploy:dev": "wrangler deploy --env development",
-    "deploy": "VITE_ENVIRONMENT=production VITE_TURNSTILE_SITE_KEY=0x4AAAAAABlo_LdXn1ErLBXD npm run build:pages && npm run deploy:worker && npm run deploy:pages",
-    "deploy:worker": "wrangler deploy --env=\"\"",
+    "deploy": "VITE_ENVIRONMENT=production VITE_TURNSTILE_SITE_KEY=0x4AAAAAABlo_LdXn1ErLBXD npm run build:pages",
     "deploy:pages": "wrangler pages deploy dist",
-    "deploy:staging": "npm run build && wrangler deploy --env staging && wrangler pages deploy dist",
-    "deploy:production": "VITE_ENVIRONMENT=production VITE_TURNSTILE_SITE_KEY=0x4AAAAAABlo_LdXn1ErLBXD npm run build:pages && wrangler deploy --env=\"\" && wrangler pages deploy dist"
+    "deploy:production": "VITE_ENVIRONMENT=production VITE_TURNSTILE_SITE_KEY=0x4AAAAAABlo_LdXn1ErLBXD npm run build:pages"
   },
   "dependencies": {
     "@cloudflare/ai": "^1.2.2",
