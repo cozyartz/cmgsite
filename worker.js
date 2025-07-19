@@ -72,6 +72,7 @@ export default {
         });
       }
 
+
       // Debug endpoint (only enabled in staging/development)
       if (path === '/debug/oauth' && request.method === 'GET' && config.enableDebugEndpoint) {
         return handleDebugOAuth(url, env, config, log);
