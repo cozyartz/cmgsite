@@ -6,6 +6,7 @@ account_id = "51826042d6e31c694331efeb1be34123"
 
 [vars]
 ENVIRONMENT = "production"
+pages_build_output_dir = "dist"
 # Frontend URLs (will be set based on environment)
 FRONTEND_BASE_URL = "https://cozyartzmedia.com"
 FRONTEND_AUTH_URL = "https://cozyartzmedia.com/auth"

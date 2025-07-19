@@ -68,8 +68,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // Role-based access control
-  const isAdmin = profile?.role === 'admin';
-  const isSuperAdmin = profile?.role === 'admin'; // In our system, admin = superadmin
+  const isAdmin = profile?.role === 'admin' || (user && checkSuperAdminStatus(user));
+  const isSuperAdmin = profile?.role === 'admin' || (user && checkSuperAdminStatus(user)); // In our system, admin = superadmin
 
   useEffect(() => {
     let mounted = true;
