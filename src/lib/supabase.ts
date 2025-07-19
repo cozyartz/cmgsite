@@ -4,17 +4,16 @@ import { env } from '../config/env';
 // Create Supabase client with validated environment configuration
 export const supabase = createClient(env.supabaseUrl, env.supabaseAnonKey, {
   auth: {
-    // Use validated environment URLs
-    redirectTo: env.callbackUrl,
-    siteUrl: env.siteUrl,
     // Auto refresh tokens
     autoRefreshToken: true,
     // Persist session in localStorage
     persistSession: true,
-    // Detect session in URL
+    // Detect session in URL hash/search params
     detectSessionInUrl: true,
     // Use PKCE flow for better security
     flowType: 'pkce',
+    // Storage key for session persistence
+    storageKey: 'cmgsite-auth-token',
   },
   global: {
     headers: {
@@ -81,7 +80,6 @@ export const authService = {
         redirectTo: env.callbackUrl,
         queryParams: {
           redirect_to: env.callbackUrl,
-          site_url: env.siteUrl,
         },
         skipBrowserRedirect: false,
       },

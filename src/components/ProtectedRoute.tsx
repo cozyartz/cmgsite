@@ -31,18 +31,30 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   // Redirect to login if not authenticated
-  if (!user || !profile) {
+  if (!user) {
     return <Navigate to="/auth" state={{ from: location }} replace />;
+  }
+
+  // If profile is still loading, show loading state instead of blocking access
+  if (!profile) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
+          <p className="text-gray-600">Loading your profile...</p>
+        </div>
+      </div>
+    );
   }
 
   // Check access permissions using utility functions
   if (requireSuperAdmin && !isSuperAdmin(user, profile)) {
-    console.log(`Access denied to ${location.pathname} - requires superadmin, user role: ${profile.role}`);
+    console.log(`Access denied to ${location.pathname} - requires superadmin, user role: ${profile?.role || 'no-profile'}`);
     return <Navigate to="/client-portal" replace />;
   }
 
   if (requireAdmin && !isAdmin(user, profile)) {
-    console.log(`Access denied to ${location.pathname} - requires admin, user role: ${profile.role}`);
+    console.log(`Access denied to ${location.pathname} - requires admin, user role: ${profile?.role || 'no-profile'}`);
     return <Navigate to="/client-portal" replace />;
   }
 

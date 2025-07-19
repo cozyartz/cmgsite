@@ -15,66 +15,88 @@ const AuthCallback: React.FC = () => {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        // Get the session from the URL hash
-        const { data, error } = await supabase.auth.getSession();
+        console.log('🔄 Processing auth callback...');
+        
+        // Check for auth fragments in URL (OAuth/magic link callback)
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const searchParams = new URLSearchParams(window.location.search);
+        
+        // Check for error in URL
+        const error = hashParams.get('error') || searchParams.get('error');
+        const errorDescription = hashParams.get('error_description') || searchParams.get('error_description');
         
         if (error) {
-          console.error('Auth callback error:', error);
+          console.error('❌ Auth error from URL:', error, errorDescription);
           setStatus('error');
-          setMessage(`Authentication failed: ${error.message}`);
+          setMessage(`Authentication failed: ${errorDescription || error}`);
           return;
         }
 
-        if (data.session) {
-          console.log('Session found:', data.session);
+        // Check for access token or let Supabase handle session detection
+        const accessToken = hashParams.get('access_token');
+        
+        if (accessToken) {
+          console.log('✅ Access token found in URL, letting Supabase handle session...');
+          // Let Supabase auth state change handler manage the session
           setStatus('success');
-          setMessage('Authentication successful! Determining your access level...');
+          setMessage('Authentication successful! Setting up your session...');
         } else {
-          setStatus('error');
-          setMessage('No session found. Please try logging in again.');
+          // Try to get existing session
+          const { data, error: sessionError } = await supabase.auth.getSession();
+          
+          if (sessionError) {
+            console.error('❌ Session error:', sessionError);
+            setStatus('error');
+            setMessage(`Session error: ${sessionError.message}`);
+            return;
+          }
+
+          if (data.session) {
+            console.log('✅ Existing session found:', data.session.user.email);
+            setStatus('success');
+            setMessage('Authentication successful! Determining your access level...');
+          } else {
+            console.log('❌ No session found');
+            setStatus('error');
+            setMessage('No session found. Please try logging in again.');
+          }
         }
+        
+        // Clean up URL
+        if (window.location.hash || window.location.search.includes('access_token')) {
+          window.history.replaceState({}, '', '/auth/callback');
+        }
+        
       } catch (error) {
-        console.error('Auth callback error:', error);
+        console.error('❌ Auth callback error:', error);
         setStatus('error');
         setMessage('An unexpected error occurred. Please try again.');
       }
     };
 
-    // Only process if not already loading from auth context
-    if (!loading) {
-      handleAuthCallback();
-    }
-  }, [loading]);
+    handleAuthCallback();
+  }, []);
 
-  // Handle redirect when user and profile are loaded
+  // Handle redirect when user is authenticated
   useEffect(() => {
     if (!loading && user && status === 'success') {
       // Always determine route based on user data, even without profile loaded yet
       const redirectPath = getDashboardRoute(user, profile);
       const userRole = getUserRoleString(user, profile);
       
-      console.log(`User: ${user.email}, Role: ${userRole}, Redirecting to: ${redirectPath}`);
+      console.log(`🎯 User: ${user.email}, Role: ${userRole}, Redirecting to: ${redirectPath}`);
       
-      setMessage(`Welcome ${userRole}! Redirecting to your dashboard in ${redirectCountdown} seconds...`);
+      setMessage(`Welcome ${userRole}! Redirecting to your dashboard...`);
       
-      // For superadmins, reduce countdown since we don't need to wait for profile
-      const initialCountdown = isSuperAdmin(user, profile) ? 1 : 3;
-      setRedirectCountdown(initialCountdown);
-      
-      const countdownInterval = setInterval(() => {
-        setRedirectCountdown(prev => {
-          if (prev <= 1) {
-            clearInterval(countdownInterval);
-            navigate(redirectPath);
-            return 0;
-          }
-          return prev - 1;
-        });
+      // Immediate redirect for better UX
+      const timer = setTimeout(() => {
+        console.log(`🚀 Redirecting to: ${redirectPath}`);
+        navigate(redirectPath, { replace: true });
       }, 1000);
 
-      return () => clearInterval(countdownInterval);
+      return () => clearTimeout(timer);
     }
-  }, [loading, user, profile, status, navigate]);
+  }, [loading, user, status, navigate]);
 
   // Handle manual redirect button
   const handleManualRedirect = () => {
@@ -127,7 +149,7 @@ const AuthCallback: React.FC = () => {
               </button>
               
               <div className="text-sm text-gray-500">
-                Auto-redirecting in {redirectCountdown} seconds...
+                Redirecting automatically...
               </div>
             </div>
           </div>
