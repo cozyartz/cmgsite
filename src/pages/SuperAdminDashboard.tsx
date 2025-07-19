@@ -29,6 +29,12 @@ interface DashboardData {
   lastUpdate: Date | null;
 }
 
+interface SchemaStatus {
+  isInstalled: boolean;
+  missingComponents: string[];
+  instructions?: string;
+}
+
 const SuperAdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
@@ -47,6 +53,7 @@ const SuperAdminDashboard: React.FC = () => {
     end: new Date()
   });
   const [refreshing, setRefreshing] = useState(false);
+  const [schemaStatus, setSchemaStatus] = useState<SchemaStatus | null>(null);
 
   const handleLogout = async () => {
     await signOut();
@@ -56,11 +63,12 @@ const SuperAdminDashboard: React.FC = () => {
     try {
       setDashboardData(prev => ({ ...prev, loading: true, error: null }));
       
-      const [stats, userActivity, revenueData, systemHealth] = await Promise.all([
+      const [stats, userActivity, revenueData, systemHealth, schemaCheck] = await Promise.all([
         AnalyticsService.getDashboardStats(),
         AnalyticsService.getUserActivity(100),
         AnalyticsService.getRevenueAnalytics(30),
-        AnalyticsService.getSystemHealth()
+        AnalyticsService.getSystemHealth(),
+        AnalyticsService.checkSchemaStatus()
       ]);
 
       setDashboardData({
@@ -72,6 +80,8 @@ const SuperAdminDashboard: React.FC = () => {
         error: null,
         lastUpdate: new Date()
       });
+      
+      setSchemaStatus(schemaCheck);
     } catch (error) {
       console.error('Failed to load dashboard data:', error);
       setDashboardData(prev => ({
@@ -1076,6 +1086,31 @@ const SuperAdminDashboard: React.FC = () => {
     <div className="min-h-screen bg-gray-100">
       {/* Global Navigation */}
       <SuperAdminNavigation />
+      
+      {/* Schema Status Notification */}
+      {schemaStatus && !schemaStatus.isInstalled && (
+        <div className="bg-amber-50 border-l-4 border-amber-400 p-4">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-start">
+              <AlertTriangle className="flex-shrink-0 w-5 h-5 text-amber-400 mt-0.5" />
+              <div className="ml-3">
+                <p className="text-sm text-amber-800">
+                  <strong>Database Schema Not Complete:</strong> Some analytics components are missing.
+                  Missing: {schemaStatus.missingComponents.join(', ')}
+                </p>
+                <div className="mt-2">
+                  <button 
+                    onClick={() => alert(schemaStatus.instructions)}
+                    className="text-xs bg-amber-200 hover:bg-amber-300 text-amber-900 px-3 py-1 rounded-md transition-colors"
+                  >
+                    View Setup Instructions
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Header */}
       <header className="bg-white shadow">
