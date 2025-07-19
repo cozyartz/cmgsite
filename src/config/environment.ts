@@ -167,33 +167,16 @@ const stagingConfig: EnvironmentConfig = {
  * Get the current environment configuration
  */
 export function getEnvironmentConfig(): EnvironmentConfig {
-  // First check environment variables
-  let environment = import.meta.env.VITE_ENVIRONMENT || import.meta.env.NODE_ENV;
+  // ALWAYS USE PRODUCTION - NO LOCALHOST EVER
+  let environment = 'production';
   
-  // If no environment variable is set, detect from hostname
-  if (!environment && typeof window !== 'undefined') {
+  // Only allow staging for specific staging domains
+  if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
-    
-    if (hostname === 'cozyartzmedia.com' || hostname === 'www.cozyartzmedia.com') {
-      environment = 'production';
-    } else if (hostname.includes('staging') || hostname.includes('.pages.dev')) {
+    if (hostname.includes('staging') || hostname.includes('.pages.dev')) {
       environment = 'staging';
-    } else if (hostname === '127.0.0.1') {
-      // Even for local development, we'll use production URLs
-      environment = 'production';
-    } else {
-      // Default to production for any other domain
-      environment = 'production';
     }
   }
-  
-  // Force production for production builds
-  if (import.meta.env.PROD) {
-    environment = 'production';
-  }
-  
-  // Final fallback to production (safer default)
-  environment = environment || 'production';
   
   console.log(`[Environment] Detected environment: ${environment} (hostname: ${typeof window !== 'undefined' ? window.location.hostname : 'server'})`);
   

@@ -54,16 +54,16 @@ const PayPalPayment: React.FC<PayPalPaymentProps> = ({
             tier,
             couponCode,
             userEmail: user?.email,
-            returnUrl: `${window.location.origin}/client-portal/payment/success`,
-            cancelUrl: `${window.location.origin}/client-portal/payment/cancel`
+            returnUrl: 'https://cozyartzmedia.com/client-portal/payment/success',
+            cancelUrl: 'https://cozyartzmedia.com/client-portal/payment/cancel'
           }
         : {
             amount,
             description,
             clientId: client?.id,
             userEmail: user?.email,
-            returnUrl: `${window.location.origin}/client-portal/payment/success`,
-            cancelUrl: `${window.location.origin}/client-portal/payment/cancel`
+            returnUrl: 'https://cozyartzmedia.com/client-portal/payment/success',
+            cancelUrl: 'https://cozyartzmedia.com/client-portal/payment/cancel'
           };
 
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://cmgsite-client-portal.cozyartz-media-group.workers.dev'}${endpoint}`, {
