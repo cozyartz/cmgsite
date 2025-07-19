@@ -55,16 +55,38 @@ export const authService = {
   // Magic Link Authentication (Primary method)
   signInWithMagicLink: async (email: string) => {
     console.log('✨ Sending magic link to:', email);
+    
+    // Basic email validation
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      throw new Error('Invalid email address format');
+    }
+    
     const { data, error } = await supabase.auth.signInWithOtp({
-      email,
+      email: email.toLowerCase().trim(),
       options: {
         emailRedirectTo: env.callbackUrl,
         shouldCreateUser: false, // Security: don't auto-create users for signin
+        data: {
+          signin_method: 'magic_link',
+          signin_timestamp: new Date().toISOString()
+        }
       },
     });
     
     if (error) {
       console.error('❌ Magic link signin error:', error);
+      
+      // Provide user-friendly error messages
+      if (error.message.includes('rate limit')) {
+        throw new Error('Too many requests. Please wait a few minutes before trying again.');
+      } else if (error.message.includes('Invalid email')) {
+        throw new Error('Please enter a valid email address.');
+      } else if (error.message.includes('Email not confirmed')) {
+        throw new Error('Please check your email and click the confirmation link first.');
+      }
+      
+      throw error;
     } else {
       console.log('✅ Magic link sent successfully');
     }

@@ -46,10 +46,79 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
   const [emailSent, setEmailSent] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [showTurnstile, setShowTurnstile] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<{email?: string; fullName?: string; emailSuggestion?: string}>({});
+  const [isEmailValid, setIsEmailValid] = useState(false);
+  const [isNameValid, setIsNameValid] = useState(false);
 
   // Check for plan selection from pricing page
   const selectedPlan = searchParams.get('plan');
   const billingCycle = searchParams.get('billing');
+  
+  // Enhanced validation functions with accessibility
+  const validateEmail = (email: string): {isValid: boolean; error?: string; suggestion?: string} => {
+    if (!email) {
+      return { isValid: false, error: 'Email is required' };
+    }
+    
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      return { isValid: false, error: 'Please enter a valid email address' };
+    }
+    
+    // Check for common typos in domains with suggestions
+    const domain = email.split('@')[1]?.toLowerCase();
+    const commonDomains = {
+      'gmial.com': 'gmail.com',
+      'gmai.com': 'gmail.com', 
+      'gamil.com': 'gmail.com',
+      'yahooo.com': 'yahoo.com',
+      'yaho.com': 'yahoo.com',
+      'hotmial.com': 'hotmail.com',
+      'hotmai.com': 'hotmail.com',
+      'outlok.com': 'outlook.com',
+      'outloo.com': 'outlook.com'
+    };
+    
+    if (domain && commonDomains[domain]) {
+      const suggestion = email.replace(domain, commonDomains[domain]);
+      return { 
+        isValid: false, 
+        error: `Did you mean ${suggestion}?`,
+        suggestion
+      };
+    }
+    
+    // Check for suspicious patterns
+    if (email.includes('..') || email.startsWith('.') || email.endsWith('.')) {
+      return { isValid: false, error: 'Please check your email format' };
+    }
+    
+    return { isValid: true };
+  };
+  
+  const validateFullName = (name: string): {isValid: boolean; error?: string} => {
+    if (!name.trim()) {
+      return { isValid: false, error: 'Full name is required' };
+    }
+    
+    if (name.trim().length < 2) {
+      return { isValid: false, error: 'Please enter your full name' };
+    }
+    
+    // Check for at least first and last name
+    const nameParts = name.trim().split(' ').filter(part => part.length > 0);
+    if (nameParts.length < 2) {
+      return { isValid: false, error: 'Please enter both first and last name' };
+    }
+    
+    // Check for valid characters
+    const nameRegex = /^[a-zA-Z\s'-]+$/;
+    if (!nameRegex.test(name)) {
+      return { isValid: false, error: 'Name can only contain letters, spaces, hyphens, and apostrophes' };
+    }
+    
+    return { isValid: true };
+  };
   
   // Check for auth token in URL (from OAuth callback)
   useEffect(() => {
@@ -89,23 +158,91 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
     setAuthMode(newMode);
   }, [searchParams, defaultMode]);
 
-  // Show Turnstile after user interacts with form
+  // Enhanced input handlers with validation and analytics
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-    if (!showTurnstile && e.target.value.length > 0) {
-      setShowTurnstile(true);
+    const newEmail = e.target.value;
+    setEmail(newEmail);
+    
+    // Clear previous errors
+    setFieldErrors(prev => ({ ...prev, email: undefined }));
+    
+    // Real-time validation with suggestions
+    if (newEmail) {
+      const validation = validateEmail(newEmail);
+      setIsEmailValid(validation.isValid);
+      if (!validation.isValid) {
+        setFieldErrors(prev => ({ 
+          ...prev, 
+          email: validation.error,
+          emailSuggestion: validation.suggestion 
+        }));
+      }
+    } else {
+      setIsEmailValid(false);
     }
+    
+    // Show Turnstile after user starts typing (delayed for better UX)
+    if (!showTurnstile && newEmail.length > 3) {
+      setTimeout(() => setShowTurnstile(true), 500);
+    }
+  };
+
+  const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newName = e.target.value;
+    setFullName(newName);
+    
+    // Clear previous errors
+    setFieldErrors(prev => ({ ...prev, fullName: undefined }));
+    
+    // Real-time validation for signup mode
+    if (authMode === 'signup' && newName) {
+      const validation = validateFullName(newName);
+      setIsNameValid(validation.isValid);
+      if (!validation.isValid) {
+        setFieldErrors(prev => ({ ...prev, fullName: validation.error }));
+      }
+    } else if (authMode === 'signup') {
+      setIsNameValid(false);
+    }
+  };
+
+  const resetForm = () => {
+    setEmail('');
+    setFullName('');
+    setEmailSent(false);
+    setError('');
+    setSuccess('');
+    setTurnstileToken(null);
+    setShowTurnstile(false);
+    setAuthLoading(false);
+    setFieldErrors({});
+    setIsEmailValid(false);
+    setIsNameValid(false);
   };
 
   const handleOAuthLogin = async (provider: 'github' | 'google') => {
     try {
       setError('');
       setSuccess('');
-      setSuccess('');
       setAuthLoading(true);
+      
+      // Enhanced metadata tracking for OAuth signup
+      const metadata = { 
+        signup_method: 'oauth',
+        oauth_provider: provider,
+        auth_mode: authMode,
+        selected_plan: selectedPlan,
+        billing_cycle: billingCycle,
+        signup_source: 'website',
+        user_agent: navigator.userAgent,
+        referrer: document.referrer || 'direct',
+        signup_timestamp: new Date().toISOString()
+      };
+      
       await signInWithOAuth(provider);
     } catch (error: any) {
-      setError(error.message || `Failed to sign in with ${provider}`);
+      console.error(`OAuth ${provider} error:`, error);
+      setError(error.message || `Failed to sign in with ${provider}. Please try again.`);
     } finally {
       setAuthLoading(false);
     }
@@ -113,6 +250,33 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
 
   const handleMagicLinkAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Final validation before submission
+    const emailValidation = validateEmail(email);
+    let nameValidation = { isValid: true };
+    
+    if (authMode === 'signup') {
+      nameValidation = validateFullName(fullName);
+    }
+    
+    // Update field errors with better error messages
+    const errors: {email?: string; fullName?: string; emailSuggestion?: string} = {};
+    if (!emailValidation.isValid) {
+      errors.email = emailValidation.error;
+      errors.emailSuggestion = emailValidation.suggestion;
+    }
+    if (authMode === 'signup' && !nameValidation.isValid) {
+      errors.fullName = nameValidation.error;
+    }
+    
+    setFieldErrors(errors);
+    
+    // Stop if validation fails
+    if (!emailValidation.isValid || (authMode === 'signup' && !nameValidation.isValid)) {
+      return;
+    }
+    
+    // Check Turnstile
     if (!turnstileToken) {
       setError('Please complete the security verification');
       return;
@@ -125,43 +289,51 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
 
     try {
       const metadata = { 
-        fullName,
+        fullName: fullName.trim(),
         selectedPlan,
-        billingCycle 
+        billingCycle,
+        signup_method: 'magic_link',
+        auth_mode: authMode,
+        terms_accepted: true,
+        marketing_consent: false, // Can be added as checkbox later
+        signup_source: 'website',
+        user_agent: navigator.userAgent,
+        referrer: document.referrer || 'direct',
+        signup_timestamp: new Date().toISOString(),
+        form_completion_time: Date.now() - performance.now() // Rough form time tracking
       };
 
       if (authMode === 'signup') {
-        await signUpWithMagicLink(email, metadata);
-        setSuccess('Account creation initiated! Check your email for the magic link.');
+        console.log('🎆 Creating new account with magic link');
+        await signUpWithMagicLink(email.toLowerCase().trim(), metadata);
+        setSuccess('Welcome! We\'ve sent a secure link to complete your account setup.');
       } else {
-        await signInWithMagicLink(email);
-        setSuccess('Magic link sent! Check your email to sign in.');
+        console.log('✨ Sending magic link for signin');
+        await signInWithMagicLink(email.toLowerCase().trim());
+        setSuccess('Magic link sent! Check your email to access your dashboard.');
       }
       
       setEmailSent(true);
     } catch (error: any) {
-      setError(error.message || 'Failed to send magic link');
+      console.error('Magic link error:', error);
+      
+      // Provide user-friendly error messages
+      let errorMessage = 'Failed to send magic link. Please try again.';
+      
+      if (error.message?.includes('Invalid email')) {
+        errorMessage = 'Please enter a valid email address.';
+      } else if (error.message?.includes('rate limit')) {
+        errorMessage = 'Too many requests. Please wait a moment before trying again.';
+      } else if (error.message?.includes('signup disabled')) {
+        errorMessage = 'Account creation is temporarily disabled. Please try signing in instead.';
+      }
+      
+      setError(errorMessage);
       setTurnstileToken(null);
       setShowTurnstile(true);
     } finally {
       setAuthLoading(false);
     }
-  };
-
-  // Handle form input changes and show Turnstile when user starts typing
-  const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFullName(e.target.value);
-  };
-
-  const resetForm = () => {
-    setEmail('');
-    setFullName('');
-    setEmailSent(false);
-    setError('');
-    setSuccess('');
-    setTurnstileToken(null);
-    setShowTurnstile(false);
-    setAuthLoading(false);
   };
 
   const toggleMode = (newMode: 'signin' | 'signup') => {
@@ -201,13 +373,52 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
             </div>
           </div>
           
-          <h2 className="text-2xl font-bold text-white mb-4">Check your email!</h2>
+          <h2 className="text-2xl font-bold text-white mb-4">
+            {authMode === 'signup' ? 'Welcome to Cozyartz!' : 'Check your email!'}
+          </h2>
           <p className="text-gray-300 mb-2">
-            We've sent a secure magic link to <strong className="text-teal-400">{email}</strong>
+            We've sent a secure {authMode === 'signup' ? 'account setup' : 'magic'} link to <strong className="text-teal-400">{email}</strong>
           </p>
           <p className="text-sm text-gray-400 mb-4">
-            Click the link to {authMode === 'signup' ? 'complete your account setup' : 'access your SEO dashboard'}
+            {authMode === 'signup' 
+              ? 'Click the link in your email to complete your account setup and get started with your SEO journey!'
+              : 'Click the link in your email to access your SEO dashboard instantly.'
+            }
           </p>
+          
+          {/* Enhanced signup benefits with progress */}
+          {authMode === 'signup' && (
+          <div className="mb-4 p-4 bg-gradient-to-r from-teal-500/10 to-purple-500/10 border border-teal-500/20 rounded-lg">
+          <h3 className="text-teal-300 font-semibold text-sm mb-3 flex items-center">
+            <CheckCircle className="w-4 h-4 mr-2" />
+          Welcome to Cozyartz! Here's what happens next:
+          </h3>
+          <div className="space-y-2">
+          <div className="flex items-center text-xs text-teal-200">
+              <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+                <span>Email sent ✓</span>
+                </div>
+                  <div className="flex items-center text-xs text-teal-200">
+                    <div className="w-2 h-2 bg-teal-400 rounded-full mr-2 animate-pulse"></div>
+                    <span>Click the verification link in your email</span>
+                  </div>
+                  <div className="flex items-center text-xs text-gray-400">
+                    <div className="w-2 h-2 bg-gray-500 rounded-full mr-2"></div>
+                    <span>Access your personalized SEO dashboard</span>
+                  </div>
+                  <div className="flex items-center text-xs text-gray-400">
+                    <div className="w-2 h-2 bg-gray-500 rounded-full mr-2"></div>
+                    <span>Connect with MAX AI for expert guidance</span>
+                  </div>
+                  {selectedPlan && (
+                    <div className="flex items-center text-xs text-gray-400">
+                      <div className="w-2 h-2 bg-gray-500 rounded-full mr-2"></div>
+                      <span>Activate your {selectedPlan} plan features</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
           {selectedPlan && (
             <div className="mb-6 p-3 bg-teal-500/20 border border-teal-500/30 rounded-lg">
@@ -220,10 +431,26 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
           
           <button
             onClick={resetForm}
-            className="w-full py-3 px-4 bg-gradient-to-r from-teal-500 to-purple-600 text-white font-semibold rounded-lg hover:from-teal-600 hover:to-purple-700 transition-all duration-200"
+            className="w-full py-3 px-4 bg-gradient-to-r from-teal-500 to-purple-600 text-white font-semibold rounded-lg hover:from-teal-600 hover:to-purple-700 transition-all duration-200 mb-3"
           >
             Try a different email
           </button>
+          
+          {/* Help text */}
+          <div className="text-center">
+            <p className="text-xs text-gray-400 mb-2">
+              Didn't receive the email? Check your spam folder or 
+              <button 
+                onClick={() => setEmailSent(false)}
+                className="text-teal-400 hover:text-teal-300 underline ml-1"
+              >
+                try again
+              </button>
+            </p>
+            <p className="text-xs text-gray-500">
+              Links expire in 1 hour for security
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -385,26 +612,100 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
             <form onSubmit={handleMagicLinkAuth} className="space-y-4">
               {authMode === 'signup' && (
                 <div>
-                  <input
-                    type="text"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Full Name"
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200"
-                    required
-                  />
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={fullName}
+                      onChange={handleFullNameChange}
+                      placeholder="Full Name"
+                      className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-200 ${
+                        fieldErrors.fullName 
+                          ? 'border-red-500/50 focus:ring-red-500' 
+                          : isNameValid 
+                          ? 'border-green-500/50 focus:ring-green-500'
+                          : 'border-white/20 focus:ring-teal-500'
+                      }`}
+                      required
+                      autoComplete="name"
+                      aria-label="Full name"
+                      aria-describedby={fieldErrors.fullName ? 'name-error' : undefined}
+                      aria-invalid={!!fieldErrors.fullName}
+                    />
+                    {/* Validation icon */}
+                    {fullName && (
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                        {isNameValid ? (
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                        ) : fieldErrors.fullName ? (
+                          <AlertCircle className="w-5 h-5 text-red-500" />
+                        ) : null}
+                      </div>
+                    )}
+                  </div>
+                  {/* Name validation error */}
+                  {fieldErrors.fullName && (
+                    <p id="name-error" className="text-red-400 text-sm mt-1 flex items-center" role="alert">
+                      <AlertCircle className="w-4 h-4 mr-1" />
+                      {fieldErrors.fullName}
+                    </p>
+                  )}
                 </div>
               )}
               
               <div>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={handleEmailChange}
-                  placeholder="Email address"
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200"
-                  required
-                />
+                <div className="relative">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={handleEmailChange}
+                    placeholder="Email address"
+                    className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-200 ${
+                      fieldErrors.email 
+                        ? 'border-red-500/50 focus:ring-red-500' 
+                        : isEmailValid 
+                        ? 'border-green-500/50 focus:ring-green-500'
+                        : 'border-white/20 focus:ring-teal-500'
+                    }`}
+                    required
+                    autoComplete="email"
+                    aria-label="Email address"
+                    aria-describedby={fieldErrors.email ? 'email-error' : undefined}
+                    aria-invalid={!!fieldErrors.email}
+                  />
+                  {/* Email validation icon */}
+                  {email && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      {isEmailValid ? (
+                        <CheckCircle className="w-5 h-5 text-green-500" />
+                      ) : fieldErrors.email ? (
+                        <AlertCircle className="w-5 h-5 text-red-500" />
+                      ) : null}
+                    </div>
+                  )}
+                </div>
+                {/* Email validation error with suggestion */}
+                {fieldErrors.email && (
+                  <div id="email-error" className="text-red-400 text-sm mt-1" role="alert">
+                    <div className="flex items-center">
+                      <AlertCircle className="w-4 h-4 mr-1" />
+                      {fieldErrors.email}
+                    </div>
+                    {fieldErrors.emailSuggestion && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEmail(fieldErrors.emailSuggestion!);
+                          setFieldErrors(prev => ({ ...prev, email: undefined, emailSuggestion: undefined }));
+                          setIsEmailValid(true);
+                        }}
+                        className="text-teal-400 hover:text-teal-300 underline text-xs mt-1 block transition-colors"
+                        aria-label={`Use suggested email ${fieldErrors.emailSuggestion}`}
+                      >
+                        Use suggested email: {fieldErrors.emailSuggestion}
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Turnstile Widget */}
@@ -438,8 +739,22 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
 
               <button
                 type="submit"
-                disabled={authLoading || !email || (authMode === 'signup' && !fullName) || (showTurnstile && !turnstileToken)}
-                className="w-full py-3 px-4 bg-gradient-to-r from-teal-500 to-purple-600 text-white font-semibold rounded-lg hover:from-teal-600 hover:to-purple-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                disabled={
+                  authLoading || 
+                  !email || 
+                  !isEmailValid ||
+                  (authMode === 'signup' && (!fullName || !isNameValid)) || 
+                  (showTurnstile && !turnstileToken)
+                }
+                className={`w-full py-3 px-4 text-white font-semibold rounded-lg transition-all duration-200 flex items-center justify-center ${
+                  authLoading || 
+                  !email || 
+                  !isEmailValid ||
+                  (authMode === 'signup' && (!fullName || !isNameValid)) || 
+                  (showTurnstile && !turnstileToken)
+                    ? 'bg-gray-600 cursor-not-allowed opacity-50'
+                    : 'bg-gradient-to-r from-teal-500 to-purple-600 hover:from-teal-600 hover:to-purple-700 hover:scale-[1.02] shadow-lg'
+                }`}
               >
                 {authLoading ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
