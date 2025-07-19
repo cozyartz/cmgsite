@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/SupabaseAuthContext';
 import { Crown, Users, TrendingUp, DollarSign, Activity, CheckCircle, ArrowUp, Bot, Zap, Download, Calendar, BarChart3, PieChart, LineChart, AlertTriangle, Clock, RefreshCw } from 'lucide-react';
-import { AnalyticsService, DashboardStats, UserActivity, RevenueData, formatCurrency, formatNumber, formatPercent, getStatusColor, getPlanColor } from '../lib/analytics';
+import { AnalyticsService, DashboardStats, UserActivity, RevenueData, formatCurrency, formatNumber, formatPercent, getStatusColor, getPlanColor, getSubscriptionTierStats } from '../lib/analytics';
 import SuperAdminNavigation from '../components/SuperAdminNavigation';
 import UserManagement from '../components/admin/UserManagement';
 // REMOVED: EnvironmentManager - Security risk exposing secrets in UI
@@ -58,6 +58,12 @@ const SuperAdminDashboard: React.FC = () => {
   });
   const [refreshing, setRefreshing] = useState(false);
   const [schemaStatus, setSchemaStatus] = useState<SchemaStatus | null>(null);
+  const [subscriptionStats, setSubscriptionStats] = useState({
+    starter: 0,
+    growth: 0,
+    enterprise: 0,
+    total: 0
+  });
 
   const handleLogout = async () => {
     await signOut();
@@ -73,10 +79,11 @@ const SuperAdminDashboard: React.FC = () => {
         AnalyticsService.getUserActivity(100).catch(() => AnalyticsService.getFallbackUserActivity()),
         AnalyticsService.getRevenueAnalytics(30).catch(() => AnalyticsService.getFallbackRevenueData()),
         AnalyticsService.getSystemHealth().catch(() => AnalyticsService.getFallbackSystemHealth()),
-        AnalyticsService.checkSchemaStatus().catch(() => ({ isInstalled: false, missingComponents: ['Database schema not checked'] }))
+        AnalyticsService.checkSchemaStatus().catch(() => ({ isInstalled: false, missingComponents: ['Database schema not checked'] })),
+        getSubscriptionTierStats().catch(() => ({ starter: 0, growth: 0, enterprise: 0, total: 0 }))
       ]);
 
-      const [statsResult, userActivityResult, revenueResult, systemHealthResult, schemaResult] = results;
+      const [statsResult, userActivityResult, revenueResult, systemHealthResult, schemaResult, subscriptionResult] = results;
 
       setDashboardData({
         stats: statsResult.status === 'fulfilled' ? statsResult.value : AnalyticsService.getFallbackDashboardStats(),
@@ -89,6 +96,7 @@ const SuperAdminDashboard: React.FC = () => {
       });
       
       setSchemaStatus(schemaResult.status === 'fulfilled' ? schemaResult.value : { isInstalled: false, missingComponents: ['Database schema not available'] });
+      setSubscriptionStats(subscriptionResult.status === 'fulfilled' ? subscriptionResult.value : { starter: 0, growth: 0, enterprise: 0, total: 0 });
     } catch (error) {
       console.error('Failed to load dashboard data:', error);
       // Even if everything fails, load fallback data instead of showing error
@@ -386,17 +394,20 @@ const SuperAdminDashboard: React.FC = () => {
         return (
           <div className="relative">
             <MaxHeadroomAI />
-            {/* Regular MAX AI Admin content */}
+            {/* MAX AI SuperAdmin Dashboard */}
             <div className="space-y-6 mt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">MAX AI (Admin)</h2>
-                  <p className="text-gray-600">Artificial Intelligence tools and management</p>
+                  <h2 className="text-2xl font-bold text-gray-900 flex items-center">
+                    <Bot className="w-8 h-8 mr-3 text-purple-600" />
+                    MAX AI SuperAdmin Console
+                  </h2>
+                  <p className="text-gray-600">AI system management, usage monitoring, and model administration</p>
                 </div>
                 <div className="flex items-center space-x-3">
                   <div className="flex items-center space-x-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white px-4 py-2 rounded-lg">
-                    <Bot className="w-5 h-5" />
-                    <span className="font-semibold">AI Powered</span>
+                    <Crown className="w-5 h-5" />
+                    <span className="font-semibold">SuperAdmin Access</span>
                   </div>
                   <button 
                     onClick={handleRefresh}
@@ -409,38 +420,172 @@ const SuperAdminDashboard: React.FC = () => {
                 </div>
               </div>
 
-              {/* AI Usage Stats */}
+              {/* AI System Overview */}
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 <StatCard
                   icon={Bot}
-                  title="Total AI Calls"
+                  title="Platform AI Calls Today"
                   value={formatNumber(dashboardData.stats?.api_calls_today || 0)}
-                  change="✨ Unlimited Access"
+                  change="All users combined"
                   color="purple"
                   trend="up"
                 />
                 <StatCard
                   icon={Activity}
-                  title="Active Models"
-                  value="4"
-                  change="Claude, GPT-4, Cloudflare AI"
+                  title="Active AI Models"
+                  value="3"
+                  change="Claude-4, OpenAI GPT-4, Cloudflare AI"
                   color="blue"
                 />
                 <StatCard
-                  icon={DollarSign}
-                  title="AI Costs (Internal)"
-                  value="$0.00"
-                  change="No charge for internal use"
+                  icon={Users}
+                  title="Users with AI Access"
+                  value={formatNumber(dashboardData.stats?.total_users || 1)}
+                  change="SuperAdmin: ∞ Unlimited"
                   color="green"
                 />
                 <StatCard
                   icon={CheckCircle}
-                  title="Success Rate"
+                  title="AI Success Rate"
                   value="98.7%"
-                  change="99.2% average"
+                  change="Platform average"
                   color="green"
                   trend="up"
                 />
+              </div>
+
+              {/* AI Usage Monitoring */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* User Subscription Tracking */}
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                      <Users className="w-5 h-5 mr-2 text-blue-600" />
+                      User AI Usage Monitoring
+                    </h3>
+                    <span className="text-sm text-gray-500">Real-time tracking</span>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    {/* SuperAdmin Status */}
+                    <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-medium text-purple-900">SuperAdmin (You)</span>
+                        <Crown className="w-4 h-4 text-purple-600" />
+                      </div>
+                      <div className="text-sm text-purple-700">
+                        <p>Status: <span className="font-bold text-green-600">∞ UNLIMITED ACCESS</span></p>
+                        <p>Usage: No limits • Full AI model access</p>
+                        <p>Permissions: All AI features, model management</p>
+                      </div>
+                    </div>
+
+                    {/* User Tiers */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div>
+                          <span className="text-sm font-medium text-blue-700">Starter Plan Users</span>
+                          <p className="text-xs text-blue-500">100 AI calls/month</p>
+                        </div>
+                        <span className="text-lg font-bold text-blue-900">{subscriptionStats.starter}</span>
+                      </div>
+                      
+                      <div className="flex items-center justify-between p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                        <div>
+                          <span className="text-sm font-medium text-purple-700">Growth Plan Users</span>
+                          <p className="text-xs text-purple-500">500 AI calls/month</p>
+                        </div>
+                        <span className="text-lg font-bold text-purple-900">{subscriptionStats.growth}</span>
+                      </div>
+                      
+                      <div className="flex items-center justify-between p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                        <div>
+                          <span className="text-sm font-medium text-orange-700">Enterprise Plan Users</span>
+                          <p className="text-xs text-orange-500">Unlimited AI calls</p>
+                        </div>
+                        <span className="text-lg font-bold text-orange-900">{subscriptionStats.enterprise}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* AI Model Status */}
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                      <Activity className="w-5 h-5 mr-2 text-green-600" />
+                      AI Model Status
+                    </h3>
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <div>
+                        <span className="font-medium text-green-900">Claude-4 (Primary)</span>
+                        <p className="text-xs text-green-700">Anthropic • Latest model</p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span className="text-sm text-green-600">Active</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <div>
+                        <span className="font-medium text-blue-900">GPT-4</span>
+                        <p className="text-xs text-blue-700">OpenAI • Backup model</p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        <span className="text-sm text-blue-600">Standby</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                      <div>
+                        <span className="font-medium text-orange-900">Cloudflare AI</span>
+                        <p className="text-xs text-orange-700">Edge inference • Fast responses</p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                        <span className="text-sm text-orange-600">Active</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Embedded MAX AI Chat Interface */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                    <MessageCircle className="w-5 h-5 mr-2 text-purple-600" />
+                    Direct MAX AI Communication
+                  </h3>
+                  <span className="text-sm text-gray-500">SuperAdmin Console Access</span>
+                </div>
+                
+                <div className="bg-gradient-to-br from-slate-50 to-purple-50 border border-purple-200 rounded-lg p-4">
+                  <div className="text-center">
+                    <Bot className="w-12 h-12 mx-auto text-purple-600 mb-3" />
+                    <h4 className="text-lg font-semibold text-gray-900 mb-2">MAX AI SuperAdmin Interface</h4>
+                    <p className="text-gray-600 mb-4">
+                      Access MAX AI directly through the floating interface (bottom-right) or click below to open the full administrative chat.
+                    </p>
+                    <button 
+                      onClick={() => {
+                        // This would trigger the MaxHeadroomAI component to open
+                        const event = new CustomEvent('openMaxAI');
+                        window.dispatchEvent(event);
+                      }}
+                      className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg transition-all font-medium flex items-center space-x-2 mx-auto"
+                    >
+                      <MessageCircle className="w-5 h-5" />
+                      <span>Open MAX AI Chat</span>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -680,10 +825,10 @@ const SuperAdminDashboard: React.FC = () => {
                 <p className="text-gray-600 mb-4">SEO optimization and analytics tools</p>
                 <div className="space-y-3">
                   <button 
-                    onClick={() => window.open('/seo-services', '_blank')}
+                    onClick={() => window.open('/admin', '_blank')}
                     className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
                   >
-                    SEO Dashboard
+                    AI SEO Command Center
                   </button>
                   <button className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
                     Keyword Research

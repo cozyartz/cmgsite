@@ -25,6 +25,16 @@ const MaxHeadroomAI: React.FC = () => {
   }, [messages]);
 
   useEffect(() => {
+    // Listen for custom event to open MAX AI from SuperAdmin dashboard
+    const handleOpenMaxAI = () => {
+      setIsOpen(true);
+    };
+    
+    window.addEventListener('openMaxAI', handleOpenMaxAI);
+    return () => window.removeEventListener('openMaxAI', handleOpenMaxAI);
+  }, []);
+
+  useEffect(() => {
     if (isOpen && messages.length === 0) {
       // Trigger glitch effect and send welcome message
       setGlitchEffect(true);

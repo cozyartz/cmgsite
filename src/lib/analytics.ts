@@ -449,11 +449,18 @@ export class AnalyticsService {
     try {
       const { data: userProfile } = await supabase
         .from('profiles')
-        .select('role')
+        .select('email, role')
         .eq('id', userId)
         .single();
 
-      return userProfile?.role === 'superadmin';
+      // Define superadmin credentials (same as in auth context)
+      const superAdminEmails = ['cozy2963@gmail.com', 'andrea@cozyartzmedia.com'];
+      
+      // Check if user is superadmin by email or role
+      const isSuperAdminByEmail = userProfile?.email && superAdminEmails.includes(userProfile.email);
+      const isSuperAdminByRole = userProfile?.role === 'admin' || userProfile?.role === 'superadmin';
+      
+      return isSuperAdminByEmail || isSuperAdminByRole;
     } catch (error) {
       console.error('Error checking unlimited access:', error);
       return false;
@@ -821,5 +828,43 @@ export const getPlanColor = (plan: string): string => {
       return 'text-orange-600 bg-orange-100';
     default:
       return 'text-gray-600 bg-gray-100';
+  }
+};
+
+/**
+ * Get subscription tier statistics for SuperAdmin dashboard
+ */
+export const getSubscriptionTierStats = async (): Promise<{
+  starter: number;
+  growth: number;
+  enterprise: number;
+  total: number;
+}> => {
+  try {
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('ai_calls_limit');
+
+    if (!profiles) {
+      return { starter: 0, growth: 0, enterprise: 0, total: 0 };
+    }
+
+    const stats = profiles.reduce((acc, profile) => {
+      const limit = profile.ai_calls_limit || 0;
+      if (limit <= 100) {
+        acc.starter++;
+      } else if (limit <= 500) {
+        acc.growth++;
+      } else {
+        acc.enterprise++;
+      }
+      acc.total++;
+      return acc;
+    }, { starter: 0, growth: 0, enterprise: 0, total: 0 });
+
+    return stats;
+  } catch (error) {
+    console.error('Error getting subscription tier stats:', error);
+    return { starter: 0, growth: 0, enterprise: 0, total: 0 };
   }
 };
