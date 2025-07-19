@@ -25,6 +25,7 @@ interface AuthSupabaseTurnstileProps {
 
 const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMode }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const { user, loading, isAdmin, isSuperAdmin, signInWithOAuth, signInWithMagicLink, signUpWithMagicLink } = useAuth();
   
@@ -49,6 +50,19 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
   // Check for plan selection from pricing page
   const selectedPlan = searchParams.get('plan');
   const billingCycle = searchParams.get('billing');
+  
+  // Check for auth token in URL (from OAuth callback)
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const token = urlParams.get('token');
+    
+    if (token) {
+      // Store token and let Supabase handle the session
+      console.log('Token found in URL, processing...');
+      // Clean up URL
+      window.history.replaceState({}, '', location.pathname);
+    }
+  }, [location]);
 
   // Redirect authenticated users
   useEffect(() => {
@@ -56,6 +70,7 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
       if (isSuperAdmin) {
         navigate('/superadmin');
       } else if (isAdmin) {
+        console.log('Redirecting admin to admin dashboard');
         navigate('/admin');
       } else {
         navigate('/client-portal');
@@ -81,6 +96,7 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
     try {
       setError('');
       setSuccess('');
+      setSuccess('');
       setAuthLoading(true);
       await signInWithOAuth(provider);
     } catch (error: any) {
@@ -91,8 +107,8 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
   };
 
   const handleMagicLinkAuth = async (e: React.FormEvent) => {
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
     e.preventDefault();
-    
     if (!turnstileToken) {
       setError('Please complete the security verification');
       return;
@@ -101,6 +117,7 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
     setAuthLoading(true);
     setError('');
     setSuccess('');
+    setEmailSent(false);
 
     try {
       const metadata = { 
@@ -111,11 +128,12 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
 
       if (authMode === 'signup') {
         await signUpWithMagicLink(email, metadata);
-        setSuccess('Account created! Check your email for the magic link.');
+        setSuccess('Account creation initiated! Check your email for the magic link.');
       } else {
         await signInWithMagicLink(email);
         setSuccess('Magic link sent! Check your email to sign in.');
       }
+      
       setEmailSent(true);
     } catch (error: any) {
       setError(error.message || 'Failed to send magic link');
@@ -126,6 +144,18 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
     }
   };
 
+  // Handle form input changes and show Turnstile when user starts typing
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+    if (!showTurnstile && e.target.value.length > 0) {
+      setShowTurnstile(true);
+    }
+  };
+
+  const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFullName(e.target.value);
+  };
+
   const resetForm = () => {
     setEmail('');
     setFullName('');
@@ -134,6 +164,7 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
     setSuccess('');
     setTurnstileToken(null);
     setShowTurnstile(false);
+    setAuthLoading(false);
   };
 
   const toggleMode = (newMode: 'signin' | 'signup') => {
@@ -148,7 +179,7 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
-        <div className="text-center">
+        <div className="text-center p-8">
           <div className="relative">
             <div className="w-20 h-20 border-4 border-teal-200 border-t-teal-500 rounded-full animate-spin mx-auto"></div>
             <Sparkles className="w-8 h-8 text-teal-400 absolute inset-0 m-auto animate-pulse" />
@@ -163,7 +194,7 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
   if (emailSent) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
-        <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-8 max-w-md w-full text-center">
+        <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-8 max-w-lg w-full text-center">
           <div className="relative mb-6">
             <div className="w-20 h-20 bg-gradient-to-r from-teal-400 to-purple-500 rounded-full flex items-center justify-center mx-auto">
               <Mail className="w-10 h-10 text-white" />
@@ -175,7 +206,7 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
           
           <h2 className="text-2xl font-bold text-white mb-4">Check your email!</h2>
           <p className="text-gray-300 mb-2">
-            We've sent a magic link to <strong className="text-teal-400">{email}</strong>
+            We've sent a secure magic link to <strong className="text-teal-400">{email}</strong>
           </p>
           <p className="text-sm text-gray-400 mb-4">
             Click the link to {authMode === 'signup' ? 'complete your account setup' : 'access your creative workspace'}
@@ -183,7 +214,7 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
 
           {selectedPlan && (
             <div className="mb-6 p-3 bg-teal-500/20 border border-teal-500/30 rounded-lg">
-              <p className="text-sm text-teal-300">
+              <p className="text-sm text-teal-200">
                 🎯 Selected Plan: <strong className="capitalize">{selectedPlan}</strong>
                 {billingCycle && ` (${billingCycle})`}
               </p>
@@ -192,7 +223,7 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
           
           <button
             onClick={resetForm}
-            className="w-full py-3 px-4 bg-gradient-to-r from-teal-500 to-purple-600 text-white font-semibold rounded-lg hover:from-teal-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-105"
+            className="w-full py-3 px-4 bg-gradient-to-r from-teal-500 to-purple-600 text-white font-semibold rounded-lg hover:from-teal-600 hover:to-purple-700 transition-all duration-200"
           >
             Try a different email
           </button>
@@ -203,7 +234,7 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-6xl flex items-center justify-center gap-12">
+      <div className="w-full max-w-7xl flex items-center justify-center gap-12">
         
         {/* Left Side - Branding & Features */}
         <div className="hidden lg:block flex-1 max-w-lg">
@@ -264,7 +295,7 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
         {/* Right Side - Auth Form */}
         <div className="w-full max-w-md">
           <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-8 shadow-2xl">
-            
+
             {/* Mobile Branding */}
             <div className="lg:hidden text-center mb-8">
               <div className="w-12 h-12 bg-gradient-to-r from-teal-400 to-purple-500 rounded-xl flex items-center justify-center mx-auto mb-3">
@@ -305,7 +336,7 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
             {/* Error/Success Messages */}
             {error && (
               <div className="mb-4 p-4 bg-red-500/20 border border-red-500/30 text-red-300 rounded-lg flex items-center animate-shake">
-                <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0" />
+                <AlertCircle className="w-5 h-5 mr-3 flex-shrink-0" />
                 <span className="text-sm">{error}</span>
               </div>
             )}
@@ -313,7 +344,7 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
             {success && (
               <div className="mb-4 p-4 bg-green-500/20 border border-green-500/30 text-green-300 rounded-lg flex items-center">
                 <CheckCircle className="w-5 h-5 mr-2 flex-shrink-0" />
-                <span className="text-sm">{success}</span>
+                <span className="text-sm font-medium">{success}</span>
               </div>
             )}
 
@@ -322,7 +353,7 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
               <button
                 onClick={() => handleOAuthLogin('github')}
                 disabled={authLoading}
-                className="w-full flex items-center justify-center px-4 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg border border-slate-600 transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                className="w-full flex items-center justify-center px-4 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg border border-slate-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Github className="w-5 h-5 mr-3" />
                 Continue with GitHub
@@ -331,7 +362,7 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
               <button
                 onClick={() => handleOAuthLogin('google')}
                 disabled={authLoading}
-                className="w-full flex items-center justify-center px-4 py-3 bg-white hover:bg-gray-50 text-gray-900 rounded-lg border border-gray-200 transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                className="w-full flex items-center justify-center px-4 py-3 bg-white hover:bg-gray-50 text-gray-900 rounded-lg border border-gray-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -386,6 +417,7 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
                     onVerify={(token) => {
                       setTurnstileToken(token);
                       setError('');
+                      setError('');
                     }}
                     onError={() => {
                       setError('Security verification failed. Please try again.');
@@ -410,7 +442,7 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
               <button
                 type="submit"
                 disabled={authLoading || !email || (authMode === 'signup' && !fullName) || (showTurnstile && !turnstileToken)}
-                className="w-full py-3 px-4 bg-gradient-to-r from-teal-500 to-purple-600 text-white font-semibold rounded-lg hover:from-teal-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center"
+                className="w-full py-3 px-4 bg-gradient-to-r from-teal-500 to-purple-600 text-white font-semibold rounded-lg hover:from-teal-600 hover:to-purple-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               >
                 {authLoading ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
@@ -427,7 +459,7 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
             {/* Footer */}
             <div className="mt-8 text-center">
               <p className="text-xs text-gray-400">
-                By {authMode === 'signup' ? 'creating an account' : 'signing in'}, you agree to our{' '}
+                By continuing, you agree to our{' '}
                 <a href="/terms-of-service" className="text-teal-400 hover:text-teal-300 transition-colors">
                   Terms of Service
                 </a>{' '}
@@ -438,7 +470,7 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
               </p>
               
               <div className="mt-4 flex items-center justify-center text-gray-400">
-                <Sparkles className="w-4 h-4 mr-2" />
+                <Shield className="w-4 h-4 mr-2" />
                 <span className="text-xs">Secured by Cloudflare Turnstile</span>
               </div>
             </div>

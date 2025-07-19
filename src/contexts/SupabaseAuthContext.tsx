@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
-import { supabase, authService, dbService, identityService } from '../lib/supabase';
+import { supabase, authService, dbService } from '../lib/supabase';
 
 interface UserProfile {
   id: string;
@@ -30,12 +30,6 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   updateProfile: (updates: Partial<UserProfile>) => Promise<void>;
   uploadAvatar: (file: File) => Promise<string | null>;
-  // Identity Linking
-  getUserIdentities: () => Promise<any>;
-  linkIdentity: (provider: 'github' | 'google') => Promise<void>;
-  unlinkIdentity: (identity: any) => Promise<void>;
-  canUnlinkIdentity: () => Promise<boolean>;
-  isProviderLinked: (provider: string) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -58,33 +52,56 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Define superadmin users
+  // Define superadmin credentials
   const superAdminEmails = ['cozy2963@gmail.com', 'andrea@cozyartzmedia.com'];
   const superAdminGithubUsernames = ['cozyartz'];
+
+  // Check if user is superadmin
+  const checkSuperAdminStatus = (user: User): boolean => {
+    const email = user.email;
+    const githubUsername = user.user_metadata?.user_name;
+    
+    return (
+      (email && superAdminEmails.includes(email)) ||
+      (githubUsername && superAdminGithubUsernames.includes(githubUsername))
+    );
+  };
 
   // Role-based access control
   const isAdmin = profile?.role === 'admin';
   const isSuperAdmin = profile?.role === 'admin'; // In our system, admin = superadmin
 
   useEffect(() => {
+    let mounted = true;
+
     // Get initial session
     const initializeAuth = async () => {
       try {
+        console.log('🔐 Initializing authentication...');
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error('Error getting session:', error);
+          console.error('❌ Error getting session:', error);
+          if (mounted) {
+            setLoading(false);
+          }
+          return;
         }
         
-        if (session) {
+        if (session && mounted) {
+          console.log('✅ Session found for:', session.user.email);
           setSession(session);
           setUser(session.user);
-          await loadUserProfile(session.user.id);
+          await loadUserProfile(session.user);
+        } else {
+          console.log('ℹ️ No active session found');
         }
       } catch (error) {
-        console.error('Error initializing auth:', error);
+        console.error('❌ Error initializing auth:', error);
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
@@ -93,13 +110,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session);
+        console.log('🔄 Auth state changed:', event, session?.user?.email);
+        
+        if (!mounted) return;
         
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          await loadUserProfile(session.user.id);
+          await loadUserProfile(session.user);
         } else {
           setProfile(null);
         }
@@ -109,93 +128,89 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     );
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, []);
 
-  const loadUserProfile = async (userId: string) => {
+  const loadUserProfile = async (user: User) => {
     try {
-      let { data: profile, error } = await dbService.getUserProfile(userId);
+      console.log('👤 Loading profile for user:', user.id, user.email);
+      
+      // First try to get existing profile
+      let { data: profile, error } = await dbService.getUserProfile(user.id);
       
       if (error && error.code === 'PGRST116') {
         // Profile doesn't exist, create it
-        console.log('Profile not found, creating new profile for user:', userId);
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          profile = await createUserProfile(user);
-        }
+        console.log('📝 Profile not found, creating new profile...');
+        profile = await createUserProfile(user);
       } else if (error) {
-        console.error('Error fetching user profile:', error);
+        console.error('❌ Error fetching user profile:', error);
+        return;
       }
       
       if (profile) {
+        console.log('✅ Profile loaded:', profile.email, 'Role:', profile.role);
         setProfile(profile);
       }
     } catch (error) {
-      console.error('Error loading user profile:', error);
+      console.error('❌ Error loading user profile:', error);
     }
   };
 
-  const createUserProfile = async (user: User) => {
+  const createUserProfile = async (user: User): Promise<UserProfile | null> => {
     try {
-      console.log('Creating user profile for:', user.id, user.email);
-      console.log('User metadata:', user.user_metadata);
-      console.log('App metadata:', user.app_metadata);
+      console.log('🆕 Creating user profile for:', user.id, user.email);
       
       // Determine if user is superadmin
       const isSuperAdmin = checkSuperAdminStatus(user);
-      console.log('Is superadmin:', isSuperAdmin);
+      console.log('🔍 Superadmin check result:', isSuperAdmin);
       
       const profileData = {
         id: user.id,
         email: user.email || '',
-        full_name: user.user_metadata.full_name || user.user_metadata.name || user.email || 'Unknown User',
-        avatar_url: user.user_metadata.avatar_url || null,
-        provider: user.app_metadata.provider || 'email',
-        github_username: user.user_metadata.user_name || null,
+        full_name: user.user_metadata?.full_name || 
+                  user.user_metadata?.name || 
+                  user.email?.split('@')[0] || 
+                  'User',
+        avatar_url: user.user_metadata?.avatar_url || null,
+        provider: user.app_metadata?.provider || 'email',
+        github_username: user.user_metadata?.user_name || null,
         role: isSuperAdmin ? 'admin' as const : 'user' as const,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
 
-      console.log('Profile data to create:', profileData);
+      console.log('📋 Profile data to create:', profileData);
       const { data, error } = await dbService.createUserProfile(profileData);
       
       if (error) {
-        console.error('Error creating user profile:', error);
-        console.error('Error details:', error);
+        console.error('❌ Error creating user profile:', error);
         return null;
       }
       
-      console.log('Profile created successfully:', data);
+      console.log('✅ Profile created successfully:', data);
       return data;
     } catch (error) {
-      console.error('Error creating user profile:', error);
+      console.error('❌ Error creating user profile:', error);
       return null;
     }
-  };
-
-  const checkSuperAdminStatus = (user: User): boolean => {
-    const email = user.email;
-    const githubUsername = user.user_metadata.user_name;
-    
-    return (
-      (email && superAdminEmails.includes(email)) ||
-      (githubUsername && superAdminGithubUsernames.includes(githubUsername))
-    );
   };
 
   const signInWithOAuth = async (provider: 'github' | 'google') => {
     setLoading(true);
     try {
+      console.log('🔗 Starting OAuth with:', provider);
       const { data, error } = await authService.signInWithOAuth(provider);
       
       if (error) {
-        console.error('OAuth error:', error);
+        console.error('❌ OAuth error:', error);
+        setLoading(false);
         throw error;
       }
       
-      // OAuth redirect will handle the rest
+      console.log('✅ OAuth initiated successfully');
+      // OAuth redirect will handle the rest, don't set loading to false here
     } catch (error) {
       setLoading(false);
       throw error;
@@ -203,34 +218,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const signInWithMagicLink = async (email: string) => {
-    setLoading(true);
     try {
+      console.log('✨ Sending magic link to:', email);
       const { data, error } = await authService.signInWithMagicLink(email);
       if (error) {
+        console.error('❌ Magic link error:', error);
         throw error;
       }
-      // Success - magic link sent
+      console.log('✅ Magic link sent successfully');
     } catch (error) {
-      setLoading(false);
       throw error;
-    } finally {
-      setLoading(false);
     }
   };
 
   const signUpWithMagicLink = async (email: string, metadata?: any) => {
-    setLoading(true);
     try {
+      console.log('🆕 Sending signup magic link to:', email);
       const { data, error } = await authService.signUpWithMagicLink(email, metadata);
       if (error) {
+        console.error('❌ Signup magic link error:', error);
         throw error;
       }
-      // Success - magic link sent
+      console.log('✅ Signup magic link sent successfully');
     } catch (error) {
-      setLoading(false);
       throw error;
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -240,7 +251,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (error) {
         throw error;
       }
-      // Success - password reset email sent
     } catch (error) {
       throw error;
     }
@@ -249,14 +259,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const signInWithEmail = async (email: string, password: string) => {
     setLoading(true);
     try {
+      console.log('📧 Signing in with email:', email);
       const { data, error } = await authService.signInWithEmail(email, password);
       if (error) {
+        console.error('❌ Email signin error:', error);
+        setLoading(false);
         throw error;
       }
-      // Wait for auth state change to complete
-      if (data.user) {
-        await loadUserProfile(data.user.id);
-      }
+      console.log('✅ Email signin successful');
+      // Auth state change will handle the rest
     } catch (error) {
       setLoading(false);
       throw error;
@@ -266,13 +277,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const signUp = async (email: string, password: string, fullName: string) => {
     setLoading(true);
     try {
+      console.log('📝 Signing up with email:', email);
       const { data, error } = await authService.signUpWithEmail(email, password, {
         full_name: fullName,
       });
       if (error) {
+        console.error('❌ Email signup error:', error);
+        setLoading(false);
         throw error;
       }
-      // For email signup, user needs to verify email first
+      console.log('✅ Email signup successful');
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -281,15 +295,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const signOut = async () => {
-    setLoading(true);
     try {
+      console.log('👋 Signing out...');
       const { error } = await authService.signOut();
       if (error) {
+        console.error('❌ Signout error:', error);
         throw error;
       }
+      console.log('✅ Signout successful');
       // Auth state change will handle clearing user/profile
     } catch (error) {
-      setLoading(false);
       throw error;
     }
   };
@@ -311,7 +326,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setProfile(data);
       }
     } catch (error) {
-      console.error('Error updating profile:', error);
+      console.error('❌ Error updating profile:', error);
       throw error;
     }
   };
@@ -320,7 +335,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (!user) throw new Error('User not authenticated');
     
     try {
-      // Import storage service here to avoid circular dependency
       const { storageService } = await import('../lib/supabase');
       const { data, error } = await storageService.uploadAvatar(user.id, file);
       
@@ -329,74 +343,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
       
       if (data) {
-        // Update profile with new avatar URL
         await updateProfile({ avatar_url: data.publicUrl });
         return data.publicUrl;
       }
       
       return null;
     } catch (error) {
-      console.error('Error uploading avatar:', error);
+      console.error('❌ Error uploading avatar:', error);
       throw error;
-    }
-  };
-
-  // Identity Linking methods
-  const getUserIdentities = async () => {
-    const { data, error } = await identityService.getUserIdentities();
-    if (error) throw error;
-    return data;
-  };
-
-  const linkIdentity = async (provider: 'github' | 'google') => {
-    setLoading(true);
-    try {
-      const { data, error } = await identityService.linkIdentity(provider);
-      if (error) throw error;
-      // OAuth redirect will handle the linking
-    } catch (error) {
-      setLoading(false);
-      throw error;
-    }
-  };
-
-  const unlinkIdentity = async (identity: any) => {
-    try {
-      // Check if user can unlink (must have at least 2 identities)
-      const { canUnlink } = await identityService.canUnlinkIdentity();
-      if (!canUnlink) {
-        throw new Error('Cannot unlink identity. You must have at least one authentication method.');
-      }
-
-      const { data, error } = await identityService.unlinkIdentity(identity);
-      if (error) throw error;
-      
-      // Refresh user data after unlinking
-      if (user) {
-        await loadUserProfile(user.id);
-      }
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  const canUnlinkIdentity = async (): Promise<boolean> => {
-    try {
-      const { canUnlink } = await identityService.canUnlinkIdentity();
-      return canUnlink;
-    } catch (error) {
-      console.error('Error checking unlink capability:', error);
-      return false;
-    }
-  };
-
-  const isProviderLinked = async (provider: string): Promise<boolean> => {
-    try {
-      const { isLinked } = await identityService.isProviderLinked(provider);
-      return isLinked;
-    } catch (error) {
-      console.error('Error checking provider link status:', error);
-      return false;
     }
   };
 
@@ -416,12 +370,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     signOut,
     updateProfile,
     uploadAvatar,
-    // Identity Linking
-    getUserIdentities,
-    linkIdentity,
-    unlinkIdentity,
-    canUnlinkIdentity,
-    isProviderLinked,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
