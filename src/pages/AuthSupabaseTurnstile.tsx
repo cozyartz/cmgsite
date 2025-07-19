@@ -144,13 +144,6 @@ const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMo
   };
 
   // Handle form input changes and show Turnstile when user starts typing
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-    if (!showTurnstile && e.target.value.length > 0) {
-      setShowTurnstile(true);
-    }
-  };
-
   const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFullName(e.target.value);
   };
