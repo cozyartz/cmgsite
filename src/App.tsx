@@ -21,8 +21,8 @@ import TermsOfService from './pages/TermsOfService';
 import CookiePolicy from './pages/CookiePolicy';
 import DataSubjectRequest from './pages/DataSubjectRequest';
 import NotFound from './pages/NotFound';
-import Header from './components/Header';
-import Footer from './components/Footer';
+import Layout from './components/Layout';
+import ErrorBoundary from './components/ErrorBoundary';
 import CookieConsent from './components/legal/CookieConsent';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/SupabaseAuthContext';
@@ -48,53 +48,42 @@ function App() {
   }, [location]);
 
   return (
-    <AuthProvider>
-      <div className="min-h-screen">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/instructional-design-services" element={
-            <>
-              <Header />
-              <InstructionalDesignServices />
-              <Footer />
-            </>
-          } />
-          <Route path="/drone-services" element={
-            <>
-              <Header />
-              <DroneServices />
-              <Footer />
-            </>
-          } />
-          <Route path="/multimedia-services" element={
-            <>
-              <Header />
-              <MultimediaServices />
-              <Footer />
-            </>
-          } />
-          <Route path="/web-graphic-design-services" element={
-            <>
-              <Header />
-              <WebGraphicDesignServices />
-              <Footer />
-            </>
-          } />
-          <Route path="/seo-services" element={
-            <>
-              <Header />
-              <SEOServices />
-              <Footer />
-            </>
-          } />
-          <Route path="/ai-services" element={
-            <>
-              <Header />
-              <AIServices />
-              <Footer />
-            </>
-          } />
-          <Route path="/pricing" element={<Pricing />} />
+    <ErrorBoundary>
+      <AuthProvider>
+        <div className="min-h-screen">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/instructional-design-services" element={
+              <Layout>
+                <InstructionalDesignServices />
+              </Layout>
+            } />
+            <Route path="/drone-services" element={
+              <Layout>
+                <DroneServices />
+              </Layout>
+            } />
+            <Route path="/multimedia-services" element={
+              <Layout>
+                <MultimediaServices />
+              </Layout>
+            } />
+            <Route path="/web-graphic-design-services" element={
+              <Layout>
+                <WebGraphicDesignServices />
+              </Layout>
+            } />
+            <Route path="/seo-services" element={
+              <Layout>
+                <SEOServices />
+              </Layout>
+            } />
+            <Route path="/ai-services" element={
+              <Layout>
+                <AIServices />
+              </Layout>
+            } />
+            <Route path="/pricing" element={<Pricing />} />
           
           {/* Authentication Routes */}
           <Route path="/auth" element={<AuthSupabaseTurnstile />} />
@@ -137,9 +126,10 @@ function App() {
           <Route path="/404" element={<NotFound />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
-        <CookieConsent />
-      </div>
-    </AuthProvider>
+          <CookieConsent />
+        </div>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

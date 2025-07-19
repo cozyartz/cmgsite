@@ -1,0 +1,1 @@
+{\n  \"semi\": true,\n  \"trailingComma\": \"es5\",\n  \"singleQuote\": true,\n  \"printWidth\": 80,\n  \"tabWidth\": 2,\n  \"useTabs\": false,\n  \"bracketSpacing\": true,\n  \"bracketSameLine\": false,\n  \"arrowParens\": \"avoid\",\n  \"endOfLine\": \"lf\",\n  \"quoteProps\": \"as-needed\",\n  \"jsxSingleQuote\": false,\n  \"proseWrap\": \"preserve\"\n}\n

@@ -1,20 +1,12 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js';
+import { env } from '../config/env';
 
-// Supabase configuration - FORCE PRODUCTION ONLY
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://uncynkmprbzgzvonafoe.supabase.co'
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVuY3lua21wcmJ6Z3p2b25hZm9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI4NTcxOTksImV4cCI6MjA2ODQzMzE5OX0.F22zq5RHTzmrpIA1E2yBAE25Pqo6rpQjLcfw2EmXLd8'
-
-// FORCE production URLs from environment
-const siteUrl = import.meta.env.VITE_SITE_URL || 'https://cozyartzmedia.com'
-const callbackUrl = import.meta.env.VITE_CALLBACK_URL || 'https://cozyartzmedia.com/auth/callback'
-
-// Create Supabase client with FORCED production URLs
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+// Create Supabase client with validated environment configuration
+export const supabase = createClient(env.supabaseUrl, env.supabaseAnonKey, {
   auth: {
-    // FORCE production URL - override any localhost configuration
-    redirectTo: callbackUrl,
-    // Force production site URL - no localhost ever
-    siteUrl: siteUrl,
+    // Use validated environment URLs
+    redirectTo: env.callbackUrl,
+    siteUrl: env.siteUrl,
     // Auto refresh tokens
     autoRefreshToken: true,
     // Persist session in localStorage
@@ -27,7 +19,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   global: {
     headers: {
       'X-Client-Info': 'supabase-js-web',
-      'X-Site-URL': siteUrl,
+      'X-Site-URL': env.siteUrl,
     },
   },
 })
@@ -39,7 +31,7 @@ export const authService = {
     const { data, error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: callbackUrl,
+        emailRedirectTo: env.callbackUrl,
         shouldCreateUser: false, // Security: don't auto-create users
       },
     })
@@ -51,7 +43,7 @@ export const authService = {
     const { data, error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: callbackUrl,
+        emailRedirectTo: env.callbackUrl,
         shouldCreateUser: true,
         data: {
           full_name: metadata?.fullName || '',
@@ -69,10 +61,10 @@ export const authService = {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: callbackUrl,
+        redirectTo: env.callbackUrl,
         queryParams: {
-          redirect_to: callbackUrl,
-          site_url: siteUrl,
+          redirect_to: env.callbackUrl,
+          site_url: env.siteUrl,
         },
       },
     })
@@ -94,7 +86,7 @@ export const authService = {
       email,
       password,
       options: {
-        emailRedirectTo: callbackUrl,
+        emailRedirectTo: env.callbackUrl,
         data: {
           full_name: metadata?.fullName || '',
           terms_accepted: true,
@@ -109,7 +101,7 @@ export const authService = {
   // Secure password reset
   resetPassword: async (email: string) => {
     const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${callbackUrl}?type=recovery`,
+      redirectTo: `${env.callbackUrl}?type=recovery`,
     })
     return { data, error }
   },
@@ -165,10 +157,10 @@ export const identityService = {
     const { data, error } = await supabase.auth.linkIdentity({ 
       provider,
       options: {
-        redirectTo: callbackUrl,
+        redirectTo: env.callbackUrl,
         queryParams: {
-          redirect_to: callbackUrl,
-          site_url: siteUrl,
+          redirect_to: env.callbackUrl,
+          site_url: env.siteUrl,
         },
       }
     })
