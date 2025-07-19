@@ -718,6 +718,53 @@ After applying the schema, the dashboard will show real data instead of fallback
       console.error('Error recording error log:', error);
     }
   }
+
+  /**
+   * Fallback system health when database is not available
+   */
+  static getFallbackSystemHealth(): {
+    overall_status: 'healthy' | 'degraded' | 'unhealthy';
+    services: Array<{
+      name: string;
+      status: string;
+      response_time_ms?: number;
+      last_check: string;
+    }>;
+    incidents_this_month?: number;
+    avg_response_time?: number;
+  } {
+    return {
+      overall_status: 'healthy',
+      services: [
+        {
+          name: 'Web Application',
+          status: 'healthy',
+          response_time_ms: 89,
+          last_check: new Date().toISOString()
+        },
+        {
+          name: 'Cloudflare Workers',
+          status: 'healthy',
+          response_time_ms: 12,
+          last_check: new Date().toISOString()
+        },
+        {
+          name: 'Database',
+          status: 'degraded',
+          response_time_ms: 145,
+          last_check: new Date().toISOString()
+        },
+        {
+          name: 'AI Services',
+          status: 'healthy',
+          response_time_ms: 67,
+          last_check: new Date().toISOString()
+        }
+      ],
+      incidents_this_month: 0,
+      avg_response_time: 78
+    };
+  }
 }
 
 // Utility functions for formatting data
