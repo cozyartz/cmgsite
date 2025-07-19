@@ -120,9 +120,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (error && error.code === 'PGRST116') {
         // Profile doesn't exist, create it
         console.log('Profile not found, creating new profile for user:', userId);
-        const user = await authService.getUser();
-        if (user.user) {
-          profile = await createUserProfile(user.user);
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          profile = await createUserProfile(user);
         }
       } else if (error) {
         console.error('Error fetching user profile:', error);
@@ -253,7 +253,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (error) {
         throw error;
       }
-      // Auth state change will handle setting user/profile
+      // Wait for auth state change to complete
+      if (data.user) {
+        await loadUserProfile(data.user.id);
+      }
     } catch (error) {
       setLoading(false);
       throw error;
@@ -269,7 +272,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (error) {
         throw error;
       }
-      // Auth state change will handle setting user/profile
+      // For email signup, user needs to verify email first
+      setLoading(false);
     } catch (error) {
       setLoading(false);
       throw error;
