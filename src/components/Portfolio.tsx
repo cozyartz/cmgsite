@@ -158,13 +158,6 @@ const Portfolio = () => {
             </div>
             <div className="flex items-center justify-center p-4 bg-slate-800 rounded-lg hover:bg-slate-700 transition-colors duration-300">
               <img 
-                src="/unitedlex-logo.png" 
-                alt="UnitedLex" 
-                className="h-8 w-auto object-contain filter brightness-0 invert hover:brightness-100 hover:invert-0 transition-all duration-300"
-              />
-            </div>
-            <div className="flex items-center justify-center p-4 bg-slate-800 rounded-lg hover:bg-slate-700 transition-colors duration-300">
-              <img 
                 src="/cosan-logo.svg" 
                 alt="Cosan Group" 
                 className="h-8 w-auto object-contain filter brightness-0 invert hover:brightness-100 hover:invert-0 transition-all duration-300"
