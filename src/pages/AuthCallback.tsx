@@ -80,11 +80,12 @@ const AuthCallback: React.FC = () => {
   // Handle redirect when user is authenticated
   useEffect(() => {
     if (!loading && user && status === 'success') {
-      // Always determine route based on user data, even without profile loaded yet
-      const redirectPath = getDashboardRoute(user, profile);
-      const userRole = getUserRoleString(user, profile);
+      // Force SuperAdmin check for your email
+      const isYourEmail = user.email === 'cozy2963@gmail.com';
+      const redirectPath = isYourEmail ? '/superadmin' : getDashboardRoute(user, profile);
+      const userRole = isYourEmail ? 'Super Administrator' : getUserRoleString(user, profile);
       
-      console.log(`🎯 User: ${user.email}, Role: ${userRole}, Redirecting to: ${redirectPath}`);
+      console.log(`🎯 User: ${user.email}, Is SuperAdmin: ${isYourEmail}, Role: ${userRole}, Redirecting to: ${redirectPath}`);
       
       setMessage(`Welcome ${userRole}! Redirecting to your dashboard...`);
       
@@ -96,7 +97,7 @@ const AuthCallback: React.FC = () => {
 
       return () => clearTimeout(timer);
     }
-  }, [loading, user, status, navigate]);
+  }, [loading, user, status, navigate, profile]);
 
   // Handle manual redirect button
   const handleManualRedirect = () => {
