@@ -1,170 +1,305 @@
-# Production Setup Guide for SEO Client Portal
+# 🚀 Production Setup Guide - CMGsite
 
-## Square Payment Integration - Final Setup
+## Overview
 
-Your Square payment integration is now configured for production with location ID `LPM1GX56NW50D`. Here's what you need to do next:
+This guide covers deploying CMGsite to production with Cloudflare Pages + Workers and Supabase.
 
-### 1. Create Square Developer Application
+## 🎯 Production Architecture
 
-1. Go to [Square Developer Portal](https://developer.squareup.com/)
-2. Sign in with your existing Square account
-3. Click "Create an App"
-4. Choose "Build for yourself" (since this is for your own business)
-5. Name your app: "CMG SEO Client Portal"
-6. Select "General use" as the app type
-7. Click "Create App"
+- **Frontend:** Cloudflare Pages (React SPA)
+- **Backend API:** Cloudflare Workers
+- **Database:** Supabase PostgreSQL
+- **Authentication:** Supabase Auth
+- **CDN:** Cloudflare Global Network
+- **Domain:** `cozyartzmedia.com`
 
-### 2. Get Your Production Credentials
+## 🔧 Prerequisites
 
-After creating your app:
+### **Accounts Required:**
+- ✅ Cloudflare account with Pages and Workers
+- ✅ Supabase account with project `uncynkmprbzgzvonafoe`
+- ✅ Domain configured in Cloudflare
+- ✅ GitHub/Google OAuth apps configured
 
-1. Navigate to the "Credentials" tab
-2. Click on "Production" tab
-3. Copy these values:
-   - **Application ID**: `sq0idb-[your-app-id]` (starts with sq0idb-)
-   - **Access Token**: `EAAA[your-access-token]` (starts with EAAA)
-   - **Location ID**: Use `LPM1GX56NW50D` (your Online location)
+### **Local Setup:**
+- ✅ Wrangler CLI installed and authenticated
+- ✅ Environment variables configured
+- ✅ Project builds successfully locally
 
-### 3. Configure Cloudflare Worker Secrets
+## 🚀 Deployment Process
 
-Run these commands to securely store your Square credentials:
-
+### **Quick Deploy (Recommended):**
 ```bash
 cd /Users/cozart-lundin/code/cmgsite
+npm run deploy:production
+```
 
-# Set Square production credentials
-wrangler secret put SQUARE_ACCESS_TOKEN
-# Enter your production access token when prompted
+This single command:
+1. Builds React SPA with routing configuration
+2. Deploys Cloudflare Worker with APIs
+3. Deploys to Cloudflare Pages
+4. Configures SPA routing rules
 
-wrangler secret put SQUARE_APPLICATION_ID
-# Enter your production application ID when prompted
+### **Manual Deploy Steps:**
 
-wrangler secret put SQUARE_LOCATION_ID
-# Enter: LPM1GX56NW50D
+#### **1. Build for Production:**
+```bash
+npm run build:spa
+```
 
-# Set other required secrets
+#### **2. Deploy Worker:**
+```bash
+npm run deploy:worker
+```
+
+#### **3. Deploy Pages:**
+```bash
+npm run deploy:pages
+```
+
+## 🌐 Cloudflare Configuration
+
+### **Pages Settings:**
+- **Build Command:** `npm run build:spa`
+- **Build Output:** `dist`
+- **Root Directory:** `/`
+- **Node Version:** `18`
+
+### **Worker Configuration:**
+Configured in `wrangler.toml`:
+```toml
+name = "cmgsite-client-portal"
+compatibility_date = "2024-01-01"
+pages_build_output_dir = "dist"
+
+[vars]
+ENVIRONMENT = "production"
+FRONTEND_BASE_URL = "https://cozyartzmedia.com"
+API_BASE_URL = "https://cmgsite-client-portal.cozyartz-media-group.workers.dev"
+```
+
+### **Domain Setup:**
+- ✅ Primary domain: `cozyartzmedia.com`
+- ✅ SSL/TLS: Full (strict)
+- ✅ Always Use HTTPS: Enabled
+- ✅ HSTS: Enabled
+
+## 🔐 Environment Variables
+
+### **Production Environment (.env.local):**
+```bash
+# Supabase Configuration
+VITE_SUPABASE_URL=https://uncynkmprbzgzvonafoe.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+# Production URLs
+VITE_SITE_URL=https://cozyartzmedia.com
+VITE_CALLBACK_URL=https://cozyartzmedia.com/auth/callback
+VITE_ENVIRONMENT=production
+
+# Security
+VITE_TURNSTILE_SITE_KEY=0x4AAAAAABlo_LdXn1ErLBXD
+```
+
+### **Cloudflare Worker Secrets:**
+Set via Wrangler CLI:
+```bash
+# Required secrets
+wrangler secret put SUPABASE_SERVICE_ROLE_KEY
 wrangler secret put JWT_SECRET
-# Enter a secure random string (e.g., 64 characters)
+wrangler secret put PAYPAL_CLIENT_SECRET
+wrangler secret put RESEND_API_KEY
 
-wrangler secret put GITHUB_CLIENT_ID
-# Enter your GitHub OAuth app client ID (if using GitHub login)
-
+# OAuth secrets
 wrangler secret put GITHUB_CLIENT_SECRET
-# Enter your GitHub OAuth app client secret
+wrangler secret put GOOGLE_CLIENT_SECRET
 ```
 
-### 4. Update Environment Variables
+## 🗄️ Database Configuration
 
-Create a `.env` file for local development:
+### **Supabase Production Setup:**
+- ✅ Project: `uncynkmprbzgzvonafoe`
+- ✅ Schema: Deployed and configured
+- ✅ RLS Policies: Active
+- ✅ OAuth Providers: GitHub & Google configured
+- ✅ Site URL: `https://cozyartzmedia.com`
+- ✅ Redirect URLs: `https://cozyartzmedia.com/auth/callback`
 
+### **OAuth Provider Configuration:**
+
+#### **GitHub OAuth App:**
+- **Application Name:** Cozyartz Media Group
+- **Homepage URL:** `https://cozyartzmedia.com`
+- **Authorization Callback URL:** `https://uncynkmprbzgzvonafoe.supabase.co/auth/v1/callback`
+
+#### **Google OAuth App:**
+- **Application Name:** Cozyartz Media Group
+- **Authorized JavaScript Origins:** `https://cozyartzmedia.com`
+- **Authorized Redirect URIs:** `https://uncynkmprbzgzvonafoe.supabase.co/auth/v1/callback`
+
+## 🔍 Post-Deployment Testing
+
+### **1. Routing Tests:**
 ```bash
-# .env (for local development only)
-SQUARE_ACCESS_TOKEN=your_production_access_token
-SQUARE_APPLICATION_ID=your_production_app_id
-SQUARE_LOCATION_ID=LPM1GX56NW50D
+# Test main routes
+curl -I https://cozyartzmedia.com/
+curl -I https://cozyartzmedia.com/auth
+curl -I https://cozyartzmedia.com/client-portal
+curl -I https://cozyartzmedia.com/superadmin
+
+# All should return 200 OK
 ```
 
-### 5. Deploy to Production
+### **2. Authentication Flow:**
+1. Visit `https://cozyartzmedia.com/auth`
+2. Login with GitHub (`cozyartz`) or Gmail (`cozy2963@gmail.com`)
+3. Should redirect to `/superadmin` with admin access
+4. Test with other accounts → should redirect to `/client-portal`
 
+### **3. API Endpoints:**
 ```bash
-# Deploy the worker
-wrangler deploy
+# Test worker API
+curl https://cmgsite-client-portal.cozyartz-media-group.workers.dev/api/health
 
-# Create the D1 database
-wrangler d1 create cmgsite-client-portal-db
-
-# Update wrangler.toml with the database ID returned above
-# Then run the schema migration
-wrangler d1 execute cmgsite-client-portal-db --file migrations/001_initial_schema.sql
-
-# Create R2 bucket for file storage
-wrangler r2 bucket create cmgsite-client-portal-files
-
-# Create KV namespace for sessions
-wrangler kv:namespace create "SESSIONS"
+# Should return JSON with status
 ```
 
-### 6. Test Payment Processing
+### **4. Security Headers:**
+Check with [SecurityHeaders.com](https://securityheaders.com/?q=cozyartzmedia.com):
+- ✅ HTTPS enforcement
+- ✅ HSTS headers
+- ✅ Content Security Policy
+- ✅ X-Frame-Options
 
-After deployment, test the payment flow:
+## 📊 Monitoring & Maintenance
 
-1. **Test Card Numbers** (use these in production for testing):
-   - Visa: `4111 1111 1111 1111`
-   - Any future expiration date
-   - Any 3-digit CVV
-   - Any postal code
+### **Cloudflare Analytics:**
+- Monitor page views and performance
+- Track API requests and errors
+- Review security events
 
-2. **Test Subscription Flow**:
-   - Create account in client portal
-   - Navigate to billing section
-   - Try upgrading to Growth plan ($1,500/month)
-   - Complete payment process
+### **Supabase Monitoring:**
+- Check authentication metrics
+- Monitor database performance
+- Review RLS policy usage
 
-3. **Test Consultation Booking**:
-   - Book a strategic consultation ($250/hour)
-   - Verify payment processing
-   - Check database for payment records
+### **Error Tracking:**
+- Cloudflare Worker logs
+- Browser console errors
+- Supabase auth logs
 
-### 7. Configure Your Current Square Settings
+## 🚨 Troubleshooting Production
 
-Since you're using location ID `LPM1GX56NW50D`, make sure this location is properly configured in your Square Dashboard:
+### **Common Issues:**
 
-1. Go to [Square Dashboard](https://squareup.com/dashboard)
-2. Navigate to "Account & Settings" → "Locations"
-3. Find your "Online" location
-4. Verify it's set up for online payments
-5. Enable "Accept online payments" if not already enabled
+#### **404 on SPA Routes:**
+1. Verify `_routes` and `_redirects` files in deployment
+2. Check Cloudflare Pages build output
+3. Ensure SPA routing is configured
 
-### 8. Pricing Configuration
+**Fix:**
+```bash
+# Redeploy with routing config
+npm run deploy:production
+```
 
-Your portal is configured with these rates:
+#### **Authentication Failures:**
+1. Check Supabase site URL and redirect URLs
+2. Verify OAuth provider configuration
+3. Check environment variables
 
-**Monthly Subscriptions:**
-- Starter: $1,000/month (100 AI calls)
-- Growth: $1,500/month (250 AI calls)
-- Enterprise: $2,500/month (500 AI calls)
+**Debug:**
+```bash
+# Test auth configuration
+npm run test:supabase
+npm run test:roles
+```
 
-**AI Overage:**
-- $0.50 per additional AI call
+#### **API Errors:**
+1. Check Cloudflare Worker logs
+2. Verify environment variables and secrets
+3. Test worker endpoints directly
 
-**Consultation Rates:**
-- Strategic Advisory: $250/hour
-- Partnership Development: $500/hour
-- Implementation Support: $150/hour
+#### **SSL/TLS Issues:**
+1. Verify Cloudflare SSL mode is "Full (strict)"
+2. Check certificate status
+3. Clear Cloudflare cache
 
-### 9. Domain Configuration
+### **Performance Issues:**
 
-Update your domain settings:
+#### **Slow Page Loads:**
+1. Check Cloudflare cache settings
+2. Optimize image assets
+3. Review bundle size
 
-1. Point your domain to Cloudflare Pages
-2. Add custom domain in Cloudflare Pages dashboard
-3. Update CORS settings if needed for your domain
+#### **Worker Timeouts:**
+1. Optimize database queries
+2. Implement request caching
+3. Review CPU usage
 
-### 10. Security Checklist
+## 🔄 Deployment Checklist
 
-- [ ] All secrets are stored in Cloudflare Workers (not in code)
-- [ ] JWT_SECRET is a secure random string
-- [ ] Production Square credentials are configured
-- [ ] HTTPS is enforced for all payment pages
-- [ ] Test payment processing thoroughly
-- [ ] Monitor error logs after deployment
+### **Pre-Deployment:**
+- [ ] All tests pass locally
+- [ ] Environment variables updated
+- [ ] Database schema current
+- [ ] OAuth providers configured
+- [ ] Build completes successfully
 
-### 11. Go Live
+### **Deployment:**
+- [ ] Worker deployed without errors
+- [ ] Pages deployment successful
+- [ ] DNS/domain configured
+- [ ] SSL certificate active
 
-Once everything is tested:
+### **Post-Deployment:**
+- [ ] All routes respond correctly
+- [ ] Authentication flow works
+- [ ] Role-based redirects function
+- [ ] API endpoints accessible
+- [ ] Security headers present
+- [ ] Performance acceptable
 
-1. Update your website to link to the client portal
-2. Send onboarding instructions to existing clients
-3. Monitor payment processing and usage
-4. Set up alerts for failed payments or system errors
+## 📈 Performance Optimizations
 
-## Support
+### **Already Implemented:**
+- ✅ Cloudflare global CDN
+- ✅ React code splitting
+- ✅ Image optimization
+- ✅ Asset caching
+- ✅ Gzip compression
 
-If you encounter issues:
+### **Future Improvements:**
+- WebP image conversion
+- Service worker for offline support
+- Database query optimization
+- API response caching
 
-1. Check Cloudflare Workers logs: `wrangler tail`
-2. Verify Square credentials in developer dashboard
-3. Test with Square's test card numbers first
-4. Check database connections and migrations
+## 🎯 Production Status
 
-Your client portal is now ready for production with enterprise-grade payment processing!
+### **Current Deployment:**
+- ✅ **Frontend:** Deployed to Cloudflare Pages
+- ✅ **Backend:** Worker deployed and functional
+- ✅ **Database:** Supabase production ready
+- ✅ **Authentication:** OAuth configured and working
+- ✅ **Domain:** SSL enabled and secure
+- ✅ **Monitoring:** Analytics and logging active
+
+### **URLs:**
+- **Main Site:** https://cozyartzmedia.com
+- **Auth:** https://cozyartzmedia.com/auth
+- **Client Portal:** https://cozyartzmedia.com/client-portal
+- **Superadmin:** https://cozyartzmedia.com/superadmin
+- **API:** https://cmgsite-client-portal.cozyartz-media-group.workers.dev
+
+**✅ Production deployment complete and operational!** 🚀
+
+## 📞 Support
+
+For production issues:
+1. Check Cloudflare dashboard for errors
+2. Review Supabase logs for auth issues
+3. Monitor Worker performance metrics
+4. Test authentication flow manually
+
+**System is production-ready and performing well!** 🎉

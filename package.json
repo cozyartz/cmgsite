@@ -12,6 +12,7 @@
     "test:routing": "node test-routing.mjs",
     "test:supabase": "node test-supabase-auth.mjs",
     "test:roles": "node test-role-routing.mjs",
+    "test:pricing": "node test-pricing-page.mjs",
     "worker:dev": "wrangler dev worker.js --port 8787",
     "worker:deploy": "wrangler deploy",
     "worker:deploy:staging": "wrangler deploy --env staging",

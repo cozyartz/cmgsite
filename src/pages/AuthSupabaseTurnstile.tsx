@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/SupabaseAuthContext';
 import { 
   Github, 
@@ -19,11 +19,24 @@ import {
 } from 'lucide-react';
 import TurnstileWidget from '../components/auth/TurnstileWidget';
 
-const AuthSupabaseTurnstile: React.FC = () => {
+interface AuthSupabaseTurnstileProps {
+  defaultMode?: 'signin' | 'signup';
+}
+
+const AuthSupabaseTurnstile: React.FC<AuthSupabaseTurnstileProps> = ({ defaultMode }) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, loading, isAdmin, isSuperAdmin, signInWithOAuth, signInWithMagicLink, signUpWithMagicLink } = useAuth();
   
-  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
+  // Determine initial auth mode from props, URL params, or default to signin
+  const getInitialMode = (): 'signin' | 'signup' => {
+    if (defaultMode) return defaultMode;
+    const modeParam = searchParams.get('mode');
+    if (modeParam === 'signup' || modeParam === 'signin') return modeParam;
+    return 'signin';
+  };
+
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>(getInitialMode);
   const [email, setEmail] = useState('');
   const [fullName, setFullName] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
@@ -32,6 +45,10 @@ const AuthSupabaseTurnstile: React.FC = () => {
   const [emailSent, setEmailSent] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [showTurnstile, setShowTurnstile] = useState(false);
+
+  // Check for plan selection from pricing page
+  const selectedPlan = searchParams.get('plan');
+  const billingCycle = searchParams.get('billing');
 
   // Redirect authenticated users
   useEffect(() => {
@@ -45,6 +62,12 @@ const AuthSupabaseTurnstile: React.FC = () => {
       }
     }
   }, [user, loading, isSuperAdmin, isAdmin, navigate]);
+
+  // Update mode when URL changes
+  useEffect(() => {
+    const newMode = getInitialMode();
+    setAuthMode(newMode);
+  }, [searchParams, defaultMode]);
 
   // Show Turnstile after user interacts with form
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,8 +103,14 @@ const AuthSupabaseTurnstile: React.FC = () => {
     setSuccess('');
 
     try {
+      const metadata = { 
+        fullName,
+        selectedPlan,
+        billingCycle 
+      };
+
       if (authMode === 'signup') {
-        await signUpWithMagicLink(email, { fullName });
+        await signUpWithMagicLink(email, metadata);
         setSuccess('Account created! Check your email for the magic link.');
       } else {
         await signInWithMagicLink(email);
@@ -105,6 +134,15 @@ const AuthSupabaseTurnstile: React.FC = () => {
     setSuccess('');
     setTurnstileToken(null);
     setShowTurnstile(false);
+  };
+
+  const toggleMode = (newMode: 'signin' | 'signup') => {
+    setAuthMode(newMode);
+    resetForm();
+    // Update URL without navigation
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set('mode', newMode);
+    window.history.replaceState({}, '', `${window.location.pathname}?${newSearchParams}`);
   };
 
   if (loading) {
@@ -139,9 +177,18 @@ const AuthSupabaseTurnstile: React.FC = () => {
           <p className="text-gray-300 mb-2">
             We've sent a magic link to <strong className="text-teal-400">{email}</strong>
           </p>
-          <p className="text-sm text-gray-400 mb-8">
+          <p className="text-sm text-gray-400 mb-4">
             Click the link to {authMode === 'signup' ? 'complete your account setup' : 'access your creative workspace'}
           </p>
+
+          {selectedPlan && (
+            <div className="mb-6 p-3 bg-teal-500/20 border border-teal-500/30 rounded-lg">
+              <p className="text-sm text-teal-300">
+                🎯 Selected Plan: <strong className="capitalize">{selectedPlan}</strong>
+                {billingCycle && ` (${billingCycle})`}
+              </p>
+            </div>
+          )}
           
           <button
             onClick={resetForm}
@@ -169,15 +216,27 @@ const AuthSupabaseTurnstile: React.FC = () => {
             </div>
             
             <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight">
-              Your Creative
+              {authMode === 'signup' ? 'Join Our Creative' : 'Your Creative'}
               <span className="block bg-gradient-to-r from-teal-400 to-purple-500 bg-clip-text text-transparent">
-                Workspace Awaits
+                {authMode === 'signup' ? 'Community' : 'Workspace Awaits'}
               </span>
             </h2>
             
             <p className="text-xl text-gray-300 mb-8">
-              Access your projects, collaborate with our team, and bring your creative visions to life.
+              {authMode === 'signup' 
+                ? 'Start your creative journey with our professional team and advanced tools.'
+                : 'Access your projects, collaborate with our team, and bring your creative visions to life.'
+              }
             </p>
+
+            {selectedPlan && (
+              <div className="mb-6 p-4 bg-teal-500/20 border border-teal-500/30 rounded-lg">
+                <h3 className="text-white font-semibold mb-2">Selected Plan</h3>
+                <p className="text-teal-300 capitalize">
+                  {selectedPlan} Plan {billingCycle && `(${billingCycle})`}
+                </p>
+              </div>
+            )}
             
             <div className="space-y-4">
               <div className="flex items-center text-gray-300">
@@ -212,13 +271,15 @@ const AuthSupabaseTurnstile: React.FC = () => {
                 <Palette className="w-6 h-6 text-white" />
               </div>
               <h1 className="text-2xl font-bold text-white">Cozyartz Media</h1>
-              <p className="text-gray-300 text-sm">Client Portal</p>
+              <p className="text-gray-300 text-sm">
+                {authMode === 'signup' ? 'Create Account' : 'Client Portal'}
+              </p>
             </div>
 
             {/* Mode Toggle */}
             <div className="flex bg-white/10 rounded-xl p-1 mb-6">
               <button
-                onClick={() => { setAuthMode('signin'); resetForm(); }}
+                onClick={() => toggleMode('signin')}
                 className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center ${
                   authMode === 'signin'
                     ? 'bg-white text-slate-900 shadow-lg'
@@ -229,7 +290,7 @@ const AuthSupabaseTurnstile: React.FC = () => {
                 Sign In
               </button>
               <button
-                onClick={() => { setAuthMode('signup'); resetForm(); }}
+                onClick={() => toggleMode('signup')}
                 className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center ${
                   authMode === 'signup'
                     ? 'bg-white text-slate-900 shadow-lg'
@@ -356,7 +417,7 @@ const AuthSupabaseTurnstile: React.FC = () => {
                 ) : (
                   <>
                     <Zap className="w-5 h-5 mr-2" />
-                    Send Magic Link
+                    {authMode === 'signup' ? 'Create Account' : 'Send Magic Link'}
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </>
                 )}
@@ -366,12 +427,12 @@ const AuthSupabaseTurnstile: React.FC = () => {
             {/* Footer */}
             <div className="mt-8 text-center">
               <p className="text-xs text-gray-400">
-                By signing in, you agree to our{' '}
-                <a href="/terms" className="text-teal-400 hover:text-teal-300 transition-colors">
+                By {authMode === 'signup' ? 'creating an account' : 'signing in'}, you agree to our{' '}
+                <a href="/terms-of-service" className="text-teal-400 hover:text-teal-300 transition-colors">
                   Terms of Service
                 </a>{' '}
                 and{' '}
-                <a href="/privacy" className="text-teal-400 hover:text-teal-300 transition-colors">
+                <a href="/privacy-policy" className="text-teal-400 hover:text-teal-300 transition-colors">
                   Privacy Policy
                 </a>
               </p>
