@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContextSimple';
+import { useAuth } from '../contexts/SupabaseAuthContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -11,7 +11,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children, 
   requireSuperAdmin = false 
 }) => {
-  const { loading, isAuthenticated, isSuperAdmin } = useAuth();
+  const { loading, user, isSuperAdmin } = useAuth();
+  const isAuthenticated = !!user;
   const location = useLocation();
 
   // Show loading while auth is being determined

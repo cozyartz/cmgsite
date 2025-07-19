@@ -14,38 +14,11 @@ export const supabase = createClient(env.supabaseUrl, env.supabaseAnonKey, {
     flowType: 'pkce',
     // Storage key for session persistence
     storageKey: 'cmgsite-auth-token',
-    // Use custom auth domain with fallback
-    url: 'https://auth.cozyartzmedia.com',
   },
   global: {
     headers: {
       'X-Client-Info': 'supabase-js-web',
       'X-Site-URL': env.siteUrl,
-    },
-    // Custom fetch to handle auth domain with fallback
-    fetch: async (url, options = {}) => {
-      try {
-        // Try the custom auth domain first
-        const response = await fetch(url, options);
-        if (response.ok) {
-          return response;
-        }
-        // If it fails and it's an auth request, fallback to default Supabase URL
-        if (url.includes('auth.cozyartzmedia.com')) {
-          const fallbackUrl = url.replace('https://auth.cozyartzmedia.com', env.supabaseUrl + '/auth/v1');
-          console.warn('Custom auth domain failed, falling back to:', fallbackUrl);
-          return fetch(fallbackUrl, options);
-        }
-        return response;
-      } catch (error) {
-        // If custom domain fails completely, fallback to default
-        if (url.includes('auth.cozyartzmedia.com')) {
-          const fallbackUrl = url.replace('https://auth.cozyartzmedia.com', env.supabaseUrl + '/auth/v1');
-          console.error('Custom auth domain error, falling back to:', fallbackUrl, error);
-          return fetch(fallbackUrl, options);
-        }
-        throw error;
-      }
     },
   },
 });

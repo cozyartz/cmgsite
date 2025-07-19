@@ -12,9 +12,11 @@ if (initialRoute && window.location.pathname !== initialRoute) {
 }
 
 createRoot(document.getElementById('root')!).render(
-  <BrowserRouter>
-    <HelmetProvider>
-      <App />
-    </HelmetProvider>
-  </BrowserRouter>
+  <StrictMode>
+    <BrowserRouter>
+      <HelmetProvider>
+        <App />
+      </HelmetProvider>
+    </BrowserRouter>
+  </StrictMode>
 );

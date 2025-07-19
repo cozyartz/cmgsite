@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "VITE_ENVIRONMENT=production vite build",
-    "build:pages": "VITE_ENVIRONMENT=production vite build && cp public/_routes.json dist/ && cp public/_redirects dist/",
-    "build:spa": "VITE_ENVIRONMENT=production vite build && cp public/_routes.json dist/ && cp public/_redirects dist/",
+    "build": "NODE_ENV=production VITE_ENVIRONMENT=production vite build",
+    "build:pages": "NODE_ENV=production VITE_ENVIRONMENT=production vite build && cp public/_routes.json dist/ && cp public/_redirects dist/",
+    "build:spa": "NODE_ENV=production VITE_ENVIRONMENT=production vite build && cp public/_routes.json dist/ && cp public/_redirects dist/",
+    "build:production": "./build-production.sh",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
@@ -24,6 +25,7 @@
     "pre-deploy": "npm run validate:env && npm run test:run && npm run build",
     "deploy:staging": "npm run pre-deploy && wrangler pages deploy dist --project-name=cmgsite-staging",
     "deploy:production": "npm run pre-deploy && npm run deploy:pages",
+    "health-check": "node health-check.mjs",
     "prepare": "husky install",
     "deploy": "VITE_ENVIRONMENT=production VITE_TURNSTILE_SITE_KEY=0x4AAAAAABlo_LdXn1ErLBXD npm run build:pages",
     "deploy:pages": "wrangler pages deploy dist"

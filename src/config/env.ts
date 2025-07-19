@@ -74,7 +74,7 @@ export const env = {
 // Type for environment configuration
 export type EnvConfig = typeof env;
 
-// Development helper
+// Development helper - show config in development only
 if (env.isDevelopment) {
   console.log('🔧 Environment Configuration:', {
     environment: env.environment,
@@ -83,4 +83,7 @@ if (env.isDevelopment) {
     supabaseUrl: env.supabaseUrl,
     hasTurnstile: !!env.turnstileSiteKey,
   });
+} else if (env.isProduction) {
+  // Production logging - minimal
+  console.log('🚀 Production environment initialized');
 }

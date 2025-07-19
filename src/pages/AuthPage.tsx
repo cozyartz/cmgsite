@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContextSimple';
+import { useAuth } from '../contexts/SupabaseAuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Github } from 'lucide-react';
 
 const AuthPage: React.FC = () => {
-  const { isAuthenticated, isSuperAdmin, signInWithOAuth, loading } = useAuth();
+  const { user, isSuperAdmin, signInWithOAuth, loading } = useAuth();
+  const isAuthenticated = !!user;
   const navigate = useNavigate();
   const location = useLocation();
 
