@@ -36,13 +36,11 @@ jobs:
           VITE_ENVIRONMENT: production
 
       - name: Deploy to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: cmgsite
-          directory: dist
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          accountId: 51826042d6e31c694331efeb1be34123
+          command: pages deploy dist --project-name=cmgsite
 
       - name: Notify deployment success
         if: success()
