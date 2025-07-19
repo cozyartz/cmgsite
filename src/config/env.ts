@@ -1,1 +1,86 @@
-// Environment variable validation and configuration\n\n// Required environment variables\nconst requiredEnvVars = {\n  VITE_SUPABASE_URL: 'Supabase project URL',\n  VITE_SUPABASE_ANON_KEY: 'Supabase anonymous key',\n} as const;\n\n// Optional environment variables with defaults\nconst optionalEnvVars = {\n  VITE_SITE_URL: 'https://cozyartzmedia.com',\n  VITE_CALLBACK_URL: 'https://cozyartzmedia.com/auth/callback',\n  VITE_TURNSTILE_SITE_KEY: '',\n  VITE_ENVIRONMENT: 'production',\n} as const;\n\n// Validate required environment variables\nfunction validateRequiredEnvVars(): void {\n  const missing: string[] = [];\n  \n  for (const [key, description] of Object.entries(requiredEnvVars)) {\n    if (!import.meta.env[key]) {\n      missing.push(`${key} (${description})`);\n    }\n  }\n  \n  if (missing.length > 0) {\n    throw new Error(\n      `Missing required environment variables:\\n${missing.map(v => `  - ${v}`).join('\\n')}\\n\\n` +\n      `Please check your .env file and ensure all required variables are set.`\n    );\n  }\n}\n\n// Get environment variable with validation\nfunction getEnvVar(key: string, required = false): string {\n  const value = import.meta.env[key];\n  \n  if (required && !value) {\n    throw new Error(`Missing required environment variable: ${key}`);\n  }\n  \n  return value || '';\n}\n\n// Get environment variable with default fallback\nfunction getEnvVarWithDefault<T extends keyof typeof optionalEnvVars>(\n  key: T\n): string {\n  return import.meta.env[key] || optionalEnvVars[key];\n}\n\n// Validate all environment variables on import\nvalidateRequiredEnvVars();\n\n// Export validated environment configuration\nexport const env = {\n  // Required variables (validated)\n  supabaseUrl: getEnvVar('VITE_SUPABASE_URL', true),\n  supabaseAnonKey: getEnvVar('VITE_SUPABASE_ANON_KEY', true),\n  \n  // Optional variables with defaults\n  siteUrl: getEnvVarWithDefault('VITE_SITE_URL'),\n  callbackUrl: getEnvVarWithDefault('VITE_CALLBACK_URL'),\n  turnstileSiteKey: getEnvVarWithDefault('VITE_TURNSTILE_SITE_KEY'),\n  environment: getEnvVarWithDefault('VITE_ENVIRONMENT'),\n  \n  // Computed values\n  isDevelopment: getEnvVarWithDefault('VITE_ENVIRONMENT') === 'development',\n  isProduction: getEnvVarWithDefault('VITE_ENVIRONMENT') === 'production',\n  isStaging: getEnvVarWithDefault('VITE_ENVIRONMENT') === 'staging',\n} as const;\n\n// Type for environment configuration\nexport type EnvConfig = typeof env;\n\n// Development helper\nif (env.isDevelopment) {\n  console.log('🔧 Environment Configuration:', {\n    environment: env.environment,\n    siteUrl: env.siteUrl,\n    callbackUrl: env.callbackUrl,\n    supabaseUrl: env.supabaseUrl,\n    hasTurnstile: !!env.turnstileSiteKey,\n  });\n}\n
+// Environment variable validation and configuration
+
+// Required environment variables
+const requiredEnvVars = {
+  VITE_SUPABASE_URL: 'Supabase project URL',
+  VITE_SUPABASE_ANON_KEY: 'Supabase anonymous key',
+} as const;
+
+// Optional environment variables with defaults
+const optionalEnvVars = {
+  VITE_SITE_URL: 'https://cozyartzmedia.com',
+  VITE_CALLBACK_URL: 'https://cozyartzmedia.com/auth/callback',
+  VITE_TURNSTILE_SITE_KEY: '',
+  VITE_ENVIRONMENT: 'production',
+} as const;
+
+// Validate required environment variables
+function validateRequiredEnvVars(): void {
+  const missing: string[] = [];
+  
+  for (const [key, description] of Object.entries(requiredEnvVars)) {
+    if (!import.meta.env[key]) {
+      missing.push(`${key} (${description})`);
+    }
+  }
+  
+  if (missing.length > 0) {
+    throw new Error(
+      `Missing required environment variables:\n${missing.map(v => `  - ${v}`).join('\n')}\n\n` +
+      `Please check your .env file and ensure all required variables are set.`
+    );
+  }
+}
+
+// Get environment variable with validation
+function getEnvVar(key: string, required = false): string {
+  const value = import.meta.env[key];
+  
+  if (required && !value) {
+    throw new Error(`Missing required environment variable: ${key}`);
+  }
+  
+  return value || '';
+}
+
+// Get environment variable with default fallback
+function getEnvVarWithDefault<T extends keyof typeof optionalEnvVars>(
+  key: T
+): string {
+  return import.meta.env[key] || optionalEnvVars[key];
+}
+
+// Validate all environment variables on import
+validateRequiredEnvVars();
+
+// Export validated environment configuration
+export const env = {
+  // Required variables (validated)
+  supabaseUrl: getEnvVar('VITE_SUPABASE_URL', true),
+  supabaseAnonKey: getEnvVar('VITE_SUPABASE_ANON_KEY', true),
+  
+  // Optional variables with defaults
+  siteUrl: getEnvVarWithDefault('VITE_SITE_URL'),
+  callbackUrl: getEnvVarWithDefault('VITE_CALLBACK_URL'),
+  turnstileSiteKey: getEnvVarWithDefault('VITE_TURNSTILE_SITE_KEY'),
+  environment: getEnvVarWithDefault('VITE_ENVIRONMENT'),
+  
+  // Computed values
+  isDevelopment: getEnvVarWithDefault('VITE_ENVIRONMENT') === 'development',
+  isProduction: getEnvVarWithDefault('VITE_ENVIRONMENT') === 'production',
+  isStaging: getEnvVarWithDefault('VITE_ENVIRONMENT') === 'staging',
+} as const;
+
+// Type for environment configuration
+export type EnvConfig = typeof env;
+
+// Development helper
+if (env.isDevelopment) {
+  console.log('🔧 Environment Configuration:', {
+    environment: env.environment,
+    siteUrl: env.siteUrl,
+    callbackUrl: env.callbackUrl,
+    supabaseUrl: env.supabaseUrl,
+    hasTurnstile: !!env.turnstileSiteKey,
+  });
+}
