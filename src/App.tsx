@@ -9,7 +9,7 @@ import SEOServices from './pages/SEOServices';
 import AIServices from './pages/AIServices';
 import Pricing from './pages/Pricing';
 import AuthSimple from './pages/AuthSimple';
-import AuthSimpleSupabase from './pages/AuthSimpleSupabase';
+import AuthSupabaseTurnstile from './pages/AuthSupabaseTurnstile';
 import AuthCallback from './pages/AuthCallback';
 import AuthDebugPage from './pages/AuthDebugPage';
 import TestAuth from './pages/TestAuth';
@@ -95,7 +95,7 @@ function App() {
             </>
           } />
           <Route path="/pricing" element={<Pricing />} />
-          <Route path="/auth" element={<AuthSimpleSupabase />} />
+          <Route path="/auth" element={<AuthSupabaseTurnstile />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/auth/debug" element={<AuthDebugPage />} />
           <Route path="/auth/test" element={<TestAuth />} />
