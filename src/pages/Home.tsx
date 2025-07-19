@@ -30,21 +30,21 @@ const Home = () => {
     }
   }, [location]);
 
-  // If user is authenticated, redirect to dashboard
+  // If user is authenticated, redirect to dashboard ONLY from home page
   useEffect(() => {
-    if (!loading && user) {
-      console.log('🎯 User is logged in, redirecting to dashboard:', user.email);
+    if (!loading && user && location.pathname === '/') {
+      console.log('🎯 User is logged in, redirecting from home page:', user.email);
       
-      // Determine dashboard route
+      // Determine dashboard route based on superadmin status
       let dashboardPath = '/client-portal';
       if (user.email === 'cozy2963@gmail.com' || user.email === 'andrea@cozyartzmedia.com') {
         dashboardPath = '/superadmin';
       }
       
-      // Clean redirect to dashboard
-      window.location.href = dashboardPath;
+      console.log('🔄 Redirecting to:', dashboardPath);
+      navigate(dashboardPath, { replace: true });
     }
-  }, [user, loading]);
+  }, [user, loading, location.pathname, navigate]);
   return (
     <div className="min-h-screen">
       <SEO

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/SupabaseAuthContext';
 import { Crown, Users, TrendingUp, DollarSign, Activity, CheckCircle, ArrowUp, Bot, Zap } from 'lucide-react';
 
 type SuperAdminTab = 'overview' | 'users' | 'analytics' | 'clientTools' | 'maxai' | 'settings';
