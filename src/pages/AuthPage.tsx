@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContextSimple';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Github } from 'lucide-react';
 

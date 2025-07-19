@@ -5,7 +5,7 @@ import AuthPage from './pages/AuthPage';
 import ClientPortal from './pages/ClientPortal';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider } from './contexts/AuthContextSimple';
 
 function App() {
   return (
