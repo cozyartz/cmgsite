@@ -1,105 +1,207 @@
-# Supabase Setup Guide for cmgsite
+# 🔐 Supabase Setup Guide - Current Implementation
 
-## Step 1: Create Supabase Project
+## Overview
 
-1. Go to [https://supabase.com](https://supabase.com)
-2. Sign up/Sign in and create a new project
-3. Choose a project name: `cmgsite` or `cozyartz-media-group`
-4. Select your region (closest to your users)
-5. Wait for the project to be created
+CMGsite uses Supabase for authentication and user management with role-based access control. This guide covers the current production setup.
 
-## Step 2: Get Project Credentials
+## 🎯 Current Configuration
 
-1. Go to **Settings** → **API** in your Supabase dashboard
-2. Copy the following values to your `.env` file:
-   - **URL**: Copy to `VITE_SUPABASE_URL`
-   - **anon public key**: Copy to `VITE_SUPABASE_ANON_KEY`
-   - **service_role key**: Copy to `SUPABASE_SERVICE_ROLE_KEY`
+### **Project Details:**
+- **Project ID:** `uncynkmprbzgzvonafoe`
+- **Project URL:** `https://uncynkmprbzgzvonafoe.supabase.co`
+- **Environment:** Production ready ✅
 
-## Step 3: Configure Authentication Settings
+### **Authentication Status:**
+- ✅ OAuth with GitHub and Google configured
+- ✅ Row Level Security (RLS) enabled
+- ✅ Automatic profile creation
+- ✅ Role-based access control
+- ✅ Superadmin detection
 
-1. Go to **Authentication** → **Settings**
-2. Set **Site URL** to: `https://cozyartzmedia.com`
-3. Add **Redirect URLs**:
-   - `https://cozyartzmedia.com/auth/callback`
-   - `http://localhost:5173/auth/callback` (for development)
+## 🔧 Required Configuration
 
-## Step 4: Enable OAuth Providers
+### 1. Authentication Settings
 
-### GitHub OAuth
-1. Go to **Authentication** → **Providers** → **GitHub**
-2. Enable GitHub provider
-3. Enter your GitHub OAuth credentials:
-   - **Client ID**: From your GitHub OAuth app
-   - **Client Secret**: From your GitHub OAuth app
-4. **Redirect URL for GitHub**: `https://uncynkmprbzgzvonafoe.supabase.co/auth/v1/callback`
+In your Supabase dashboard go to **Authentication** → **Settings**:
 
-### Google OAuth
-1. Go to **Authentication** → **Providers** → **Google**
-2. Enable Google provider
-3. Enter your Google OAuth credentials:
-   - **Client ID**: From Google Cloud Console
-   - **Client Secret**: From Google Cloud Console
-4. **Redirect URL for Google**: `https://uncynkmprbzgzvonafoe.supabase.co/auth/v1/callback`
+```
+Site URL: https://cozyartzmedia.com
+Redirect URLs: https://cozyartzmedia.com/auth/callback
+```
 
-## Step 5: Set Up Database Schema
+### 2. OAuth Providers
 
-1. Go to **SQL Editor** in your Supabase dashboard
-2. Run the SQL script from `supabase-schema.sql`
-3. This will create:
-   - `profiles` table with user data
-   - Row Level Security policies
-   - Automatic profile creation trigger
-   - Superadmin role assignment
+#### **GitHub OAuth:**
+- **Provider:** GitHub
+- **Client ID:** Your GitHub OAuth app client ID
+- **Client Secret:** Your GitHub OAuth app secret
+- **Redirect URL:** `https://uncynkmprbzgzvonafoe.supabase.co/auth/v1/callback`
 
-## Step 6: Configure OAuth Apps
+#### **Google OAuth:**
+- **Provider:** Google
+- **Client ID:** Your Google OAuth client ID  
+- **Client Secret:** Your Google OAuth client secret
+- **Redirect URL:** `https://uncynkmprbzgzvonafoe.supabase.co/auth/v1/callback`
 
-### GitHub OAuth App Settings
-- **Application name**: `Cozyartz Media Group - Client Portal`
-- **Homepage URL**: `https://cozyartzmedia.com`
-- **Authorization callback URL**: `https://uncynkmprbzgzvonafoe.supabase.co/auth/v1/callback`
+### 3. Database Schema
 
-### Google OAuth App Settings
-- **Application name**: `Cozyartz Media Group`
-- **Authorized JavaScript origins**: `https://cozyartzmedia.com`
-- **Authorized redirect URIs**: `https://uncynkmprbzgzvonafoe.supabase.co/auth/v1/callback`
+The database schema is already configured. Key components:
 
-## Step 7: Test Authentication
+#### **profiles Table:**
+```sql
+CREATE TABLE profiles (
+  id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  email TEXT NOT NULL,
+  full_name TEXT,
+  avatar_url TEXT,
+  provider TEXT,
+  github_username TEXT,
+  role TEXT DEFAULT 'user' CHECK (role IN ('user', 'admin')),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  PRIMARY KEY (id)
+);
+```
 
-1. Start your development server: `npm run dev`
-2. Navigate to `http://localhost:5173/auth`
-3. Test both GitHub and Google OAuth flows
-4. Verify that superadmin users get admin role in the database
+#### **Row Level Security Policies:**
+- Users can view/update their own profiles
+- Admins can view all profiles
+- Automatic profile creation on signup
 
-## Step 8: Production Deployment
+#### **Superadmin Detection:**
+Automatic admin role assignment for:
+- **Emails:** `cozy2963@gmail.com`, `andrea@cozyartzmedia.com`
+- **GitHub:** `cozyartz` username
 
-1. Update environment variables in Cloudflare Workers
-2. Deploy the application: `npm run deploy:production`
-3. Test authentication on production domain
+## 🚀 Environment Variables
 
-## Troubleshooting
+### **Required in `.env.local`:**
+```bash
+VITE_SUPABASE_URL=https://uncynkmprbzgzvonafoe.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVuY3lua21wcmJ6Z3p2b25hZm9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI4NTcxOTksImV4cCI6MjA2ODQzMzE5OX0.F22zq5RHTzmrpIA1E2yBAE25Pqo6rpQjLcfw2EmXLd8
+VITE_SITE_URL=https://cozyartzmedia.com
+VITE_CALLBACK_URL=https://cozyartzmedia.com/auth/callback
+```
 
-### Common Issues:
-- **Redirect URL mismatch**: Ensure URLs match exactly in OAuth apps and Supabase
-- **CORS errors**: Check Site URL and Redirect URLs in Supabase settings
-- **Profile not created**: Check the trigger function in SQL Editor
+### **Optional (for advanced features):**
+```bash
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
+```
 
-### Debugging:
-- Check browser console for error messages
-- Use Supabase dashboard **Logs** section to debug auth issues
-- Verify user creation in **Authentication** → **Users**
+## 🧪 Testing Your Setup
 
-## Security Notes
+### **1. Test Database Connection:**
+```bash
+npm run test:supabase
+```
 
-- **Never commit** your service role key to version control
-- **Use environment variables** for all sensitive credentials
-- **Row Level Security** policies protect user data
-- **Admin detection** is automatic based on email/GitHub username
+### **2. Test Role Detection:**
+```bash
+npm run test:roles
+```
 
-## Next Steps
+### **3. Manual Testing:**
+1. Visit `https://cozyartzmedia.com/auth`
+2. Login with GitHub (`cozyartz`) or Gmail (`cozy2963@gmail.com`)
+3. Should redirect to `/superadmin` with admin access
+4. Test with other accounts → should go to `/client-portal`
 
-Once authentication is working:
-1. Consider migrating database tables from Cloudflare D1 to Supabase
-2. Add real-time features for dashboard updates
-3. Implement file storage with Supabase Storage
-4. Add advanced analytics and reporting features
+## 🔍 Troubleshooting
+
+### **Profile Not Created:**
+1. Check the `handle_new_user()` trigger function exists
+2. Verify RLS policies are set correctly
+3. Check Supabase logs for errors
+
+### **OAuth Issues:**
+1. Verify redirect URLs match exactly
+2. Check OAuth app configuration
+3. Ensure site URL is set correctly
+
+### **Role Detection Problems:**
+1. Check user metadata in Supabase dashboard
+2. Verify email/GitHub username in database
+3. Test role detection logic: `npm run test:roles`
+
+### **Common Fixes:**
+```sql
+-- Re-run schema if needed
+\i supabase-schema-fix.sql
+
+-- Check user profiles
+SELECT id, email, role, github_username FROM profiles;
+
+-- Manually promote user to admin
+SELECT promote_to_admin('user@example.com');
+```
+
+## 📊 Database Schema Status
+
+### **Tables:**
+- ✅ `profiles` - User profiles with role management
+- ✅ `auth.users` - Supabase auth users (automatic)
+
+### **Functions:**
+- ✅ `handle_new_user()` - Auto-create profiles
+- ✅ `promote_to_admin()` - Manual role promotion
+- ✅ `check_superadmin_status()` - Role validation
+
+### **Policies:**
+- ✅ User profile access control
+- ✅ Admin profile visibility
+- ✅ Secure role management
+
+### **Triggers:**
+- ✅ `on_auth_user_created` - Auto-profile creation
+- ✅ `update_profiles_updated_at` - Timestamp updates
+
+## 🎯 Current Features
+
+### **Authentication Methods:**
+- ✅ GitHub OAuth
+- ✅ Google OAuth
+- ✅ Magic link email (optional)
+- ✅ Email/password (optional)
+
+### **Role System:**
+- ✅ Automatic superadmin detection
+- ✅ Role-based dashboard routing
+- ✅ Protected route access control
+- ✅ Profile metadata management
+
+### **Security:**
+- ✅ Row Level Security (RLS)
+- ✅ JWT token validation
+- ✅ Secure session management
+- ✅ CSRF protection with Turnstile
+
+## 🔄 Updates & Maintenance
+
+### **Schema Updates:**
+If you need to update the database schema, run:
+```sql
+-- Copy from supabase-schema-fix.sql
+-- Paste in Supabase SQL Editor
+```
+
+### **Adding New Superadmins:**
+Update the role detection in `handle_new_user()` function:
+```sql
+IF user_email IN ('cozy2963@gmail.com', 'andrea@cozyartzmedia.com', 'new@email.com') OR
+   github_username IN ('cozyartz', 'newusername') THEN
+  user_role := 'admin';
+END IF;
+```
+
+---
+
+## ✅ Status: Production Ready
+
+Your Supabase authentication is fully configured and production-ready with:
+- ✅ OAuth providers configured
+- ✅ Database schema deployed
+- ✅ Role-based access control
+- ✅ Automatic superadmin detection
+- ✅ Protected routing system
+
+**Ready for use!** 🚀

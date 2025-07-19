@@ -3,17 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import { CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/SupabaseAuthContext';
+import { getDashboardRoute, getUserRoleString, isSuperAdmin } from '../utils/roleUtils';
 
 const AuthCallback: React.FC = () => {
   const navigate = useNavigate();
-  const { loading, user, isAdmin, isSuperAdmin } = useAuth();
+  const { loading, user, profile } = useAuth();
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
   const [message, setMessage] = useState('Processing authentication...');
+  const [redirectCountdown, setRedirectCountdown] = useState(3);
 
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        // Get the session from the URL
+        // Get the session from the URL hash
         const { data, error } = await supabase.auth.getSession();
         
         if (error) {
@@ -24,20 +26,9 @@ const AuthCallback: React.FC = () => {
         }
 
         if (data.session) {
+          console.log('Session found:', data.session);
           setStatus('success');
-          setMessage('Authentication successful! Redirecting...');
-          
-          // Wait a moment then redirect based on user role
-          setTimeout(() => {
-            const baseUrl = 'https://cozyartzmedia.com';
-            if (isSuperAdmin) {
-              window.location.href = `${baseUrl}/superadmin`;
-            } else if (isAdmin) {
-              window.location.href = `${baseUrl}/admin`;
-            } else {
-              window.location.href = `${baseUrl}/client-portal`;
-            }
-          }, 2000);
+          setMessage('Authentication successful! Determining your access level...');
         } else {
           setStatus('error');
           setMessage('No session found. Please try logging in again.');
@@ -53,26 +44,37 @@ const AuthCallback: React.FC = () => {
     if (!loading) {
       handleAuthCallback();
     }
-  }, [loading, navigate, isAdmin, isSuperAdmin]);
+  }, [loading]);
 
-  // If auth context is still loading, show loading state
+  // Handle redirect when user and profile are loaded
   useEffect(() => {
-    if (!loading && user) {
-      setStatus('success');
-      setMessage('Authentication successful! Redirecting...');
+    if (!loading && user && status === 'success') {
+      const redirectPath = getDashboardRoute(user, profile);
+      const userRole = getUserRoleString(user, profile);
       
-      setTimeout(() => {
-        const baseUrl = 'https://cozyartzmedia.com';
-        if (isSuperAdmin) {
-          window.location.href = `${baseUrl}/superadmin`;
-        } else if (isAdmin) {
-          window.location.href = `${baseUrl}/admin`;
-        } else {
-          window.location.href = `${baseUrl}/client-portal`;
-        }
-      }, 1500);
+      console.log(`User: ${user.email}, Role: ${userRole}, Redirecting to: ${redirectPath}`);
+      setMessage(`Welcome ${userRole}! Redirecting to your dashboard in ${redirectCountdown} seconds...`);
+      
+      const countdownInterval = setInterval(() => {
+        setRedirectCountdown(prev => {
+          if (prev <= 1) {
+            clearInterval(countdownInterval);
+            navigate(redirectPath);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(countdownInterval);
     }
-  }, [loading, user, isAdmin, isSuperAdmin, navigate]);
+  }, [loading, user, profile, status, navigate, redirectCountdown]);
+
+  // Handle manual redirect button
+  const handleManualRedirect = () => {
+    const redirectPath = getDashboardRoute(user, profile);
+    navigate(redirectPath);
+  };
 
   const renderContent = () => {
     switch (status) {
@@ -92,20 +94,36 @@ const AuthCallback: React.FC = () => {
           <div className="text-center">
             <CheckCircle className="w-12 h-12 text-green-600 mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-gray-900 mb-2">Welcome!</h2>
-            <p className="text-gray-600">{message}</p>
+            <p className="text-gray-600 mb-4">{message}</p>
             
             {user && (
               <div className="mt-4 p-4 bg-green-50 rounded-lg">
                 <p className="text-sm text-green-800">
                   Signed in as: <strong>{user.email}</strong>
                 </p>
-                {isSuperAdmin && (
+                <p className="text-sm text-green-800 mt-1">
+                  Access Level: <strong>{getUserRoleString(user, profile)}</strong>
+                </p>
+                {isSuperAdmin(user, profile) && (
                   <p className="text-sm text-green-800 mt-1">
-                    ✨ Superadmin access detected
+                    ✨ Superadmin access detected - you have full system access
                   </p>
                 )}
               </div>
             )}
+
+            <div className="mt-6 space-y-3">
+              <button
+                onClick={handleManualRedirect}
+                className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors"
+              >
+                Go to Dashboard Now
+              </button>
+              
+              <div className="text-sm text-gray-500">
+                Auto-redirecting in {redirectCountdown} seconds...
+              </div>
+            </div>
           </div>
         );
 

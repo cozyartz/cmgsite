@@ -25,6 +25,7 @@ import NotFound from './pages/NotFound';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import CookieConsent from './components/legal/CookieConsent';
+import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/SupabaseAuthContext';
 
 function App() {
@@ -95,15 +96,41 @@ function App() {
             </>
           } />
           <Route path="/pricing" element={<Pricing />} />
+          
+          {/* Authentication Routes */}
           <Route path="/auth" element={<AuthSupabaseTurnstile />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/auth/debug" element={<AuthDebugPage />} />
           <Route path="/auth/test" element={<TestAuth />} />
-          <Route path="/client-portal" element={<ClientPortalSimple />} />
-          <Route path="/dashboard" element={<ClientPortalSimple />} />
+          
+          {/* Protected Routes - Regular Users */}
+          <Route path="/client-portal" element={
+            <ProtectedRoute>
+              <ClientPortalSimple />
+            </ProtectedRoute>
+          } />
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <ClientPortalSimple />
+            </ProtectedRoute>
+          } />
+          
+          {/* Protected Routes - Admin Only */}
+          <Route path="/admin" element={
+            <ProtectedRoute requireAdmin={true}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          } />
+          
+          {/* Protected Routes - Super Admin Only (that's you!) */}
+          <Route path="/superadmin" element={
+            <ProtectedRoute requireSuperAdmin={true}>
+              <SuperAdminDashboard />
+            </ProtectedRoute>
+          } />
+          
+          {/* Public Routes */}
           <Route path="/book-consultation" element={<BookConsultation />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/superadmin" element={<SuperAdminDashboard />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/cookie-policy" element={<CookiePolicy />} />
