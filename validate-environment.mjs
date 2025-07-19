@@ -77,14 +77,22 @@ async function testSupabaseConnection() {
     console.log('   ✅ Auth service responding');
     
     // Test database connection (expect RLS error, which is good)
-    const { error: dbError } = await supabase.from('profiles').select('count').limit(1);
+    const { error: dbError } = await supabase
+      .from('profiles')
+      .select('count')
+      .limit(1);
+    
     if (dbError) {
       if (dbError.code === 'PGRST116') {
         console.log('   ⚠️  Profiles table not found - run schema setup');
-      } else if (dbError.message.includes('permission denied')) {
+      } else if (dbError.message.includes('permission denied') || dbError.message.includes('RLS')) {
         console.log('   ✅ Database connection working (RLS active)');
+      } else if (dbError.message.includes('infinite recursion')) {
+        console.log('   ❌ RLS infinite recursion detected - run fix-rls-recursion.sql');
+        return false;
       } else {
         console.log('   ❌ Database error:', dbError.message);
+        console.log('   💡 This might be a policy issue - check Supabase dashboard');
         return false;
       }
     } else {

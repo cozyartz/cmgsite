@@ -26,6 +26,7 @@
     "deploy:staging": "npm run pre-deploy && wrangler pages deploy dist --project-name=cmgsite-staging",
     "deploy:production": "npm run pre-deploy && npm run deploy:pages",
     "health-check": "node health-check.mjs",
+    "fix-database": "./fix-database.sh",
     "prepare": "husky install",
     "deploy": "VITE_ENVIRONMENT=production VITE_TURNSTILE_SITE_KEY=0x4AAAAAABlo_LdXn1ErLBXD npm run build:pages",
     "deploy:pages": "wrangler pages deploy dist"

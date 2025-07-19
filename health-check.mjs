@@ -166,10 +166,14 @@ async function runHealthCheck() {
       if (dbError) {
         if (dbError.code === 'PGRST116') {
           checkItem('Database connection', false); // Table doesn't exist
-        } else if (dbError.message.includes('permission denied')) {
+        } else if (dbError.message.includes('permission denied') || dbError.message.includes('RLS')) {
           checkItem('Database connection with RLS', true); // RLS is working
+        } else if (dbError.message.includes('infinite recursion')) {
+          checkItem('Database RLS policies', false); // Recursion issue
+          console.log('   💡 Run: supabase SQL editor -> fix-rls-recursion.sql');
         } else {
           checkItem('Database connection', false);
+          console.log(`   Error: ${dbError.message}`);
         }
       } else {
         checkItem('Database connection', true);
