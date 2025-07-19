@@ -57,7 +57,7 @@ interface AdminStats {
 type SuperAdminTab = 'overview' | 'users' | 'analytics' | 'clientTools' | 'maxai' | 'settings';
 
 const SuperAdminDashboard: React.FC = () => {
-  const { user, isSuperAdmin, signOut: logout } = useAuth();
+  const { user, isSuperAdmin, signOut: logout, loading } = useAuth();
   const navigate = useNavigate();
   const [currentTab, setCurrentTab] = useState<SuperAdminTab>('overview');
   const [stats, setStats] = useState<AdminStats>({
@@ -73,17 +73,43 @@ const SuperAdminDashboard: React.FC = () => {
     conversionRate: 3.4
   });
 
+  // FIX: Only redirect if NOT loading and user is not authenticated/authorized
   useEffect(() => {
-    if (!user || !isSuperAdmin) {
+    if (!loading && (!user || !isSuperAdmin)) {
       navigate('/auth');
-      return;
     }
-  }, [user, isSuperAdmin, navigate]);
+  }, [user, isSuperAdmin, navigate, loading]);
 
   const handleLogout = async () => {
     await logout();
     navigate('/');
   };
+
+  // Show loading state while auth is being determined
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <h2 className="text-xl font-semibold text-gray-900">Loading...</h2>
+          <p className="text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show access denied only after loading is complete
+  if (!user || !isSuperAdmin) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <Shield className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900">Access Denied</h2>
+          <p className="text-gray-600">You need superadmin privileges via GitHub OAuth to access this dashboard.</p>
+        </div>
+      </div>
+    );
+  }
 
   const tabs = [
     { id: 'overview' as SuperAdminTab, label: 'Overview', icon: LayoutDashboard },
@@ -128,7 +154,7 @@ const SuperAdminDashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">Superadmin Dashboard</h2>
-                <p className="text-gray-600">Welcome back, {user?.name}! Here's your system overview.</p>
+                <p className="text-gray-600">Welcome back, {user?.user_metadata?.full_name || user?.email}! Here's your system overview.</p>
               </div>
               <div className="flex items-center space-x-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-4 py-2 rounded-lg">
                 <Crown className="w-5 h-5" />
@@ -312,7 +338,7 @@ const SuperAdminDashboard: React.FC = () => {
                     <AlertTriangle className="w-8 h-8 text-orange-500" />
                   </div>
                   <div className="flex items-center mt-2">
-                    <TrendingDown className="w-4 h-4 text-green-500" />
+                    <ArrowDown className="w-4 h-4 text-green-500" />
                     <span className="text-sm text-green-600 ml-1">-12.5%</span>
                   </div>
                 </div>
@@ -421,18 +447,6 @@ const SuperAdminDashboard: React.FC = () => {
     }
   };
 
-  if (!user || !isSuperAdmin) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <Shield className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900">Access Denied</h2>
-          <p className="text-gray-600">You need superadmin privileges via GitHub OAuth to access this dashboard.</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
@@ -447,7 +461,7 @@ const SuperAdminDashboard: React.FC = () => {
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                <p className="text-sm font-medium text-gray-900">{user?.user_metadata?.full_name || user?.email}</p>
                 <p className="text-xs text-gray-500">Superadmin</p>
               </div>
               <button
