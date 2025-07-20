@@ -58,7 +58,7 @@ vi.mock('@marsidev/react-turnstile', () => ({
   Turnstile: ({ onSuccess }: { onSuccess: (token: string) => void }) => {
     // Auto-trigger success for tests
     setTimeout(() => onSuccess('test-token'), 0);
-    return <div data-testid="turnstile-mock">Turnstile Mock</div>;
+    return null;
   }
 }));
 

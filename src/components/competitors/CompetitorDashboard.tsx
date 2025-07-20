@@ -30,7 +30,8 @@ import {
   Activity,
   Calendar,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  X
 } from 'lucide-react';
 
 interface Competitor {
@@ -137,7 +138,6 @@ const CompetitorDashboard: React.FC = () => {
         requireAuth: true
       });
       await loadCompetitors();
-      }
     } catch (error) {
       console.error('Error scanning competitor:', error);
     }

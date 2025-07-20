@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Mail, Send, CheckCircle, AlertCircle } from 'lucide-react';
 
 export default function EmailTest() {
-  const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
+  const [email, setEmail] = useState('a.cozartlundin@gmail.com');
+  const [name, setName] = useState('Amy');
   const [couponCode, setCouponCode] = useState('AMYFREE');
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<{ success: boolean; message: string; emailId?: string } | null>(null);

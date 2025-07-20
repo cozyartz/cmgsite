@@ -32,6 +32,7 @@ interface SEOProps {
   ogDescription?: string;
   services?: string[];
   foundingDate?: string;
+  robotsContent?: string;
 }
 
 const SEO: React.FC<SEOProps> = ({

@@ -34,7 +34,7 @@ interface UsageStats {
 }
 
 const Billing: React.FC = () => {
-  const { client } = useAuth();
+  const { user } = useAuth();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [usageStats, setUsageStats] = useState<UsageStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -51,10 +51,8 @@ const Billing: React.FC = () => {
         apiService.call('/api/billing/invoices', { requireAuth: true }),
         apiService.call('/api/billing/usage', { requireAuth: true })
       ]);
-        const usageData = await usageRes.json();
-        setInvoices(invoicesData);
-        setUsageStats(usageData);
-      }
+      setInvoices(invoicesData);
+      setUsageStats(usageData);
     } catch (error) {
       console.error('Failed to fetch billing data:', error);
     } finally {
@@ -91,9 +89,9 @@ const Billing: React.FC = () => {
   ];
 
   const mockUsageStats: UsageStats = {
-    aiCallsUsed: client?.ai_calls_used || 0,
-    aiCallsLimit: client?.ai_calls_limit || 100,
-    overage: Math.max(0, (client?.ai_calls_used || 0) - (client?.ai_calls_limit || 100)),
+    aiCallsUsed: 0, // TODO: Implement usage tracking with new profile system
+    aiCallsLimit: 1000, // TODO: Implement usage tracking with new profile system
+    overage: 0, // TODO: Implement usage tracking with new profile system
     consultationHours: 6,
     consultationCost: 1200
   };
@@ -112,7 +110,7 @@ const Billing: React.FC = () => {
         'Email support',
         'Basic templates'
       ],
-      current: client?.subscription_tier === 'starter'
+      current: false // TODO: Implement subscription tier tracking
     },
     {
       name: 'Growth',
@@ -125,7 +123,7 @@ const Billing: React.FC = () => {
         'Custom templates',
         'Consultation discount'
       ],
-      current: client?.subscription_tier === 'growth'
+      current: true // TODO: Implement subscription tier tracking
     },
     {
       name: 'Enterprise',
@@ -138,7 +136,7 @@ const Billing: React.FC = () => {
         'White-label options',
         'Monthly consultation included'
       ],
-      current: client?.subscription_tier === 'enterprise'
+      current: false // TODO: Implement subscription tier tracking
     }
   ];
 
@@ -177,22 +175,18 @@ const Billing: React.FC = () => {
 
   const upgradePlan = async (planName: string) => {
     try {
-      const response = await apiService.get('/api/billing/upgrade', {
+      await apiService.call('/api/billing/upgrade', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
+        body: {
           plan: planName.toLowerCase(),
-          clientId: client?.id
-        })
+          userId: user?.id
+        },
+        requireAuth: true
       });
 
-      if (response.ok) {
-        setShowUpgradeModal(false);
-        // Refresh data
-        fetchBillingData();
-      }
+      setShowUpgradeModal(false);
+      // Refresh data
+      fetchBillingData();
     } catch (error) {
       console.error('Failed to upgrade plan:', error);
     }
@@ -279,11 +273,9 @@ const Billing: React.FC = () => {
             <CreditCard className="h-5 w-5 text-teal-400" />
           </div>
           <div className="space-y-2">
-            <p className="text-2xl font-bold text-teal-400 capitalize">{client?.subscription_tier}</p>
+            <p className="text-2xl font-bold text-teal-400 capitalize">Growth</p>
             <p className="text-slate-400">
-              {subscriptionPlans.find(p => p.name.toLowerCase() === client?.subscription_tier)?.price ? 
-                formatCurrency(subscriptionPlans.find(p => p.name.toLowerCase() === client?.subscription_tier)!.price) : 
-                '$1,000'}/month
+              $1,500/month
             </p>
             <p className="text-slate-400 text-sm">Next billing: Feb 15, 2024</p>
           </div>
@@ -396,7 +388,7 @@ const Billing: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="text-center">
             <p className="text-2xl font-bold text-teal-400">
-              {formatCurrency(subscriptionPlans.find(p => p.name.toLowerCase() === client?.subscription_tier)?.price || 1000)}
+              $1,500
             </p>
             <p className="text-slate-400">Base Subscription</p>
           </div>
@@ -414,7 +406,7 @@ const Billing: React.FC = () => {
           </div>
           <div className="text-center">
             <p className="text-2xl font-bold text-teal-400">
-              {formatCurrency((subscriptionPlans.find(p => p.name.toLowerCase() === client?.subscription_tier)?.price || 1000) + (usage.overage * 0.5) + usage.consultationCost)}
+              {formatCurrency(1500 + (usage.overage * 0.5) + usage.consultationCost)}
             </p>
             <p className="text-slate-400">Total This Month</p>
           </div>

@@ -238,12 +238,12 @@ export class EmailService {
 
   // Testing request email for Amy Tipton
   async sendTestingRequestEmail(advisorEmail, advisorName) {
-    const html = this.getTestingRequestTemplate(advisorName);
-    const text = this.getTestingRequestText(advisorName);
+    const html = getTestingRequestTemplate(advisorName);
+    const text = getTestingRequestText(advisorName);
 
     return await this.sendEmail({
       to: advisorEmail,
-      subject: `Exclusive Preview: Test Our Revolutionary SEO Platform + 6 Months Free`,
+      subject: `Exclusive Preview: Test Our Revolutionary SEO Platform + 1 Month Free`,
       html,
       text,
       replyTo: 'hello@cozyartzmedia.com'
@@ -1132,7 +1132,7 @@ export function getTestingRequestTemplate(advisorName) {
       <div class="highlight">
         <h3>🎁 What We're Offering You:</h3>
         <ul>
-          <li><strong>6 months of completely free access</strong> to our premium SEO platform</li>
+          <li><strong>1 month of completely free access</strong> to our premium SEO platform</li>
           <li><strong>First look</strong> at the technology that could transform how businesses approach SEO</li>
           <li><strong>Direct input</strong> on features and functionality before public launch</li>
           <li><strong>VIP advisor status</strong> with priority support and exclusive updates</li>
@@ -1154,7 +1154,7 @@ export function getTestingRequestTemplate(advisorName) {
       
       <p><strong>Your Testing Access Includes:</strong></p>
       <ul>
-        <li>Full Starter tier (normally $1,000/month) - completely free for 6 months</li>
+        <li>Full Starter tier (normally $1,000/month) - completely free for 1 month</li>
         <li>AI assistant trained specifically to help with any setup issues</li>
         <li>Standard support with testing feedback channel</li>
         <li>100 AI calls per month, 1 domain limit</li>
@@ -1174,7 +1174,7 @@ export function getTestingRequestTemplate(advisorName) {
       
       <p>Use coupon code: <strong>AMYFREE</strong> (automatically applied via your advisor link)</p>
       
-      <p>This exclusive testing period runs for 6 months, giving you plenty of time to explore every feature and provide the insights that will help us perfect the platform before wider release.</p>
+      <p>This exclusive testing period runs for 1 month, giving you time to explore every feature and provide the insights that will help us perfect the platform before wider release.</p>
       
       <p>Ready to see what we've been building together?</p>
       
@@ -1199,7 +1199,7 @@ Hi ${advisorName},
 As our trusted business advisor, you've been with us from the beginning, and now we need your expert eye on something revolutionary we've been building.
 
 🎁 WHAT WE'RE OFFERING YOU:
-- 6 months of completely free access to our premium SEO platform
+- 1 month of completely free access to our premium SEO platform
 - First look at the technology that could transform how businesses approach SEO  
 - Direct input on features and functionality before public launch
 - VIP advisor status with priority support and exclusive updates
@@ -1214,7 +1214,7 @@ This is the platform you decided to be part of - the one we've been developing w
 - Performance: Speed, reliability, mobile responsiveness
 
 YOUR TESTING ACCESS INCLUDES:
-- Full Starter tier (normally $1,000/month) - completely free for 6 months
+- Full Starter tier (normally $1,000/month) - completely free for 1 month
 - AI assistant trained specifically to help with any setup issues
 - Standard support with testing feedback channel
 - 100 AI calls per month, 1 domain limit
@@ -1231,7 +1231,7 @@ GETTING STARTED:
 Visit: https://cozyartzmedia.com/client-portal/signup?advisor=amy
 Coupon Code: AMYFREE (automatically applied via your advisor link)
 
-This exclusive testing period runs for 6 months, giving you plenty of time to explore every feature and provide the insights that will help us perfect the platform before wider release.
+This exclusive testing period runs for 1 month, giving you time to explore every feature and provide the insights that will help us perfect the platform before wider release.
 
 Ready to see what we've been building together?
 

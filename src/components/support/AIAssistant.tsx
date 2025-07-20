@@ -76,7 +76,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
 
     try {
       // Send to AI assistant API
-      const response = await apiService.call('/api/ai/assistant', {
+      const data = await apiService.call('/api/ai/assistant', {
         method: 'POST',
         body: {
           message: inputValue,
@@ -86,10 +86,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
           messageHistory: messages.slice(-10) // Last 10 messages for context
         },
         requireAuth: true
-        })
       });
-
-      const data = await response.json();
 
       if (data.success) {
         const botMessage: Message = {

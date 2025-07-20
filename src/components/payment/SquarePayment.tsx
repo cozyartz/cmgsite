@@ -26,7 +26,7 @@ const SquarePayment: React.FC<SquarePaymentProps> = ({
   buttonText = 'Pay Now',
   subscriptionPlan
 }) => {
-  const { client } = useAuth();
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [card, setCard] = useState<any>(null);
   const [payments, setPayments] = useState<any>(null);
@@ -169,13 +169,11 @@ const SquarePayment: React.FC<SquarePaymentProps> = ({
       </button>
 
       {/* Billing Info */}
-      {client && (
+      {user && (
         <div className="mt-4 p-3 bg-slate-700 rounded-lg">
           <p className="text-sm text-slate-400">Bill to:</p>
-          <p className="text-white font-medium">{client.name}</p>
-          {client.domain && (
-            <p className="text-slate-400 text-sm">{client.domain}</p>
-          )}
+          <p className="text-white font-medium">{user?.email}</p>
+          <p className="text-slate-400 text-sm">User</p>
         </div>
       )}
 

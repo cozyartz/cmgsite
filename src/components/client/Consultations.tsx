@@ -30,7 +30,7 @@ interface Consultation {
 }
 
 const Consultations: React.FC = () => {
-  const { client } = useAuth();
+  const { user } = useAuth();
   const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [selectedType, setSelectedType] = useState<'strategic' | 'partnership' | 'implementation'>('strategic');
@@ -170,7 +170,7 @@ const Consultations: React.FC = () => {
         body: {
           type,
           scheduledAt,
-          clientId: client?.id
+          clientId: user?.id
         },
         requireAuth: true
       });

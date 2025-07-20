@@ -33,7 +33,7 @@ interface AnalyticsData {
 }
 
 const Analytics: React.FC = () => {
-  const { client } = useAuth();
+  const { user } = useAuth();
   const [timeRange, setTimeRange] = useState('30d');
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);

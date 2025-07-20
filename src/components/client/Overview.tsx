@@ -47,7 +47,7 @@ const MetricCard: React.FC<MetricCardProps> = ({ title, value, change, changeTyp
 );
 
 const Overview: React.FC = () => {
-  const { client } = useAuth();
+  const { user, profile } = useAuth();
   const [metrics, setMetrics] = useState({
     organicTraffic: 0,
     keywordRankings: 0,
@@ -55,15 +55,15 @@ const Overview: React.FC = () => {
     totalLeads: 0
   });
 
-  console.log('Overview component render:', { client });
+  console.log('Overview component render:', { user, profile });
 
   useEffect(() => {
     // Fetch dashboard metrics
     fetchMetrics();
   }, []);
 
-  // Show loading state if client is not loaded yet
-  if (!client) {
+  // Show loading state if user is not loaded yet
+  if (!user) {
     return (
       <div className="p-6 space-y-6">
         <div className="flex items-center justify-center h-64">
@@ -85,8 +85,8 @@ const Overview: React.FC = () => {
     }
   };
 
-  const usagePercentage = client ? (client.ai_calls_used / client.ai_calls_limit) * 100 : 0;
-  const remainingCalls = client ? client.ai_calls_limit - client.ai_calls_used : 0;
+  const usagePercentage = 0; // TODO: Implement usage tracking with new profile system
+  const remainingCalls = 1000; // TODO: Implement usage tracking with new profile system
 
   return (
     <div className="p-6 space-y-6">
@@ -110,7 +110,7 @@ const Overview: React.FC = () => {
           <div>
             <p className="text-yellow-400 font-medium">AI Usage Alert</p>
             <p className="text-yellow-300 text-sm">
-              You've used {client?.ai_calls_used} of {client?.ai_calls_limit} AI calls this month. 
+              You've used 0 of 1000 AI calls this month. 
               Consider upgrading to continue using AI tools.
             </p>
           </div>
@@ -161,7 +161,7 @@ const Overview: React.FC = () => {
             <div>
               <div className="flex justify-between text-sm mb-2">
                 <span className="text-slate-400">Used this month</span>
-                <span className="text-white">{client?.ai_calls_used}/{client?.ai_calls_limit}</span>
+                <span className="text-white">0/1000</span>
               </div>
               <div className="w-full bg-slate-700 rounded-full h-2">
                 <div 

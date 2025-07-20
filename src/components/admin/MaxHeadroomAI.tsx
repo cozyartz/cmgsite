@@ -321,7 +321,7 @@ const MaxHeadroomAI: React.FC = () => {
       </div>
 
       {/* CSS for scan line animation */}
-      <style jsx>{`
+      <style>{`
         @keyframes scan {
           0% { transform: translateY(-100%); }
           100% { transform: translateY(100vh); }

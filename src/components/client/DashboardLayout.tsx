@@ -23,7 +23,7 @@ interface DashboardLayoutProps {
 }
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, activeTab, setActiveTab }) => {
-  const { user, client, logout } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -46,7 +46,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, activeTab, 
     return 'text-green-400';
   };
 
-  const usagePercentage = client ? (client.ai_calls_used / client.ai_calls_limit) * 100 : 0;
+  const usagePercentage = 0; // TODO: Implement usage tracking with new profile system
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-teal-900 flex relative overflow-hidden">
@@ -93,17 +93,17 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, activeTab, 
               <div className="relative">
                 <div className="h-12 w-12 bg-gradient-to-br from-teal-500 to-teal-600 rounded-full flex items-center justify-center shadow-lg">
                   <span className="text-white font-bold text-sm">
-                    {client?.name.charAt(0).toUpperCase()}
+                    {profile?.full_name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'U'}
                   </span>
                 </div>
                 <div className="absolute -inset-1 bg-gradient-to-br from-teal-400/40 to-blue-500/40 rounded-full blur-sm animate-pulse"></div>
               </div>
               <div className="ml-4">
-                <p className="text-white font-semibold text-sm">{client?.name}</p>
+                <p className="text-white font-semibold text-sm">{profile?.full_name || user?.email}</p>
                 <div className="flex items-center space-x-2">
                   <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-teal-500/20 text-teal-300 border border-teal-500/30">
                     <Zap className="h-3 w-3 mr-1" />
-                    {client?.subscription_tier} Plan
+                    {profile?.role === 'admin' ? 'Admin' : 'User'} Plan
                   </span>
                 </div>
               </div>
@@ -117,7 +117,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, activeTab, 
                   AI Calls Used
                 </span>
                 <span className={`font-bold ${getUsageColor(usagePercentage)}`}>
-                  {client?.ai_calls_used}/{client?.ai_calls_limit}
+                  0/1000
                 </span>
               </div>
               <div className="relative">
@@ -196,12 +196,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, activeTab, 
                 <div className="absolute -inset-1 bg-gradient-to-br from-teal-500/20 to-blue-500/20 rounded-full blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
               </div>
               <div className="ml-3">
-                <p className="text-white font-medium group-hover:text-teal-200 transition-colors duration-300">{user?.name}</p>
+                <p className="text-white font-medium group-hover:text-teal-200 transition-colors duration-300">{profile?.full_name || user?.email}</p>
                 <p className="text-slate-400 text-xs group-hover:text-slate-300 transition-colors duration-300">{user?.email}</p>
               </div>
             </div>
             <button
-              onClick={logout}
+              onClick={signOut}
               className="w-full flex items-center px-4 py-3 text-sm text-slate-300 hover:bg-red-500/10 hover:text-red-300 hover:border-red-500/30 rounded-lg transition-all duration-300 group border border-transparent hover:shadow-lg"
             >
               <LogOut className="h-4 w-4 mr-3 group-hover:scale-110 transition-transform duration-300" />

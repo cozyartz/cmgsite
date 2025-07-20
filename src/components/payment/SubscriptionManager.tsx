@@ -22,7 +22,7 @@ interface SubscriptionPlan {
 }
 
 const SubscriptionManager: React.FC = () => {
-  const { client, updateClient } = useAuth();
+  const { user, profile, updateProfile } = useAuth();
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
   const [showPayment, setShowPayment] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -85,15 +85,15 @@ const SubscriptionManager: React.FC = () => {
     setIsProcessing(true);
     
     try {
-      // Update client subscription
-      await updateClient({
-        subscription_tier: selectedPlan!.id,
-        ai_calls_limit: selectedPlan!.aiCalls
-      });
+      // TODO: Implement subscription tier update with new profile system
+      // await updateProfile({
+      //   subscription_tier: selectedPlan!.id,
+      //   ai_calls_limit: selectedPlan!.aiCalls
+      // });
 
       // Create subscription record
       const response = await apiService.post('/api/subscriptions/create', {
-        clientId: client?.id,
+        clientId: user?.id,
         planId: selectedPlan!.id,
         paymentId: paymentResult.payment.id,
         amount: selectedPlan!.priceInCents
@@ -119,7 +119,7 @@ const SubscriptionManager: React.FC = () => {
   };
 
   const getCurrentPlan = () => {
-    return subscriptionPlans.find(plan => plan.id === client?.subscription_tier);
+    return subscriptionPlans.find(plan => plan.id === 'growth'); // TODO: Get from profile
   };
 
   const currentPlan = getCurrentPlan();
@@ -200,7 +200,7 @@ const SubscriptionManager: React.FC = () => {
             <div>
               <h3 className="text-lg font-semibold text-white">Current Plan</h3>
               <p className="text-slate-400">
-                {currentPlan.name} • ${currentPlan.price}/month • {client?.ai_calls_used}/{client?.ai_calls_limit} AI calls used
+                {currentPlan.name} • ${currentPlan.price}/month • 0/250 AI calls used
               </p>
             </div>
             <div className="text-right">

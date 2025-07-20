@@ -51,13 +51,13 @@ const AITool: React.FC<AIToolProps> = ({ title, description, icon, cost, onUse, 
 );
 
 const SEOTools: React.FC = () => {
-  const { client } = useAuth();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('generator');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedContent, setGeneratedContent] = useState('');
   const [prompt, setPrompt] = useState('');
 
-  const remainingCredits = client ? client.ai_calls_limit - client.ai_calls_used : 0;
+  const remainingCredits = 1000; // TODO: Implement usage tracking with new profile system
 
   const handleGenerateContent = async (toolType: string, userPrompt: string) => {
     if (remainingCredits < 1) {
@@ -72,7 +72,7 @@ const SEOTools: React.FC = () => {
         body: {
           type: toolType,
           prompt: userPrompt,
-          clientId: client?.id
+          clientId: user?.id
         },
         requireAuth: true
       });

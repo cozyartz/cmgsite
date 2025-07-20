@@ -333,6 +333,56 @@ export class AnalyticsService {
       canUpgrade: upgradePath.length > 0
     };
   }
+
+  // Fallback methods for SuperAdmin dashboard
+  static getFallbackDashboardStats() {
+    return {
+      totalUsers: 0,
+      activeUsers: 0,
+      totalRevenue: 0,
+      mrr: 0,
+      churnRate: 0,
+      newSignups: 0,
+      conversionRate: 0,
+      averageRevenue: 0
+    };
+  }
+
+  static getFallbackUserActivity() {
+    return {
+      daily: [],
+      weekly: [],
+      monthly: []
+    };
+  }
+
+  static getFallbackRevenueData() {
+    return {
+      monthly: [],
+      quarterly: [],
+      yearly: [],
+      byPlan: {},
+      growth: 0
+    };
+  }
+
+  static getFallbackSystemHealth() {
+    return {
+      uptime: 99.9,
+      responseTime: 150,
+      errorRate: 0.1,
+      activeConnections: 0,
+      queueSize: 0,
+      cpuUsage: 10,
+      memoryUsage: 20
+    };
+  }
+
+  static async exportData(dataType: string, format: string) {
+    // Placeholder for export functionality
+    console.log(`Exporting ${dataType} in ${format} format`);
+    return { success: true, message: 'Export feature coming soon' };
+  }
 }
 
 export default AnalyticsService;

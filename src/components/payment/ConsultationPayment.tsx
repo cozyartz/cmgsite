@@ -31,7 +31,7 @@ const ConsultationPayment: React.FC<ConsultationPaymentProps> = ({
   onSuccess,
   onCancel
 }) => {
-  const { client } = useAuth();
+  const { user } = useAuth();
   const [selectedType, setSelectedType] = useState<ConsultationType | null>(null);
   const [selectedDuration, setSelectedDuration] = useState(120);
   const [scheduledDate, setScheduledDate] = useState('');

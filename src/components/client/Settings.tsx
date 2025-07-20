@@ -16,23 +16,23 @@ import {
 } from 'lucide-react';
 
 const Settings: React.FC = () => {
-  const { user, client, updateClient } = useAuth();
+  const { user, profile, updateProfile } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
 
   const [profileData, setProfileData] = useState({
-    name: user?.name || '',
+    name: profile?.full_name || user?.email || '',
     email: user?.email || '',
-    avatar_url: user?.avatar_url || '',
+    avatar_url: profile?.avatar_url || '',
     phone: '',
     timezone: 'America/New_York'
   });
 
   const [companyData, setCompanyData] = useState({
-    name: client?.name || '',
-    domain: client?.domain || '',
+    name: profile?.full_name || user?.email || '',
+    domain: '',
     industry: 'Consulting',
     size: '1-10',
     description: ''
