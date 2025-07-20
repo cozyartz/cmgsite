@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemaps
-Sitemap: https://cozyartzmedia.com/sitemap.xml
+Sitemap: https://cozartmedia.com/sitemap.xml
 
 # Crawl-delay for respectful crawling
 Crawl-delay: 1
@@ -15,12 +15,15 @@ Allow: /instructional-design-services
 Allow: /multimedia-services
 Allow: /drone-services
 Allow: /web-graphic-design-services
+Allow: /pricing
 
 # Block authentication and private pages
 Disallow: /auth
 Disallow: /client-portal
 Disallow: /dashboard
 Disallow: /404
+Disallow: /superadmin
+Disallow: /admin-dashboard
 
 # Block any private or development files
 Disallow: /.well-known/
@@ -30,6 +33,8 @@ Disallow: /.git/
 Disallow: /dist/
 Disallow: /*.json
 Disallow: /*.config.*
+Disallow: /*.log
+Disallow: /.env*
 
 # Host declaration
-Host: https://cozyartzmedia.com
+Host: https://cozartmedia.com

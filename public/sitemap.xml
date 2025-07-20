@@ -5,12 +5,12 @@
   
   <!-- Homepage -->
   <url>
-    <loc>https://cozyartzmedia.com/</loc>
+    <loc>https://cozartmedia.com/</loc>
     <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <image:image>
-      <image:loc>https://cozyartzmedia.com/og-image.jpg</image:loc>
+      <image:loc>https://cozartmedia.com/og-image.jpg</image:loc>
       <image:title>Cozyartz Media Group - Creative Agency</image:title>
       <image:caption>Professional web design, multimedia production, and digital innovation services</image:caption>
     </image:image>
@@ -18,12 +18,12 @@
 
   <!-- AI Services -->
   <url>
-    <loc>https://cozyartzmedia.com/ai-services</loc>
+    <loc>https://cozartmedia.com/ai-services</loc>
     <lastmod>2025-01-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <image:image>
-      <image:loc>https://cozyartzmedia.com/ai-services-og.jpg</image:loc>
+      <image:loc>https://cozartmedia.com/ai-services-og.jpg</image:loc>
       <image:title>AI Services - Business Automation & Workflow Optimization</image:title>
       <image:caption>Transform your business with AI-powered automation and intelligent workflows</image:caption>
     </image:image>
@@ -31,12 +31,12 @@
 
   <!-- SEO Services -->
   <url>
-    <loc>https://cozyartzmedia.com/seo-services</loc>
+    <loc>https://cozartmedia.com/seo-services</loc>
     <lastmod>2025-01-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <image:image>
-      <image:loc>https://cozyartzmedia.com/seo-services-og.jpg</image:loc>
+      <image:loc>https://cozartmedia.com/seo-services-og.jpg</image:loc>
       <image:title>SEO Services - Google Certified Experts</image:title>
       <image:caption>Professional SEO services to boost your online visibility and drive organic traffic</image:caption>
     </image:image>
@@ -44,12 +44,12 @@
 
   <!-- Instructional Design Services -->
   <url>
-    <loc>https://cozyartzmedia.com/instructional-design-services</loc>
+    <loc>https://cozartmedia.com/instructional-design-services</loc>
     <lastmod>2025-01-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <image:image>
-      <image:loc>https://cozyartzmedia.com/instructional-design-og.jpg</image:loc>
+      <image:loc>https://cozartmedia.com/instructional-design-og.jpg</image:loc>
       <image:title>Instructional Design Services - Amy Cozart-Lundin M.Ed</image:title>
       <image:caption>Expert instructional design services with 10+ years experience serving Fortune 500 companies</image:caption>
     </image:image>
@@ -57,12 +57,12 @@
 
   <!-- Web & Graphic Design Services -->
   <url>
-    <loc>https://cozyartzmedia.com/web-graphic-design-services</loc>
+    <loc>https://cozartmedia.com/web-graphic-design-services</loc>
     <lastmod>2025-01-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
-      <image:loc>https://cozyartzmedia.com/web-design-og.jpg</image:loc>
+      <image:loc>https://cozartmedia.com/web-design-og.jpg</image:loc>
       <image:title>Web & Graphic Design Services</image:title>
       <image:caption>Custom websites and visual communications that convert visitors into customers</image:caption>
     </image:image>
@@ -70,12 +70,12 @@
 
   <!-- Multimedia Services -->
   <url>
-    <loc>https://cozyartzmedia.com/multimedia-services</loc>
+    <loc>https://cozartmedia.com/multimedia-services</loc>
     <lastmod>2025-01-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
-      <image:loc>https://cozyartzmedia.com/multimedia-og.jpg</image:loc>
+      <image:loc>https://cozartmedia.com/multimedia-og.jpg</image:loc>
       <image:title>Multimedia Production Services</image:title>
       <image:caption>Professional video production and multimedia content creation</image:caption>
     </image:image>
@@ -83,14 +83,27 @@
 
   <!-- Drone Services -->
   <url>
-    <loc>https://cozyartzmedia.com/drone-services</loc>
+    <loc>https://cozartmedia.com/drone-services</loc>
     <lastmod>2025-01-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
-      <image:loc>https://cozyartzmedia.com/drone-services-og.jpg</image:loc>
+      <image:loc>https://cozartmedia.com/drone-services-og.jpg</image:loc>
       <image:title>Drone Services - Aerial Photography & Videography</image:title>
       <image:caption>Professional aerial photography and videography services</image:caption>
+    </image:image>
+  </url>
+
+  <!-- Pricing Page -->
+  <url>
+    <loc>https://cozartmedia.com/pricing</loc>
+    <lastmod>2025-01-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://cozartmedia.com/pricing-og.jpg</image:loc>
+      <image:title>Pricing - Transparent Creative Services Pricing</image:title>
+      <image:caption>Clear, competitive pricing for all our creative and AI services</image:caption>
     </image:image>
   </url>
 

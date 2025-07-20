@@ -53,7 +53,7 @@ const Home = () => {
         keywords="web design, AI services, business automation, instructional design, video production, aerial photography, multimedia services, creative agency, e-learning development, drone cinematography, corporate training, professional services, Google certified SEO, Amy Cozart-Lundin"
         businessName="Cozyartz Media Group"
         phone="+1 (269) 261-0069"
-        email="hello@cozyartzmedia.com"
+        email="hello@cozartmedia.com"
         address={{
           city: "Battle Creek",
           state: "MI",
@@ -64,13 +64,13 @@ const Home = () => {
           latitude: 42.3211,
           longitude: -85.1797
         }}
-        canonical="https://cozyartzmedia.com"
-        ogUrl="https://cozyartzmedia.com"
+        canonical="https://cozartmedia.com"
+        ogUrl="https://cozartmedia.com"
         businessType="ProfessionalService"
         ogTitle="Cozyartz Media Group | AI-Powered Creative Solutions Since 2016"
         ogDescription="Expert web design, AI automation, and multimedia production services. Trusted by Fortune 500 companies. Google certified team with 10+ years experience."
-        ogImage="https://cozyartzmedia.com/og-image.jpg"
-        twitterImage="https://cozyartzmedia.com/twitter-image.jpg"
+        ogImage="https://cozartmedia.com/og-image.jpg"
+        twitterImage="https://cozartmedia.com/twitter-image.jpg"
         services={[
           "AI Business Automation",
           "Web Design & Development",
