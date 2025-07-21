@@ -7,6 +7,10 @@ import AdminDashboard from './pages/AdminDashboard';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import Pricing from './pages/Pricing';
 import SEOServices from './pages/SEOServices';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import CookiePolicy from './pages/CookiePolicy';
+import TermsOfService from './pages/TermsOfService';
+import DataSubjectRequest from './pages/DataSubjectRequest';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/SupabaseAuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -25,6 +29,12 @@ function App() {
             {/* Public Pages */}
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/seo-services" element={<SEOServices />} />
+            
+            {/* Legal Pages */}
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/cookie-policy" element={<CookiePolicy />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
+            <Route path="/data-subject-request" element={<DataSubjectRequest />} />
             
             {/* Protected Routes */}
             <Route 
