@@ -148,6 +148,22 @@ docs/
 - `PAYPAL_CLIENT_ID` / `PAYPAL_CLIENT_SECRET` - PayPal payment processing
 - `SQUARE_ACCESS_TOKEN` / `SQUARE_APPLICATION_ID` / `SQUARE_LOCATION_ID` - Square payments
 
+## Email Configuration
+
+### Comprehensive Email Setup Documentation
+See `EMAIL_CONFIGURATION.md` for complete email infrastructure documentation including:
+- AWS SES configuration for all domains (cozyartz.com, zserved.com, astrolms.com)
+- DNS records and authentication (SPF, DKIM, DMARC)
+- Subdomain strategy for transactional vs business emails
+- Microsoft 365 integration for zserved.com
+- Troubleshooting guides and maintenance procedures
+
+### Email Infrastructure Overview
+- **Business Emails**: cozyartz.com (AWS SES), zserved.com (Microsoft 365)
+- **Transactional**: transaction.cozyartz.com, transaction.zserved.com, transactions.astrolms.com
+- **Authentication**: Full SPF/DKIM/DMARC implementation across all domains
+- **Deliverability**: Optimized subdomain separation for different email types
+
 ### Business Context
 - **Cozyartz Media Group** - Creative agency specializing in web design, multimedia production
 - **Founded**: 2016
