@@ -11,6 +11,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import CookiePolicy from './pages/CookiePolicy';
 import TermsOfService from './pages/TermsOfService';
 import DataSubjectRequest from './pages/DataSubjectRequest';
+import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/SupabaseAuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -66,8 +67,8 @@ function App() {
               } 
             />
             
-            {/* Fallback */}
-            <Route path="*" element={<Home />} />
+            {/* 404 Not Found - Catch all unmatched routes */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
           
           {/* Global AI Assistant - Available on authenticated pages only */}
