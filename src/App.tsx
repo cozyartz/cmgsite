@@ -16,7 +16,7 @@ import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/SupabaseAuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
-import ClientMaxAI from './components/client/ClientMaxAI';
+import AIAssistant from './components/support/AIAssistant';
 
 function App() {
   return (
@@ -73,9 +73,12 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
           
-          {/* Global AI Assistant - Available on authenticated pages only */}
+          {/* Global AI Assistant - Available on all pages for lead capture */}
           <ErrorBoundary>
-            <ClientMaxAI />
+            <AIAssistant 
+              context="sales" 
+              enableLeadCapture={true}
+            />
           </ErrorBoundary>
         </div>
       </AuthProvider>
