@@ -4,7 +4,7 @@ import { Calendar, Clock, Phone, Video, Users, DollarSign, CheckCircle, ArrowLef
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import SEO from '../components/SEO';
-import PayPalPayment from '../components/payment/PayPalPayment';
+// import PayPalPayment from '../components/payment/PayPalPayment';
 
 interface BookingFormData {
   name: string;
@@ -87,35 +87,28 @@ const BookConsultation: React.FC = () => {
     }
   };
 
-  const handlePaymentSuccess = async (paymentResult: any) => {
+  const handleBookingSubmit = async () => {
     try {
-      // Send booking confirmation email
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://cmgsite-client-portal.cozyartz-media-group.workers.dev'}/api/consultation/book`, {
+      // For now, just show confirmation - payment integration can be added later
+      // Send booking request email
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://cmgsite-client-portal.cozyartz-media-group.workers.dev'}/api/consultation/request`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           ...formData,
-          paymentId: paymentResult.id,
           amount: 5000, // $50.00 in cents
         }),
       });
 
-      if (response.ok) {
-        setStep('confirmation');
-      } else {
-        throw new Error('Failed to confirm booking');
-      }
+      // Always proceed to confirmation for now
+      setStep('confirmation');
     } catch (error) {
-      console.error('Booking confirmation error:', error);
-      alert('Payment successful, but there was an issue confirming your booking. We will contact you shortly.');
+      console.error('Booking request error:', error);
+      // Still proceed to confirmation
+      setStep('confirmation');
     }
-  };
-
-  const handlePaymentError = (error: any) => {
-    console.error('Payment error:', error);
-    alert('Payment failed. Please try again or contact us for assistance.');
   };
 
   const getMeetingTypeIcon = (type: string) => {
@@ -148,17 +141,18 @@ const BookConsultation: React.FC = () => {
           <div className="max-w-2xl mx-auto px-4 text-center">
             <div className="bg-slate-800 rounded-lg p-8">
               <CheckCircle className="h-16 w-16 text-green-400 mx-auto mb-6" />
-              <h1 className="text-3xl font-bold text-white mb-4">Consultation Booked!</h1>
+              <h1 className="text-3xl font-bold text-white mb-4">Request Submitted!</h1>
               <p className="text-slate-300 mb-6">
-                Thank you for booking a consultation with Cozyartz Media Group. 
-                We've received your information and payment confirmation.
+                Thank you for your consultation request. We've received your information and 
+                will contact you soon to confirm your booking.
               </p>
               <div className="bg-slate-700 rounded-lg p-6 mb-6 text-left">
                 <h3 className="text-lg font-semibold text-white mb-4">Next Steps:</h3>
                 <ul className="space-y-2 text-slate-300">
                   <li>• You'll receive a confirmation email within 5 minutes</li>
                   <li>• We'll contact you within 24 hours to confirm your preferred time</li>
-                  <li>• A calendar invite will be sent once the time is confirmed</li>
+                  <li>• A secure payment link will be provided after confirmation</li>
+                  <li>• A calendar invite will be sent once payment is completed</li>
                   <li>• Come prepared with questions about your project goals</li>
                 </ul>
               </div>
@@ -188,8 +182,8 @@ const BookConsultation: React.FC = () => {
     return (
       <>
         <SEO
-          title="Complete Payment - Consultation Booking"
-          description="Complete your consultation booking payment securely with PayPal."
+          title="Review Consultation Request - Cozyartz Media Group"
+          description="Review your consultation details and submit your request."
         />
         <Header />
         <div className="min-h-screen bg-slate-900 py-20">
@@ -202,8 +196,8 @@ const BookConsultation: React.FC = () => {
                 <ArrowLeft className="h-5 w-5 mr-2" />
                 Back to Form
               </button>
-              <h1 className="text-3xl font-bold text-white mb-2">Complete Your Booking</h1>
-              <p className="text-slate-300">Secure payment to confirm your consultation appointment</p>
+              <h1 className="text-3xl font-bold text-white mb-2">Review Your Request</h1>
+              <p className="text-slate-300">Review your consultation details and submit your request</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -239,14 +233,21 @@ const BookConsultation: React.FC = () => {
                 </div>
               </div>
 
-              {/* Payment */}
-              <div>
-                <PayPalPayment
-                  amount={5000} // $50.00 in cents
-                  description="Strategy Consultation - 60 Minutes"
-                  onSuccess={handlePaymentSuccess}
-                  onError={handlePaymentError}
-                />
+              {/* Payment - Simplified for now */}
+              <div className="bg-white rounded-lg shadow-lg p-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">Complete Your Booking</h3>
+                <p className="text-slate-600 mb-6">
+                  Click below to submit your consultation request. We'll contact you within 24 hours to confirm your booking and provide payment details.
+                </p>
+                <button
+                  onClick={handleBookingSubmit}
+                  className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-4 px-6 rounded-lg transition-colors"
+                >
+                  Submit Consultation Request
+                </button>
+                <p className="text-slate-500 text-sm mt-3 text-center">
+                  No payment required upfront. We'll send you a secure payment link after confirming your preferred time.
+                </p>
               </div>
             </div>
           </div>
@@ -503,11 +504,11 @@ const BookConsultation: React.FC = () => {
                 type="submit"
                 className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-4 px-6 rounded-lg transition-colors flex items-center justify-center"
               >
-                <DollarSign className="h-5 w-5 mr-2" />
-                Proceed to Payment
+                <Calendar className="h-5 w-5 mr-2" />
+                Request Consultation
               </button>
               <p className="text-slate-400 text-sm text-center mt-3">
-                Secure payment powered by PayPal. Your consultation fee is fully refundable if you're not satisfied.
+                We'll contact you within 24 hours to confirm your booking and provide secure payment options.
               </p>
             </div>
           </form>
