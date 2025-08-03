@@ -16,50 +16,52 @@ const SEOServices = () => {
     {
       id: 'starter',
       name: 'Starter',
-      price: 1000,
-      priceInCents: 100000,
+      price: 29,
+      priceInCents: 2900,
       aiCredits: 100,
       features: [
         'AI Content Generator',
-        'Basic Keyword Research',
+        'Basic Keyword Research', 
         'SEO Analytics',
         'Email Support',
         'Basic Templates',
-        'Usage Tracking'
+        'Usage Tracking',
+        'Up to 3 domains'
       ]
     },
     {
       id: 'growth',
       name: 'Growth',
-      price: 1500,
-      priceInCents: 150000,
-      aiCredits: 250,
+      price: 99,
+      priceInCents: 9900,
+      aiCredits: 500,
       features: [
         'Everything in Starter',
         'Advanced AI Tools',
         'Real-time Analytics',
         'Priority Support',
         'Custom Templates',
-        'Consultation Discount (10%)',
-        'Competitor Tracking'
+        'Competitor Tracking',
+        'Up to 10 domains',
+        'API Access'
       ],
       popular: true
     },
     {
       id: 'enterprise',
       name: 'Enterprise',
-      price: 2500,
-      priceInCents: 250000,
-      aiCredits: 500,
+      price: 299,
+      priceInCents: 29900,
+      aiCredits: -1,
       features: [
         'Everything in Growth',
-        'All AI Tools',
+        'Unlimited AI Tools',
         'Custom Analytics',
         'Dedicated Support',
         'White-label Options',
         'Monthly Consultation Included',
         'Custom Integrations',
-        'Priority Processing'
+        'Unlimited domains'
       ]
     }
   ];
@@ -168,7 +170,7 @@ const SEOServices = () => {
                   className="bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center gap-2"
                 >
                   <Rocket className="h-5 w-5" />
-                  Get Started - $1,500/month
+                  Get Started - $99/month
                 </button>
                 <button 
                   onClick={() => window.location.href = '/contact'}
@@ -430,7 +432,7 @@ const SEOServices = () => {
                   <div className="text-center mb-6">
                     <h3 className="text-2xl font-bold text-white mb-2">Starter</h3>
                     <p className="text-slate-400 mb-4">Perfect for small businesses</p>
-                    <div className="text-4xl font-bold text-teal-400 mb-2">${pricingPlans[0].price.toLocaleString()}<span className="text-xl text-slate-400">/month</span></div>
+                    <div className="text-4xl font-bold text-teal-400 mb-2">${pricingPlans[0].price}<span className="text-xl text-slate-400">/month</span></div>
                     <p className="text-slate-400">{pricingPlans[0].aiCredits} AI credits included</p>
                   </div>
                   <ul className="space-y-3 mb-8">
@@ -458,7 +460,7 @@ const SEOServices = () => {
                     onClick={() => handlePlanSelect('starter')}
                     className="w-full bg-teal-500 hover:bg-teal-600 text-white py-3 px-6 rounded-lg font-semibold transition-colors"
                   >
-                    Get Started - $1,000/month
+                    Get Started - $29/month
                   </button>
                 </div>
 
@@ -470,7 +472,7 @@ const SEOServices = () => {
                   <div className="text-center mb-6">
                     <h3 className="text-2xl font-bold text-white mb-2">Growth</h3>
                     <p className="text-slate-400 mb-4">Best for growing businesses</p>
-                    <div className="text-4xl font-bold text-teal-400 mb-2">${pricingPlans[1].price.toLocaleString()}<span className="text-xl text-slate-400">/month</span></div>
+                    <div className="text-4xl font-bold text-teal-400 mb-2">${pricingPlans[1].price}<span className="text-xl text-slate-400">/month</span></div>
                     <p className="text-slate-400">{pricingPlans[1].aiCredits} AI credits included</p>
                   </div>
                   <ul className="space-y-3 mb-8">
@@ -502,7 +504,7 @@ const SEOServices = () => {
                     onClick={() => handlePlanSelect('growth')}
                     className="w-full bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300"
                   >
-                    Get Started - $1,500/month
+                    Get Started - $99/month
                   </button>
                 </div>
 
@@ -511,8 +513,8 @@ const SEOServices = () => {
                   <div className="text-center mb-6">
                     <h3 className="text-2xl font-bold text-white mb-2">Enterprise</h3>
                     <p className="text-slate-400 mb-4">For large organizations</p>
-                    <div className="text-4xl font-bold text-purple-400 mb-2">${pricingPlans[2].price.toLocaleString()}<span className="text-xl text-slate-400">/month</span></div>
-                    <p className="text-slate-400">{pricingPlans[2].aiCredits} AI credits</p>
+                    <div className="text-4xl font-bold text-purple-400 mb-2">${pricingPlans[2].price}<span className="text-xl text-slate-400">/month</span></div>
+                    <p className="text-slate-400">Unlimited AI credits</p>
                   </div>
                   <ul className="space-y-3 mb-8">
                     <li className="flex items-center gap-3">
@@ -543,7 +545,7 @@ const SEOServices = () => {
                     onClick={() => handlePlanSelect('enterprise')}
                     className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300"
                   >
-                    Get Started - $2,500/month
+                    Get Started - $299/month
                   </button>
                 </div>
               </div>
@@ -761,7 +763,7 @@ const SEOServices = () => {
                   className="bg-white text-purple-600 hover:bg-slate-100 px-8 py-4 rounded-full font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center gap-2"
                 >
                   <Rocket className="h-5 w-5" />
-                  Get Started - $1,500/month
+                  Get Started - $99/month
                 </button>
                 <button 
                   onClick={() => window.location.href = '/contact'}
@@ -828,7 +830,7 @@ const SEOServices = () => {
                       <p>AI Credits: {getSelectedPlan()?.aiCredits}</p>
                       <p>Monthly billing</p>
                       <p className="font-semibold text-lg text-gray-900">
-                        ${getSelectedPlan()?.price.toLocaleString()}/month
+                        ${getSelectedPlan()?.price}/month
                       </p>
                     </div>
                   </div>

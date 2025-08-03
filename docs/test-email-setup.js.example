@@ -1,0 +1,303 @@
+#!/usr/bin/env node
+
+/**
+ * AWS SES Email Testing Script for AutiMind
+ * Tests all configured domains and validates email authentication
+ */
+
+import { SESClient, SendEmailCommand, GetIdentityVerificationAttributesCommand } from '@aws-sdk/client-ses';
+
+// Configuration
+const TEST_RECIPIENT = 'test@example.com';
+const AWS_REGION = 'us-east-1';
+
+// Initialize SES Client
+const sesClient = new SESClient({ region: AWS_REGION });
+
+// Test domains and subdomains
+const EMAIL_TESTS = [
+  {
+    domain: 'cozyartz.com',
+    fromAddresses: [
+      'test@cozyartz.com',
+      'hello@cozyartz.com',
+      'support@cozyartz.com',
+      'notifications@cozyartz.com'
+    ],
+    description: 'Main business domain'
+  },
+  {
+    domain: 'transaction.cozyartz.com', 
+    fromAddresses: [
+      'test@transaction.cozyartz.com',
+      'noreply@transaction.cozyartz.com',
+      'notifications@transaction.cozyartz.com',
+      'system@transaction.cozyartz.com'
+    ],
+    description: 'Transactional subdomain'
+  },
+  {
+    domain: 'transaction.zserved.com',
+    fromAddresses: [
+      'test@transaction.zserved.com',
+      'system@transaction.zserved.com',
+      'notifications@transaction.zserved.com',
+      'documents@transaction.zserved.com'
+    ],
+    description: 'Legal platform transactions'
+  },
+  {
+    domain: 'transactions.astrolms.com',
+    fromAddresses: [
+      'test@transactions.astrolms.com',
+      'system@transactions.astrolms.com',
+      'reports@transactions.astrolms.com',
+      'alerts@transactions.astrolms.com'
+    ],
+    description: 'Learning platform transactions'
+  }
+];
+
+/**
+ * Check domain verification status
+ */
+async function checkDomainVerification() {
+  console.log('\n🔍 CHECKING DOMAIN VERIFICATION STATUS\n');
+  
+  const domains = EMAIL_TESTS.map(test => test.domain);
+  
+  try {
+    const command = new GetIdentityVerificationAttributesCommand({
+      Identities: domains
+    });
+    
+    const response = await sesClient.send(command);
+    
+    domains.forEach(domain => {
+      const status = response.VerificationAttributes[domain];
+      if (status) {
+        console.log(`✅ ${domain}: ${status.VerificationStatus}`);
+        if (status.DkimAttributes) {
+          console.log(`   DKIM: ${status.DkimAttributes.DkimEnabled ? 'Enabled' : 'Disabled'}`);
+        }
+      } else {
+        console.log(`❌ ${domain}: Not found or not verified`);
+      }
+    });
+  } catch (error) {
+    console.error('Error checking domain verification:', error.message);
+  }
+}
+
+/**
+ * Send test email for a specific domain and from address
+ */
+async function sendTestEmail(domain, fromAddress, testNumber, totalTests) {
+  const subject = `AWS SES Test ${testNumber}/${totalTests} - ${domain} Authentication Test`;
+  
+  const htmlBody = `
+    <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .header { background: #f4f4f4; padding: 20px; border-radius: 5px; }
+          .content { padding: 20px 0; }
+          .footer { background: #e9e9e9; padding: 15px; font-size: 12px; }
+          .test-details { background: #f9f9f9; padding: 15px; margin: 15px 0; border-left: 4px solid #007cba; }
+          .checkmarks { color: #28a745; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h2>🧪 AWS SES Email Authentication Test</h2>
+          <p><strong>Test #${testNumber} of ${totalTests}</strong></p>
+        </div>
+        
+        <div class="content">
+          <h3>Test Details:</h3>
+          <div class="test-details">
+            <p><strong>From Domain:</strong> ${domain}</p>
+            <p><strong>From Address:</strong> ${fromAddress}</p>
+            <p><strong>Test Recipient:</strong> ${TEST_RECIPIENT}</p>
+            <p><strong>AWS Region:</strong> ${AWS_REGION}</p>
+            <p><strong>Timestamp:</strong> ${new Date().toISOString()}</p>
+          </div>
+          
+          <h3>What to Check in Email Headers:</h3>
+          <div class="test-details">
+            <p class="checkmarks">✅ <strong>DKIM-Signature:</strong> Should be present with d=${domain}</p>
+            <p class="checkmarks">✅ <strong>SPF:</strong> Should show "SPF: PASS"</p>
+            <p class="checkmarks">✅ <strong>DMARC:</strong> Should show "DMARC: PASS"</p>
+            <p class="checkmarks">✅ <strong>Delivery:</strong> Should arrive in inbox (not spam)</p>
+            <p class="checkmarks">✅ <strong>From Address:</strong> Should show ${fromAddress}</p>
+          </div>
+          
+          <h3>Authentication Expected Results:</h3>
+          <div class="test-details">
+            <pre>
+Authentication-Results: proton.me;
+  spf=pass smtp.mailfrom=${domain};
+  dkim=pass header.d=${domain};
+  dmarc=pass (policy=none) header.from=${domain}
+            </pre>
+          </div>
+          
+          <p>If this email passes all authentication checks and arrives in your inbox, 
+          the ${domain} configuration is working correctly!</p>
+        </div>
+        
+        <div class="footer">
+          <p>This is an automated test email from AutiMind's AWS SES configuration.</p>
+          <p>Test conducted on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</p>
+        </div>
+      </body>
+    </html>
+  `;
+  
+  const textBody = `
+AWS SES Email Authentication Test #${testNumber}/${totalTests}
+
+Test Details:
+- From Domain: ${domain}  
+- From Address: ${fromAddress}
+- Test Recipient: ${TEST_RECIPIENT}
+- AWS Region: ${AWS_REGION}
+- Timestamp: ${new Date().toISOString()}
+
+What to Check in Email Headers:
+✅ DKIM-Signature: Should be present with d=${domain}
+✅ SPF: Should show "SPF: PASS"
+✅ DMARC: Should show "DMARC: PASS"  
+✅ Delivery: Should arrive in inbox (not spam)
+✅ From Address: Should show ${fromAddress}
+
+If this email passes all checks, ${domain} is configured correctly!
+
+--
+AutiMind AWS SES Test System
+Test conducted: ${new Date().toLocaleString()}
+  `;
+  
+  const params = {
+    Source: fromAddress,
+    Destination: {
+      ToAddresses: [TEST_RECIPIENT]
+    },
+    Message: {
+      Subject: {
+        Data: subject,
+        Charset: 'UTF-8'
+      },
+      Body: {
+        Text: {
+          Data: textBody,
+          Charset: 'UTF-8'
+        },
+        Html: {
+          Data: htmlBody,
+          Charset: 'UTF-8'
+        }
+      }
+    },
+    Tags: [
+      {
+        Name: 'TestType',
+        Value: 'EmailAuthentication'
+      },
+      {
+        Name: 'Domain', 
+        Value: domain
+      }
+    ]
+  };
+  
+  try {
+    const command = new SendEmailCommand(params);
+    const response = await sesClient.send(command);
+    console.log(`✅ Sent test email from ${fromAddress} (MessageId: ${response.MessageId})`);
+    return true;
+  } catch (error) {
+    console.error(`❌ Failed to send from ${fromAddress}:`, error.message);
+    return false;
+  }
+}
+
+/**
+ * Run all email tests
+ */
+async function runAllTests() {
+  console.log('🚀 STARTING AWS SES EMAIL AUTHENTICATION TESTS\n');
+  console.log(`📧 Test recipient: ${TEST_RECIPIENT}`);
+  console.log(`🌍 AWS Region: ${AWS_REGION}\n`);
+  
+  // Check domain verification first
+  await checkDomainVerification();
+  
+  console.log('\n📤 SENDING TEST EMAILS\n');
+  
+  let testNumber = 1;
+  let totalTests = EMAIL_TESTS.reduce((sum, test) => sum + test.fromAddresses.length, 0);
+  let successCount = 0;
+  let failedTests = [];
+  
+  for (const test of EMAIL_TESTS) {
+    console.log(`\n📋 Testing ${test.domain} (${test.description})`);
+    console.log('─'.repeat(50));
+    
+    for (const fromAddress of test.fromAddresses) {
+      const success = await sendTestEmail(test.domain, fromAddress, testNumber, totalTests);
+      if (success) {
+        successCount++;
+      } else {
+        failedTests.push({ domain: test.domain, fromAddress });
+      }
+      testNumber++;
+      
+      // Small delay between emails to avoid rate limiting
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+  }
+  
+  // Summary
+  console.log('\n' + '='.repeat(60));
+  console.log('📊 TEST SUMMARY');
+  console.log('='.repeat(60));
+  console.log(`Total tests: ${totalTests}`);
+  console.log(`Successful: ${successCount}`);
+  console.log(`Failed: ${failedTests.length}`);
+  
+  if (failedTests.length > 0) {
+    console.log('\n❌ Failed Tests:');
+    failedTests.forEach(test => {
+      console.log(`   ${test.fromAddress} (${test.domain})`);
+    });
+  }
+  
+  console.log('\n📋 NEXT STEPS:');
+  console.log('1. Check your inbox at cozycoding@proton.me');
+  console.log('2. Look for emails with subjects starting with "AWS SES Test"');
+  console.log('3. Check email headers for authentication results');
+  console.log('4. Verify emails are not in spam folder');
+  console.log('5. Confirm all from addresses display correctly');
+  
+  console.log('\n🔍 How to Check Email Headers in Proton Mail:');
+  console.log('1. Open each test email');
+  console.log('2. Click the three dots menu (⋯)');
+  console.log('3. Select "View headers"');
+  console.log('4. Look for Authentication-Results section');
+  console.log('5. Verify SPF=pass, DKIM=pass, DMARC=pass');
+  
+  if (successCount === totalTests) {
+    console.log('\n🎉 ALL TESTS COMPLETED SUCCESSFULLY!');
+    console.log('Your AWS SES configuration appears to be working correctly.');
+  } else {
+    console.log('\n⚠️  SOME TESTS FAILED');
+    console.log('Check the failed domains in AWS SES console for verification status.');
+  }
+}
+
+// Run the tests
+runAllTests().catch(error => {
+  console.error('Error running email tests:', error);
+  process.exit(1);
+});

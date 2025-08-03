@@ -51,99 +51,83 @@ export default function PricingWithCoupons() {
     {
       id: 'starter',
       name: 'Starter',
-      price: 100000, // Special Jon Werbeck pricing
+      price: 2900, // $29/month in cents
       aiCalls: 100,
-      domainLimit: 1,
+      domainLimit: 3,
       features: [
         'Basic SEO tools',
         'Monthly reporting',
         'Email support',
         '100 AI calls/month',
-        '1 domain'
-      ]
-    },
-    {
-      id: 'starterPlus',
-      name: 'Starter Plus',
-      price: 125000,
-      aiCalls: 150,
-      domainLimit: 2,
-      features: [
-        'Basic SEO tools',
-        'Monthly reporting',
-        'Email support',
-        '150 AI calls/month',
-        '2 domains'
+        '3 domains'
       ]
     },
     {
       id: 'growth',
       name: 'Growth',
-      price: 150000,
-      aiCalls: 250,
-      domainLimit: 5,
-      features: [
-        'Advanced SEO tools',
-        'Bi-weekly reporting',
-        'Priority support',
-        '250 AI calls/month',
-        '5 domains',
-        'Competitor analysis'
-      ],
-      popular: true,
-      discount: 10
-    },
-    {
-      id: 'growthPlus',
-      name: 'Growth Plus',
-      price: 200000,
-      aiCalls: 400,
+      price: 9900, // $99/month in cents
+      aiCalls: 500,
       domainLimit: 10,
       features: [
         'Advanced SEO tools',
         'Bi-weekly reporting',
         'Priority support',
-        '400 AI calls/month',
+        '500 AI calls/month',
         '10 domains',
         'Competitor analysis',
-        'Advanced keyword tracking'
+        'API access'
       ],
-      discount: 15
+      popular: true
+    },
+    {
+      id: 'professional',
+      name: 'Professional',
+      price: 19900, // $199/month in cents
+      aiCalls: 1000,
+      domainLimit: 25,
+      features: [
+        'Professional SEO suite',
+        'Weekly reporting',
+        'Priority support',
+        '1000 AI calls/month',
+        '25 domains',
+        'Advanced analytics',
+        'White-label options'
+      ]
     },
     {
       id: 'enterprise',
       name: 'Enterprise',
-      price: 250000,
-      aiCalls: 500,
-      domainLimit: 25,
-      features: [
-        'Full SEO suite',
-        'Weekly reporting',
-        'Dedicated account manager',
-        '500 AI calls/month',
-        '25 domains',
-        'Advanced analytics',
-        'White-label options'
-      ],
-      discount: 20
-    },
-    {
-      id: 'enterprisePlus',
-      name: 'Enterprise Plus',
-      price: 350000,
-      aiCalls: 1000,
-      domainLimit: 50,
+      price: 29900, // $299/month in cents
+      aiCalls: -1, // Unlimited
+      domainLimit: -1, // Unlimited
       features: [
         'Full SEO suite',
         'Daily reporting',
         'Dedicated account manager',
-        '1000 AI calls/month',
-        '50 domains',
+        'Unlimited AI calls',
+        'Unlimited domains',
         'Advanced analytics',
         'White-label options',
         'Custom integrations'
-      ],
-      discount: 25
+      ]
+    },
+    {
+      id: 'legacyEnterprise',
+      name: 'Legacy Enterprise',
+      price: 100000, // $1000/month in cents for existing high-value clients
+      aiCalls: -1, // Unlimited
+      domainLimit: -1, // Unlimited
+      features: [
+        'Full legacy enterprise suite',
+        'Daily reporting',
+        'Dedicated account manager',
+        'Unlimited AI calls',
+        'Unlimited domains',
+        'Priority processing',
+        'White-label options',
+        'Custom integrations'
+      ]
     }
   ];
 
@@ -383,10 +367,10 @@ export default function PricingWithCoupons() {
                   <DollarSign className="w-4 h-4" />
                   <span>{tier.domainLimit} domain{tier.domainLimit > 1 ? 's' : ''}</span>
                 </div>
-                {tier.discount && (
+                {tier.aiCalls === -1 && (
                   <div className="flex items-center gap-2 text-sm text-green-600">
                     <Tag className="w-4 h-4" />
-                    <span>{tier.discount}% off consultations</span>
+                    <span>Unlimited usage</span>
                   </div>
                 )}
               </div>

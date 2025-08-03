@@ -74,13 +74,35 @@ export const env = {
 // Type for environment configuration
 export type EnvConfig = typeof env;
 
+// Security: Validate environment URLs
+function validateUrls() {
+  const urls = [env.siteUrl, env.callbackUrl, env.supabaseUrl].filter(Boolean);
+  
+  for (const url of urls) {
+    try {
+      const parsed = new URL(url);
+      if (!['https:', 'http:'].includes(parsed.protocol)) {
+        throw new Error(`Invalid URL protocol: ${url}`);
+      }
+      if (env.isProduction && parsed.protocol !== 'https:') {
+        console.warn(`⚠️ Non-HTTPS URL in production: ${url}`);
+      }
+    } catch (error) {
+      throw new Error(`Invalid URL format: ${url}`);
+    }
+  }
+}
+
+// Validate URLs on initialization
+validateUrls();
+
 // Development helper - show config in development only
 if (env.isDevelopment) {
   console.log('🔧 Environment Configuration:', {
     environment: env.environment,
     siteUrl: env.siteUrl,
     callbackUrl: env.callbackUrl,
-    supabaseUrl: env.supabaseUrl,
+    supabaseUrl: env.supabaseUrl?.split('@')[1] || 'masked', // Mask the project reference
     hasTurnstile: !!env.turnstileSiteKey,
   });
 } else if (env.isProduction) {

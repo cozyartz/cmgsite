@@ -10,6 +10,18 @@ export default defineConfig({
   },
   server: {
     // No proxy needed - using Supabase directly
+    host: '127.0.0.1', // Restrict to localhost only
+    port: 5173,
+    strictPort: true,
+    headers: {
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'DENY',
+      'X-XSS-Protection': '1; mode=block'
+    }
+  },
+  define: {
+    // Remove console logs in production
+    __DEV__: JSON.stringify(process.env.NODE_ENV === 'development')
   },
   build: {
     chunkSizeWarningLimit: 500, // Keep warning at reasonable size

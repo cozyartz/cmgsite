@@ -6,6 +6,7 @@ import ClientPortal from './pages/ClientPortal';
 import AdminDashboard from './pages/AdminDashboard';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import Pricing from './pages/Pricing';
+import Checkout from './pages/Checkout';
 import SEOServices from './pages/SEOServices';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import CookiePolicy from './pages/CookiePolicy';
@@ -29,6 +30,7 @@ function App() {
             
             {/* Public Pages */}
             <Route path="/pricing" element={<Pricing />} />
+            <Route path="/checkout" element={<Checkout />} />
             <Route path="/seo-services" element={<SEOServices />} />
             
             {/* Legal Pages */}

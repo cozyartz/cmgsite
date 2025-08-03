@@ -462,22 +462,22 @@ export function getAICalls(tier: PricingTier): number {
   return config.pricing[tier].aiCalls;
 }
 
-// Jon Werbeck paying client configuration
-export const jonWerbeckConfig = {
-  email: 'jon@jwpartnership.com',
-  couponCode: 'JON250', // $250/month off for 3 months - client pricing
+// Client configuration template
+export const clientConfigTemplate = {
+  email: 'client@example.com',
+  couponCode: 'DISCOUNT_CODE',
   specialTier: 'starter' as PricingTier,
-  specialPrice: 100000, // $1,000/month base price (will be $750 with coupon)
-  duration: 3, // months
-  clientStatus: 'paying_client', // Active paying client
-  purpose: 'client_service' // Regular client service
+  specialPrice: 100000,
+  duration: 3,
+  clientStatus: 'paying_client',
+  purpose: 'client_service'
 };
 
-// Amy Tipton business advisor configuration
-export const amyTiptonConfig = {
-  personalEmail: 'amy.tipton@company.com',
-  personalCouponCode: 'AMYFREE', // 6 months free Starter tier for basic testing
-  companyCouponCode: 'AMYCOMPANY40', // 40% off any tier for first year for her company
+// Business advisor configuration template
+export const advisorConfigTemplate = {
+  personalEmail: 'advisor@example.com',
+  personalCouponCode: 'ADVISOR_FREE',
+  companyCouponCode: 'ADVISOR_DISCOUNT',
   personalTier: 'starter' as PricingTier, // First paid tier - NO white-label access
   personalDuration: 6, // months
   companyDiscount: 40, // percentage

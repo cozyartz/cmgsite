@@ -62,7 +62,7 @@ export const TIER_DEFINITIONS: Record<string, TierLimits> = {
       teamMembersMax: 1,
       storageGB: 0.5,
       emailReportsPerMonth: 2,
-      customDomainsMax: 0,
+      customDomainsMax: 1,
       integrations: ['google-analytics'],
     },
   },
@@ -94,7 +94,7 @@ export const TIER_DEFINITIONS: Record<string, TierLimits> = {
       teamMembersMax: 2,
       storageGB: 5,
       emailReportsPerMonth: 10,
-      customDomainsMax: 1,
+      customDomainsMax: 3,
       integrations: ['google-analytics', 'google-search-console', 'mailchimp'],
     },
   },
@@ -126,8 +126,40 @@ export const TIER_DEFINITIONS: Record<string, TierLimits> = {
       teamMembersMax: 5,
       storageGB: 25,
       emailReportsPerMonth: 50,
-      customDomainsMax: 3,
+      customDomainsMax: 10,
       integrations: ['google-analytics', 'google-search-console', 'mailchimp', 'facebook-ads', 'hubspot'],
+    },
+  },
+  professional: {
+    id: 'professional',
+    name: 'professional',
+    displayName: 'Professional',
+    price: 199,
+    priceInCents: 19900,
+    aiCallsPerMonth: 1000,
+    features: {
+      basicAI: true,
+      advancedAI: true,
+      premiumAI: true,
+      realTimeAnalytics: true,
+      customTemplates: true,
+      prioritySupport: true,
+      whiteLabel: true,
+      customIntegrations: false,
+      monthlyConsultation: false,
+      competitorTracking: true,
+      bulkOperations: true,
+      exportData: true,
+      apiAccess: true,
+      customReports: true,
+    },
+    limits: {
+      projectsMax: 25,
+      teamMembersMax: 10,
+      storageGB: 100,
+      emailReportsPerMonth: 100,
+      customDomainsMax: 25,
+      integrations: ['google-analytics', 'google-search-console', 'mailchimp', 'facebook-ads', 'hubspot', 'zapier'],
     },
   },
   enterprise: {
@@ -157,6 +189,38 @@ export const TIER_DEFINITIONS: Record<string, TierLimits> = {
       projectsMax: -1, // Unlimited
       teamMembersMax: -1, // Unlimited
       storageGB: 500,
+      emailReportsPerMonth: -1, // Unlimited
+      customDomainsMax: -1, // Unlimited
+      integrations: ['all'],
+    },
+  },
+  legacyEnterprise: {
+    id: 'legacyEnterprise',
+    name: 'legacyEnterprise',
+    displayName: 'Legacy Enterprise',
+    price: 1000,
+    priceInCents: 100000,
+    aiCallsPerMonth: -1, // Unlimited
+    features: {
+      basicAI: true,
+      advancedAI: true,
+      premiumAI: true,
+      realTimeAnalytics: true,
+      customTemplates: true,
+      prioritySupport: true,
+      whiteLabel: true,
+      customIntegrations: true,
+      monthlyConsultation: true,
+      competitorTracking: true,
+      bulkOperations: true,
+      exportData: true,
+      apiAccess: true,
+      customReports: true,
+    },
+    limits: {
+      projectsMax: -1, // Unlimited
+      teamMembersMax: -1, // Unlimited
+      storageGB: 1000,
       emailReportsPerMonth: -1, // Unlimited
       customDomainsMax: -1, // Unlimited
       integrations: ['all'],

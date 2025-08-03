@@ -1,0 +1,16 @@
+{
+  "name": "aws-ses-email-test",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "AWS SES Email Authentication Testing Script for AutiMind",
+  "main": "test-email-setup.js",
+  "scripts": {
+    "test-emails": "node test-email-setup.js",
+    "install-deps": "npm install @aws-sdk/client-ses"
+  },
+  "dependencies": {
+    "@aws-sdk/client-ses": "^3.490.0"
+  },
+  "author": "AutiMind, Inc.",
+  "license": "MIT"
+}

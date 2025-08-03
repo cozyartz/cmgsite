@@ -1,0 +1,45 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "SESFullAccess",
+            "Effect": "Allow",
+            "Action": [
+                "ses:*"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "SNSForSESBounceComplaint",
+            "Effect": "Allow", 
+            "Action": [
+                "sns:CreateTopic",
+                "sns:DeleteTopic",
+                "sns:GetTopicAttributes",
+                "sns:ListTopics",
+                "sns:SetTopicAttributes",
+                "sns:Subscribe",
+                "sns:Unsubscribe"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "CloudWatchForSESMetrics",
+            "Effect": "Allow",
+            "Action": [
+                "cloudwatch:GetMetricStatistics",
+                "cloudwatch:ListMetrics"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "IAMForSESIdentityPolicies",
+            "Effect": "Allow",
+            "Action": [
+                "iam:GetRole",
+                "iam:PassRole"
+            ],
+            "Resource": "arn:aws:iam::*:role/*"
+        }
+    ]
+}

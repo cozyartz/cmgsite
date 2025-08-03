@@ -1,0 +1,41 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "SESFullAccess",
+            "Effect": "Allow",
+            "Action": [
+                "ses:SendEmail",
+                "ses:SendRawEmail",
+                "ses:SendBulkTemplatedEmail",
+                "ses:SendTemplatedEmail",
+                "ses:GetIdentityVerificationAttributes",
+                "ses:GetIdentityDkimAttributes",
+                "ses:GetIdentityPolicies",
+                "ses:GetIdentityNotificationAttributes",
+                "ses:GetAccountSendingEnabled",
+                "ses:GetSendQuota",
+                "ses:GetSendStatistics",
+                "ses:ListIdentities",
+                "ses:ListIdentityPolicies",
+                "ses:ListVerifiedEmailAddresses",
+                "ses:VerifyDomainIdentity",
+                "ses:VerifyEmailIdentity",
+                "ses:DeleteIdentity",
+                "ses:SetIdentityDkimEnabled",
+                "ses:SetIdentityNotificationTopic",
+                "ses:SetIdentityFeedbackForwardingEnabled",
+                "ses:PutIdentityPolicy",
+                "ses:DeleteIdentityPolicy",
+                "ses:CreateConfigurationSet",
+                "ses:DeleteConfigurationSet",
+                "ses:DescribeConfigurationSet",
+                "ses:ListConfigurationSets",
+                "ses:PutConfigurationSetEventDestination",
+                "ses:DeleteConfigurationSetEventDestination",
+                "ses:DescribeConfigurationSetEventDestination"
+            ],
+            "Resource": "*"
+        }
+    ]
+}

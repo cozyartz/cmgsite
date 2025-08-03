@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import SEO from '../components/SEO';
-import PayPalPayment from '../components/payment/PayPalPayment';
 import { apiService } from '../lib/api';
 
 interface PricingPlan {
@@ -35,7 +34,6 @@ const Pricing: React.FC = () => {
   const [couponInfo, setCouponInfo] = useState<CouponInfo | null>(null);
   const [couponError, setCouponError] = useState('');
   const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
-  const [showPayment, setShowPayment] = useState(false);
 
   const formatCurrency = (amountInCents: number): string => {
     return new Intl.NumberFormat('en-US', {
@@ -50,7 +48,7 @@ const Pricing: React.FC = () => {
     {
       id: 'starter',
       name: 'Starter',
-      price: billingCycle === 'monthly' ? 99900 : 95900, // $999/$959
+      price: billingCycle === 'monthly' ? 2900 : 2784, // $29/$27.84 (4% yearly discount)
       aiCalls: 100,
       domainLimit: 3,
       features: [
@@ -64,37 +62,53 @@ const Pricing: React.FC = () => {
       ]
     },
     {
-      id: 'professional',
-      name: 'Professional',
-      price: billingCycle === 'monthly' ? 149900 : 143900, // $1499/$1439
-      aiCalls: 250,
+      id: 'growth',
+      name: 'Growth',
+      price: billingCycle === 'monthly' ? 9900 : 9504, // $99/$95.04 (4% yearly discount)
+      aiCalls: 500,
       domainLimit: 10,
       features: [
-        'Advanced SEO suite',
-        'Bi-weekly reports & insights',
-        'Priority email + chat support',
-        '250 AI-powered insights/month',
+        'Everything in Starter',
+        'Advanced SEO tools',
+        'Bi-weekly reporting',
+        'Priority support',
+        '500 AI-powered insights/month',
         'Up to 10 domains',
-        'Advanced keyword tracking',
-        'Competitor gap analysis',
-        'Technical SEO monitoring',
-        'Content optimization suggestions'
+        'Competitor analysis',
+        'API access'
       ],
       popular: true,
       recommended: true
     },
     {
+      id: 'professional',
+      name: 'Professional',
+      price: billingCycle === 'monthly' ? 19900 : 19104, // $199/$191.04 (4% yearly discount)
+      aiCalls: 1000,
+      domainLimit: 25,
+      features: [
+        'Everything in Growth',
+        'Professional SEO suite',
+        'Weekly reporting',
+        'Priority support',
+        '1000 AI-powered insights/month',
+        'Up to 25 domains',
+        'Advanced analytics',
+        'White-label reporting'
+      ]
+    },
+    {
       id: 'enterprise',
       name: 'Enterprise',
-      price: billingCycle === 'monthly' ? 249900 : 239900, // $2499/$2399
-      aiCalls: 500,
-      domainLimit: 25,
+      price: billingCycle === 'monthly' ? 29900 : 28704, // $299/$287.04 (4% yearly discount)
+      aiCalls: -1, // Unlimited
+      domainLimit: -1, // Unlimited
       features: [
         'Complete SEO platform',
         'Weekly strategy reports',
         'Dedicated account manager',
-        '500 AI-powered insights/month',
-        'Up to 25 domains',
+        'Unlimited AI-powered insights',
+        'Unlimited domains',
         'Custom keyword tracking',
         'Advanced competitor intelligence',
         'Full technical SEO suite',
@@ -102,8 +116,7 @@ const Pricing: React.FC = () => {
         'White-label reporting',
         'API access',
         'Custom integrations'
-      ],
-      discount: 15
+      ]
     }
   ];
 
@@ -151,25 +164,19 @@ const Pricing: React.FC = () => {
   };
 
   const handleGetStarted = (planId: string) => {
-    setSelectedTier(planId);
-    setShowPayment(true);
+    const params = new URLSearchParams({
+      tier: planId,
+      billing: billingCycle,
+      ...(couponInfo ? { coupon: couponInfo.code } : {})
+    });
+    navigate(`/checkout?${params.toString()}`);
   };
 
-  const handlePaymentSuccess = async (paymentResult: any) => {
-    console.log('Payment successful:', paymentResult);
-    navigate('/client-portal');
-  };
-
-  const handlePaymentError = (error: any) => {
-    console.error('Payment failed:', error);
-    alert('Payment failed. Please try again.');
-  };
 
   const handleContactSales = () => {
     navigate('/book-consultation');
   };
 
-  const selectedPlan = tiers.find(tier => tier.id === selectedTier);
 
   return (
     <div className="min-h-screen bg-white">
@@ -243,7 +250,7 @@ const Pricing: React.FC = () => {
                     placeholder="Enter coupon code (optional)"
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                    onKeyPress={(e) => e.key === 'Enter' && validateCoupon()}
+                    onKeyDown={(e) => e.key === 'Enter' && validateCoupon()}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
                   />
                 </div>
@@ -297,7 +304,6 @@ const Pricing: React.FC = () => {
               const isSelected = selectedTier === tier.id;
               const couponDiscount = calculateCouponDiscount(tier.price);
               const monthlyPrice = Math.max(0, tier.price - couponDiscount);
-              const yearlyDiscount = billingCycle === 'yearly' ? '4% off yearly' : '';
 
               return (
                 <div
@@ -446,69 +452,6 @@ const Pricing: React.FC = () => {
             </div>
           </div>
 
-          {/* Payment Section */}
-          {showPayment && (
-            <div className="mt-16 max-w-2xl mx-auto">
-              <div className="bg-gradient-to-r from-teal-50 to-blue-50 rounded-2xl p-8 border border-teal-200">
-                <div className="text-center mb-6">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                    Complete Your Order
-                  </h3>
-                  <p className="text-gray-600">
-                    You're signing up for the {selectedPlan?.name} plan
-                  </p>
-                </div>
-                
-                {/* Order Summary */}
-                <div className="bg-white rounded-xl p-6 mb-6 border">
-                  <h4 className="font-semibold text-gray-900 mb-4">Order Summary</h4>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600">Plan:</span>
-                      <span className="font-medium">{selectedPlan?.name}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600">Base Price:</span>
-                      <span className="font-medium">{formatCurrency(selectedPlan?.price || 0)}/month</span>
-                    </div>
-                    {couponInfo && (
-                      <div className="flex justify-between items-center text-green-600">
-                        <span>Coupon Discount ({couponInfo.code}):</span>
-                        <span className="font-medium">-{formatCurrency(calculateCouponDiscount(selectedPlan?.price || 0))}/month</span>
-                      </div>
-                    )}
-                    <div className="border-t border-gray-200 pt-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-900 font-semibold">Total:</span>
-                        <span className="text-2xl font-bold text-gray-900">
-                          {formatCurrency(Math.max(0, (selectedPlan?.price || 0) - calculateCouponDiscount(selectedPlan?.price || 0)))}/month
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Payment Form */}
-                <PayPalPayment
-                  amount={Math.max(0, (selectedPlan?.price || 0) - calculateCouponDiscount(selectedPlan?.price || 0))}
-                  description={`${selectedPlan?.name} Plan - Monthly Subscription${couponInfo ? ` (${couponInfo.code} applied)` : ''}`}
-                  onSuccess={handlePaymentSuccess}
-                  onError={handlePaymentError}
-                  buttonText="Complete Subscription"
-                  subscriptionPlan={selectedTier}
-                />
-
-                <div className="text-center mt-4">
-                  <button
-                    onClick={() => setShowPayment(false)}
-                    className="text-gray-600 hover:text-gray-800 text-sm transition-colors"
-                  >
-                    ← Back to plans
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </main>
       <Footer />

@@ -1,0 +1,44 @@
+# =================================================================
+# CLOUDFLARE PAGES PRODUCTION ENVIRONMENT VARIABLES
+# =================================================================
+# Set these in Cloudflare Pages Dashboard > Settings > Environment Variables
+
+# Supabase (Production)
+VITE_SUPABASE_URL=your_production_supabase_url
+VITE_SUPABASE_ANON_KEY=your_production_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_production_supabase_service_key
+
+# Turnstile (Production)
+VITE_TURNSTILE_SITE_KEY=your_production_turnstile_site_key
+TURNSTILE_SECRET_KEY=your_production_turnstile_secret_key
+
+# OAuth (Production - NEW CREDENTIALS)
+GITHUB_CLIENT_ID=your_new_github_client_id
+GITHUB_CLIENT_SECRET=your_new_github_client_secret
+GOOGLE_CLIENT_ID=your_new_google_client_id
+GOOGLE_CLIENT_SECRET=your_new_google_client_secret
+
+# PayPal (Production - NEW CREDENTIALS)
+PAYPAL_CLIENT_ID=your_new_paypal_live_client_id
+PAYPAL_CLIENT_SECRET=your_new_paypal_live_client_secret
+PAYPAL_ENVIRONMENT=live
+
+# Email Services
+RESEND_API_KEY=your_production_resend_api_key
+FROM_EMAIL=hello@cozyartzmedia.com
+SUPPORT_EMAIL=support@cozyartzmedia.com
+
+# Security
+JWT_SECRET=your_new_production_jwt_secret_minimum_32_chars
+ENCRYPTION_KEY=your_new_production_encryption_key_32_chars
+
+# Application Settings
+NODE_ENV=production
+VITE_ENVIRONMENT=production
+VITE_SITE_URL=https://cozyartzmedia.com
+VITE_CALLBACK_URL=https://cozyartzmedia.com/auth/callback
+
+# Cloudflare API
+CLOUDFLARE_API_TOKEN=your_new_cloudflare_api_token
+CLOUDFLARE_ACCOUNT_ID=your_cloudflare_account_id
+CLOUDFLARE_ZONE_ID=your_cloudflare_zone_id

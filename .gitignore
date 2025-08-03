@@ -21,6 +21,10 @@ build/
 *.env.test
 *.env.production
 
+# Cloudflare credentials
+wrangler.toml
+!wrangler.toml.example
+
 # Security & secrets
 *.key
 *.pem
