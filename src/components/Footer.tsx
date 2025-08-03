@@ -126,7 +126,7 @@ const Footer = () => {
                 © 2025 Cozyartz Media Group. All rights reserved.
               </p>
               <p className="text-gray-500 text-xs mt-1">
-                GDPR Compliant • SOC 2 Certified • WOSB Certified
+                GDPR Compliant • WOSB Certified
               </p>
             </div>
             <div className="flex flex-wrap justify-center gap-4 mt-4 md:mt-0">

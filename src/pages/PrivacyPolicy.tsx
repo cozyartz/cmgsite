@@ -204,7 +204,7 @@ const PrivacyPolicy: React.FC = () => {
                   <li><strong>Access Controls:</strong> Role-based access with multi-factor authentication</li>
                   <li><strong>Regular Audits:</strong> Security assessments and vulnerability testing</li>
                   <li><strong>Data Minimization:</strong> We collect only necessary information for service delivery</li>
-                  <li><strong>Secure Storage:</strong> Data stored in SOC 2 compliant cloud infrastructure</li>
+                  <li><strong>Secure Storage:</strong> Data stored in secure, encrypted cloud infrastructure</li>
                 </ul>
               </div>
             </section>
