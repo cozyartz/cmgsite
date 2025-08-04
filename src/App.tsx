@@ -13,6 +13,7 @@ import CookiePolicy from './pages/CookiePolicy';
 import TermsOfService from './pages/TermsOfService';
 import DataSubjectRequest from './pages/DataSubjectRequest';
 import BookConsultation from './pages/BookConsultation';
+import BookConsultationTest from './pages/BookConsultationTest';
 import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/SupabaseAuthContext';
@@ -40,6 +41,7 @@ function App() {
             <Route path="/terms-of-service" element={<TermsOfService />} />
             <Route path="/data-subject-request" element={<DataSubjectRequest />} />
             <Route path="/book-consultation" element={<BookConsultation />} />
+            <Route path="/book-consultation-test" element={<BookConsultationTest />} />
             
             {/* Protected Routes */}
             <Route 

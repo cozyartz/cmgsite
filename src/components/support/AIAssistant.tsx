@@ -221,7 +221,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
           leadData: updatedLeadData,
           enableLeadCapture
         },
-        requireAuth: true
+        requireAuth: false // Don't require authentication for AI assistant
       });
 
       if (data.success) {
