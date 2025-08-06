@@ -4,6 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import SEO from '../components/SEO';
 import Header from '../components/Header';
 import LegalDisclaimer from '../components/legal/LegalDisclaimer';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 
 const SEOServices = () => {
   const navigate = useNavigate();
@@ -17,8 +21,10 @@ const SEOServices = () => {
     {
       id: 'starter',
       name: 'Starter',
-      price: billingCycle === 'monthly' ? 59 : 47.20,
+      price: billingCycle === 'monthly' ? 59 : 47,
       originalPrice: billingCycle === 'yearly' ? 59 : undefined,
+      yearlyPrice: 564, // $47 * 12
+      monthlySavings: billingCycle === 'yearly' ? 12 : 0,
       aiCredits: 250,
       features: [
         'AI Content Generator',
@@ -33,8 +39,10 @@ const SEOServices = () => {
     {
       id: 'growth',
       name: 'Growth',
-      price: billingCycle === 'monthly' ? 99 : 79.20,
+      price: billingCycle === 'monthly' ? 99 : 79,
       originalPrice: billingCycle === 'yearly' ? 99 : undefined,
+      yearlyPrice: 948, // $79 * 12
+      monthlySavings: billingCycle === 'yearly' ? 20 : 0,
       aiCredits: 750,
       features: [
         'Everything in Starter',
@@ -51,8 +59,10 @@ const SEOServices = () => {
     {
       id: 'professional',
       name: 'Professional',
-      price: billingCycle === 'monthly' ? 199 : 159.20,
+      price: billingCycle === 'monthly' ? 199 : 159,
       originalPrice: billingCycle === 'yearly' ? 199 : undefined,
+      yearlyPrice: 1908, // $159 * 12
+      monthlySavings: billingCycle === 'yearly' ? 40 : 0,
       aiCredits: 1500,
       features: [
         'Everything in Growth',
@@ -68,8 +78,10 @@ const SEOServices = () => {
     {
       id: 'enterprise',
       name: 'Enterprise',
-      price: billingCycle === 'monthly' ? 299 : 239.20,
+      price: billingCycle === 'monthly' ? 299 : 239,
       originalPrice: billingCycle === 'yearly' ? 299 : undefined,
+      yearlyPrice: 2868, // $239 * 12
+      monthlySavings: billingCycle === 'yearly' ? 60 : 0,
       aiCredits: -1,
       features: [
         'Everything in Professional',
@@ -428,30 +440,27 @@ const SEOServices = () => {
                 
                 {/* Billing Toggle */}
                 <div className="flex items-center justify-center mb-8">
-                  <div className="bg-slate-800 rounded-full p-1 border border-slate-700">
-                    <button
-                      onClick={handleBillingToggle}
-                      className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                        billingCycle === 'monthly'
-                          ? 'bg-teal-500 text-white shadow-lg'
-                          : 'text-slate-400 hover:text-white'
-                      }`}
-                    >
+                  <div className="flex items-center space-x-4 bg-slate-800/50 backdrop-blur-sm px-6 py-3 rounded-full border border-slate-700/50">
+                    <span className={`text-sm font-medium transition-colors ${
+                      billingCycle === 'monthly' ? 'text-white' : 'text-slate-400'
+                    }`}>
                       Monthly
-                    </button>
-                    <button
-                      onClick={handleBillingToggle}
-                      className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                        billingCycle === 'yearly'
-                          ? 'bg-teal-500 text-white shadow-lg'
-                          : 'text-slate-400 hover:text-white'
-                      }`}
-                    >
-                      Yearly
-                      <span className="ml-2 bg-green-500 text-white px-2 py-0.5 rounded-full text-xs font-bold">
-                        Save 20%
+                    </span>
+                    <Switch
+                      checked={billingCycle === 'yearly'}
+                      onCheckedChange={(checked) => setBillingCycle(checked ? 'yearly' : 'monthly')}
+                      className="data-[state=checked]:bg-teal-500"
+                    />
+                    <div className="flex items-center space-x-2">
+                      <span className={`text-sm font-medium transition-colors ${
+                        billingCycle === 'yearly' ? 'text-white' : 'text-slate-400'
+                      }`}>
+                        Yearly
                       </span>
-                    </button>
+                      <Badge variant="secondary" className="bg-green-500 text-white border-green-500">
+                        Save 20%
+                      </Badge>
+                    </div>
                   </div>
                 </div>
                 
@@ -464,183 +473,199 @@ const SEOServices = () => {
 
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* Starter Plan */}
-                <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 hover:border-teal-500/50 transition-all duration-300">
-                  <div className="text-center mb-6">
-                    <h3 className="text-xl font-bold text-white mb-2">Starter</h3>
-                    <p className="text-slate-400 mb-4 text-sm">Perfect for small businesses</p>
+                <Card className="bg-slate-800 border-slate-700 hover:border-teal-500/50 transition-all duration-300">
+                  <CardHeader className="text-center">
+                    <CardTitle className="text-xl text-white">Starter</CardTitle>
+                    <CardDescription className="text-slate-400">Perfect for small businesses</CardDescription>
                     {billingCycle === 'yearly' && pricingPlans[0].originalPrice && (
                       <div className="mb-2">
                         <span className="text-slate-500 line-through text-lg">${pricingPlans[0].originalPrice}</span>
-                        <span className="ml-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-bold">20% OFF</span>
+                        <Badge className="ml-2 bg-green-500 text-white border-green-500">20% OFF</Badge>
                       </div>
                     )}
-                    <div className="text-3xl font-bold text-teal-400 mb-2">${pricingPlans[0].price}<span className="text-lg text-slate-400">/{billingCycle === 'yearly' ? 'mo' : 'month'}</span></div>
+                    <div className="text-3xl font-bold text-teal-400 mb-2">
+                      ${pricingPlans[0].price}<span className="text-lg text-slate-400">/{billingCycle === 'yearly' ? 'mo' : 'month'}</span>
+                    </div>
                     {billingCycle === 'yearly' && <p className="text-xs text-slate-500 mb-2">Billed annually</p>}
                     <p className="text-slate-400 text-sm">{pricingPlans[0].aiCredits} AI credits included</p>
-                  </div>
-                  <ul className="space-y-3 mb-8">
-                    <li className="flex items-center gap-3">
-                      <CheckCircle className="h-5 w-5 text-teal-400" />
-                      <span className="text-slate-300">AI Content Generator</span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <CheckCircle className="h-5 w-5 text-teal-400" />
-                      <span className="text-slate-300">Basic Keyword Research</span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <CheckCircle className="h-5 w-5 text-teal-400" />
-                      <span className="text-slate-300">SEO Analytics</span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <CheckCircle className="h-5 w-5 text-teal-400" />
-                      <span className="text-slate-300">Email Support</span>
-                    </li>
-                  </ul>
-                  <div className="mb-3">
-                    <p className="text-xs text-center text-slate-400">Cancel anytime • No commitment</p>
-                  </div>
-                  <button 
-                    onClick={() => handlePlanSelect('starter')}
-                    className="w-full bg-teal-500 hover:bg-teal-600 text-white py-3 px-4 rounded-lg font-semibold transition-colors text-sm"
-                  >
-                    Get Started
-                  </button>
-                </div>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <ul className="space-y-3">
+                      <li className="flex items-center gap-3">
+                        <CheckCircle className="h-5 w-5 text-teal-400" />
+                        <span className="text-slate-300">AI Content Generator</span>
+                      </li>
+                      <li className="flex items-center gap-3">
+                        <CheckCircle className="h-5 w-5 text-teal-400" />
+                        <span className="text-slate-300">Basic Keyword Research</span>
+                      </li>
+                      <li className="flex items-center gap-3">
+                        <CheckCircle className="h-5 w-5 text-teal-400" />
+                        <span className="text-slate-300">SEO Analytics</span>
+                      </li>
+                      <li className="flex items-center gap-3">
+                        <CheckCircle className="h-5 w-5 text-teal-400" />
+                        <span className="text-slate-300">Email Support</span>
+                      </li>
+                    </ul>
+                    <div className="space-y-3">
+                      <p className="text-xs text-center text-slate-400">Cancel anytime • No commitment</p>
+                      <Button 
+                        onClick={() => handlePlanSelect('starter')}
+                        className="w-full bg-teal-500 hover:bg-teal-600 text-white"
+                      >
+                        Get Started
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
 
                 {/* Growth Plan */}
-                <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-6 border-2 border-teal-500 relative hover:border-teal-400 transition-all duration-300">
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-gradient-to-r from-teal-500 to-blue-500 text-white px-3 py-1 rounded-full text-xs font-bold">POPULAR</span>
-                  </div>
-                  <div className="text-center mb-6">
-                    <h3 className="text-xl font-bold text-white mb-2">Growth</h3>
-                    <p className="text-slate-400 mb-4 text-sm">Best for growing businesses</p>
+                <Card className="bg-gradient-to-br from-slate-800 to-slate-900 border-2 border-teal-500 relative hover:border-teal-400 transition-all duration-300">
+                  <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-teal-500 to-blue-500 text-white border-transparent">
+                    POPULAR
+                  </Badge>
+                  <CardHeader className="text-center pt-8">
+                    <CardTitle className="text-xl text-white">Growth</CardTitle>
+                    <CardDescription className="text-slate-400">Best for growing businesses</CardDescription>
                     {billingCycle === 'yearly' && pricingPlans[1].originalPrice && (
                       <div className="mb-2">
                         <span className="text-slate-500 line-through text-lg">${pricingPlans[1].originalPrice}</span>
-                        <span className="ml-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-bold">20% OFF</span>
+                        <Badge className="ml-2 bg-green-500 text-white border-green-500">20% OFF</Badge>
                       </div>
                     )}
-                    <div className="text-3xl font-bold text-teal-400 mb-2">${pricingPlans[1].price}<span className="text-lg text-slate-400">/{billingCycle === 'yearly' ? 'mo' : 'month'}</span></div>
+                    <div className="text-3xl font-bold text-teal-400 mb-2">
+                      ${pricingPlans[1].price}<span className="text-lg text-slate-400">/{billingCycle === 'yearly' ? 'mo' : 'month'}</span>
+                    </div>
                     {billingCycle === 'yearly' && <p className="text-xs text-slate-500 mb-2">Billed annually</p>}
                     <p className="text-slate-400 text-sm">{pricingPlans[1].aiCredits} AI credits included</p>
-                  </div>
-                  <ul className="space-y-2 mb-6">
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-teal-400" />
-                      <span className="text-slate-300 text-sm">Everything in Starter</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-teal-400" />
-                      <span className="text-slate-300 text-sm">Advanced AI Tools</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-teal-400" />
-                      <span className="text-slate-300 text-sm">Competitor Analysis</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-teal-400" />
-                      <span className="text-slate-300 text-sm">Priority Support</span>
-                    </li>
-                  </ul>
-                  <div className="mb-3">
-                    <p className="text-xs text-center text-slate-400">Cancel anytime • No commitment</p>
-                  </div>
-                  <button 
-                    onClick={() => handlePlanSelect('growth')}
-                    className="w-full bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 text-white py-3 px-4 rounded-lg font-semibold transition-all duration-300 text-sm"
-                  >
-                    Get Started
-                  </button>
-                </div>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <ul className="space-y-2">
+                      <li className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-teal-400" />
+                        <span className="text-slate-300 text-sm">Everything in Starter</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-teal-400" />
+                        <span className="text-slate-300 text-sm">Advanced AI Tools</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-teal-400" />
+                        <span className="text-slate-300 text-sm">Competitor Analysis</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-teal-400" />
+                        <span className="text-slate-300 text-sm">Priority Support</span>
+                      </li>
+                    </ul>
+                    <div className="space-y-3">
+                      <p className="text-xs text-center text-slate-400">Cancel anytime • No commitment</p>
+                      <Button 
+                        onClick={() => handlePlanSelect('growth')}
+                        className="w-full bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 text-white"
+                      >
+                        Get Started
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
 
                 {/* Professional Plan */}
-                <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 hover:border-blue-500/50 transition-all duration-300">
-                  <div className="text-center mb-6">
-                    <h3 className="text-xl font-bold text-white mb-2">Professional</h3>
-                    <p className="text-slate-400 mb-4 text-sm">For established businesses</p>
+                <Card className="bg-slate-800 border-slate-700 hover:border-blue-500/50 transition-all duration-300">
+                  <CardHeader className="text-center">
+                    <CardTitle className="text-xl text-white">Professional</CardTitle>
+                    <CardDescription className="text-slate-400">For established businesses</CardDescription>
                     {billingCycle === 'yearly' && pricingPlans[2].originalPrice && (
                       <div className="mb-2">
                         <span className="text-slate-500 line-through text-lg">${pricingPlans[2].originalPrice}</span>
-                        <span className="ml-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-bold">20% OFF</span>
+                        <Badge className="ml-2 bg-green-500 text-white border-green-500">20% OFF</Badge>
                       </div>
                     )}
-                    <div className="text-3xl font-bold text-blue-400 mb-2">${pricingPlans[2].price}<span className="text-lg text-slate-400">/{billingCycle === 'yearly' ? 'mo' : 'month'}</span></div>
+                    <div className="text-3xl font-bold text-blue-400 mb-2">
+                      ${pricingPlans[2].price}<span className="text-lg text-slate-400">/{billingCycle === 'yearly' ? 'mo' : 'month'}</span>
+                    </div>
                     {billingCycle === 'yearly' && <p className="text-xs text-slate-500 mb-2">Billed annually</p>}
                     <p className="text-slate-400 text-sm">{pricingPlans[2].aiCredits} AI credits included</p>
-                  </div>
-                  <ul className="space-y-2 mb-6">
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-blue-400" />
-                      <span className="text-slate-300 text-sm">Everything in Growth</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-blue-400" />
-                      <span className="text-slate-300 text-sm">Professional SEO Suite</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-blue-400" />
-                      <span className="text-slate-300 text-sm">Weekly Reporting</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-blue-400" />
-                      <span className="text-slate-300 text-sm">Advanced Analytics</span>
-                    </li>
-                  </ul>
-                  <div className="mb-3">
-                    <p className="text-xs text-center text-slate-400">Cancel anytime • No commitment</p>
-                  </div>
-                  <button 
-                    onClick={() => handlePlanSelect('professional')}
-                    className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white py-3 px-4 rounded-lg font-semibold transition-all duration-300 text-sm"
-                  >
-                    Get Started
-                  </button>
-                </div>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <ul className="space-y-2">
+                      <li className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-blue-400" />
+                        <span className="text-slate-300 text-sm">Everything in Growth</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-blue-400" />
+                        <span className="text-slate-300 text-sm">Professional SEO Suite</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-blue-400" />
+                        <span className="text-slate-300 text-sm">Weekly Reporting</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-blue-400" />
+                        <span className="text-slate-300 text-sm">Advanced Analytics</span>
+                      </li>
+                    </ul>
+                    <div className="space-y-3">
+                      <p className="text-xs text-center text-slate-400">Cancel anytime • No commitment</p>
+                      <Button 
+                        onClick={() => handlePlanSelect('professional')}
+                        className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white"
+                      >
+                        Get Started
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
 
                 {/* Enterprise Plan */}
-                <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 hover:border-purple-500/50 transition-all duration-300">
-                  <div className="text-center mb-6">
-                    <h3 className="text-xl font-bold text-white mb-2">Enterprise</h3>
-                    <p className="text-slate-400 mb-4 text-sm">For large organizations</p>
+                <Card className="bg-slate-800 border-slate-700 hover:border-purple-500/50 transition-all duration-300">
+                  <CardHeader className="text-center">
+                    <CardTitle className="text-xl text-white">Enterprise</CardTitle>
+                    <CardDescription className="text-slate-400">For large organizations</CardDescription>
                     {billingCycle === 'yearly' && pricingPlans[3].originalPrice && (
                       <div className="mb-2">
                         <span className="text-slate-500 line-through text-lg">${pricingPlans[3].originalPrice}</span>
-                        <span className="ml-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-bold">20% OFF</span>
+                        <Badge className="ml-2 bg-green-500 text-white border-green-500">20% OFF</Badge>
                       </div>
                     )}
-                    <div className="text-3xl font-bold text-purple-400 mb-2">${pricingPlans[3].price}<span className="text-lg text-slate-400">/{billingCycle === 'yearly' ? 'mo' : 'month'}</span></div>
+                    <div className="text-3xl font-bold text-purple-400 mb-2">
+                      ${pricingPlans[3].price}<span className="text-lg text-slate-400">/{billingCycle === 'yearly' ? 'mo' : 'month'}</span>
+                    </div>
                     {billingCycle === 'yearly' && <p className="text-xs text-slate-500 mb-2">Billed annually</p>}
                     <p className="text-slate-400 text-sm">Unlimited AI credits</p>
-                  </div>
-                  <ul className="space-y-2 mb-6">
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-purple-400" />
-                      <span className="text-slate-300 text-sm">Everything in Professional</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-purple-400" />
-                      <span className="text-slate-300 text-sm">Unlimited AI Tools</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-purple-400" />
-                      <span className="text-slate-300 text-sm">Dedicated Manager</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-purple-400" />
-                      <span className="text-slate-300 text-sm">White-label Platform</span>
-                    </li>
-                  </ul>
-                  <div className="mb-3">
-                    <p className="text-xs text-center text-slate-400">Cancel anytime • No commitment</p>
-                  </div>
-                  <button 
-                    onClick={() => handlePlanSelect('enterprise')}
-                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-3 px-4 rounded-lg font-semibold transition-all duration-300 text-sm"
-                  >
-                    Get Started
-                  </button>
-                </div>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <ul className="space-y-2">
+                      <li className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-purple-400" />
+                        <span className="text-slate-300 text-sm">Everything in Professional</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-purple-400" />
+                        <span className="text-slate-300 text-sm">Unlimited AI Tools</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-purple-400" />
+                        <span className="text-slate-300 text-sm">Dedicated Manager</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-purple-400" />
+                        <span className="text-slate-300 text-sm">White-label Platform</span>
+                      </li>
+                    </ul>
+                    <div className="space-y-3">
+                      <p className="text-xs text-center text-slate-400">Cancel anytime • No commitment</p>
+                      <Button 
+                        onClick={() => handlePlanSelect('enterprise')}
+                        className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+                      >
+                        Get Started
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </div>
           </div>
