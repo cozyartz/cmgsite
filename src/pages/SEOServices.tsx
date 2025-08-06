@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Search, TrendingUp, Target, Award, Globe, BarChart, CheckCircle, ArrowRight, Zap, Brain, Sparkles, Rocket, Users, FileText, Mail, RefreshCw, Bot, Shield, Star, Clock, DollarSign } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import SEO from '../components/SEO';
@@ -7,6 +7,7 @@ import LegalDisclaimer from '../components/legal/LegalDisclaimer';
 
 const SEOServices = () => {
   const navigate = useNavigate();
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -16,8 +17,8 @@ const SEOServices = () => {
     {
       id: 'starter',
       name: 'Starter',
-      price: 59,
-      priceInCents: 5900,
+      price: billingCycle === 'monthly' ? 59 : 47.20,
+      originalPrice: billingCycle === 'yearly' ? 59 : undefined,
       aiCredits: 250,
       features: [
         'AI Content Generator',
@@ -32,8 +33,8 @@ const SEOServices = () => {
     {
       id: 'growth',
       name: 'Growth',
-      price: 99,
-      priceInCents: 9900,
+      price: billingCycle === 'monthly' ? 99 : 79.20,
+      originalPrice: billingCycle === 'yearly' ? 99 : undefined,
       aiCredits: 750,
       features: [
         'Everything in Starter',
@@ -48,27 +49,48 @@ const SEOServices = () => {
       popular: true
     },
     {
-      id: 'enterprise',
-      name: 'Enterprise',
-      price: 299,
-      priceInCents: 29900,
-      aiCredits: -1,
+      id: 'professional',
+      name: 'Professional',
+      price: billingCycle === 'monthly' ? 199 : 159.20,
+      originalPrice: billingCycle === 'yearly' ? 199 : undefined,
+      aiCredits: 1500,
       features: [
         'Everything in Growth',
+        'Professional SEO Suite',
+        'Weekly Reporting',
+        'Priority Support',
+        'Advanced Analytics',
+        'White-label Reporting',
+        'Up to 25 domains',
+        'Custom Integrations'
+      ]
+    },
+    {
+      id: 'enterprise',
+      name: 'Enterprise',
+      price: billingCycle === 'monthly' ? 299 : 239.20,
+      originalPrice: billingCycle === 'yearly' ? 299 : undefined,
+      aiCredits: -1,
+      features: [
+        'Everything in Professional',
         'Unlimited AI Tools',
-        'Custom Analytics',
-        'Dedicated Support',
-        'White-label Options',
-        'Monthly Consultation Included',
-        'Custom Integrations',
-        'Unlimited domains'
+        'Custom Analytics Dashboard',
+        'Dedicated Account Manager',
+        'White-label Platform',
+        'Monthly Strategy Calls',
+        'Unlimited domains',
+        'Enterprise API Access'
       ]
     }
   ];
 
   const handlePlanSelect = (planId: string) => {
     // Redirect to checkout page with selected plan
-    navigate(`/checkout?tier=${planId}&billing=monthly`);
+    navigate(`/checkout?tier=${planId}&billing=${billingCycle}`);
+  };
+
+  const handleBillingToggle = () => {
+    setBillingCycle(prev => prev === 'monthly' ? 'yearly' : 'monthly');
   };
 
   return (
@@ -400,24 +422,61 @@ const SEOServices = () => {
                 <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
                   Flexible SEO Plans - No Long-Term Commitment
                 </h2>
-                <p className="text-xl text-slate-300 max-w-3xl mx-auto mb-4">
+                <p className="text-xl text-slate-300 max-w-3xl mx-auto mb-6">
                   From self-service AI tools to full-service SEO management - cancel anytime, no commitment required.
                 </p>
-                <div className="inline-flex items-center space-x-2 bg-green-500/20 text-green-300 px-6 py-3 rounded-full text-sm font-medium border border-green-500/30">
+                
+                {/* Billing Toggle */}
+                <div className="flex items-center justify-center mb-8">
+                  <div className="bg-slate-800 rounded-full p-1 border border-slate-700">
+                    <button
+                      onClick={handleBillingToggle}
+                      className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                        billingCycle === 'monthly'
+                          ? 'bg-teal-500 text-white shadow-lg'
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      Monthly
+                    </button>
+                    <button
+                      onClick={handleBillingToggle}
+                      className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                        billingCycle === 'yearly'
+                          ? 'bg-teal-500 text-white shadow-lg'
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      Yearly
+                      <span className="ml-2 bg-green-500 text-white px-2 py-0.5 rounded-full text-xs font-bold">
+                        Save 20%
+                      </span>
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="inline-flex items-center space-x-2 bg-green-500/20 text-green-300 px-6 py-3 rounded-full text-sm font-medium border border-green-500/30 mb-4">
                   <span>✓ NO COMMITMENT</span>
                   <span>•</span>
                   <span>✓ CANCEL ANYTIME</span>
                 </div>
               </div>
 
-              <div className="grid md:grid-cols-3 gap-8">
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* Starter Plan */}
-                <div className="bg-slate-800 rounded-xl p-8 border border-slate-700 hover:border-teal-500/50 transition-all duration-300">
+                <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 hover:border-teal-500/50 transition-all duration-300">
                   <div className="text-center mb-6">
-                    <h3 className="text-2xl font-bold text-white mb-2">Starter</h3>
-                    <p className="text-slate-400 mb-4">Perfect for small businesses</p>
-                    <div className="text-4xl font-bold text-teal-400 mb-2">${pricingPlans[0].price}<span className="text-xl text-slate-400">/month</span></div>
-                    <p className="text-slate-400">{pricingPlans[0].aiCredits} AI credits included</p>
+                    <h3 className="text-xl font-bold text-white mb-2">Starter</h3>
+                    <p className="text-slate-400 mb-4 text-sm">Perfect for small businesses</p>
+                    {billingCycle === 'yearly' && pricingPlans[0].originalPrice && (
+                      <div className="mb-2">
+                        <span className="text-slate-500 line-through text-lg">${pricingPlans[0].originalPrice}</span>
+                        <span className="ml-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-bold">20% OFF</span>
+                      </div>
+                    )}
+                    <div className="text-3xl font-bold text-teal-400 mb-2">${pricingPlans[0].price}<span className="text-lg text-slate-400">/{billingCycle === 'yearly' ? 'mo' : 'month'}</span></div>
+                    {billingCycle === 'yearly' && <p className="text-xs text-slate-500 mb-2">Billed annually</p>}
+                    <p className="text-slate-400 text-sm">{pricingPlans[0].aiCredits} AI credits included</p>
                   </div>
                   <ul className="space-y-3 mb-8">
                     <li className="flex items-center gap-3">
@@ -442,43 +501,46 @@ const SEOServices = () => {
                   </div>
                   <button 
                     onClick={() => handlePlanSelect('starter')}
-                    className="w-full bg-teal-500 hover:bg-teal-600 text-white py-3 px-6 rounded-lg font-semibold transition-colors"
+                    className="w-full bg-teal-500 hover:bg-teal-600 text-white py-3 px-4 rounded-lg font-semibold transition-colors text-sm"
                   >
-                    Get Started - $59/month
+                    Get Started
                   </button>
                 </div>
 
                 {/* Growth Plan */}
-                <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-8 border-2 border-teal-500 relative hover:border-teal-400 transition-all duration-300">
+                <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-6 border-2 border-teal-500 relative hover:border-teal-400 transition-all duration-300">
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-gradient-to-r from-teal-500 to-blue-500 text-white px-4 py-1 rounded-full text-sm font-bold">MOST POPULAR</span>
+                    <span className="bg-gradient-to-r from-teal-500 to-blue-500 text-white px-3 py-1 rounded-full text-xs font-bold">POPULAR</span>
                   </div>
                   <div className="text-center mb-6">
-                    <h3 className="text-2xl font-bold text-white mb-2">Growth</h3>
-                    <p className="text-slate-400 mb-4">Best for growing businesses</p>
-                    <div className="text-4xl font-bold text-teal-400 mb-2">${pricingPlans[1].price}<span className="text-xl text-slate-400">/month</span></div>
-                    <p className="text-slate-400">{pricingPlans[1].aiCredits} AI credits included</p>
+                    <h3 className="text-xl font-bold text-white mb-2">Growth</h3>
+                    <p className="text-slate-400 mb-4 text-sm">Best for growing businesses</p>
+                    {billingCycle === 'yearly' && pricingPlans[1].originalPrice && (
+                      <div className="mb-2">
+                        <span className="text-slate-500 line-through text-lg">${pricingPlans[1].originalPrice}</span>
+                        <span className="ml-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-bold">20% OFF</span>
+                      </div>
+                    )}
+                    <div className="text-3xl font-bold text-teal-400 mb-2">${pricingPlans[1].price}<span className="text-lg text-slate-400">/{billingCycle === 'yearly' ? 'mo' : 'month'}</span></div>
+                    {billingCycle === 'yearly' && <p className="text-xs text-slate-500 mb-2">Billed annually</p>}
+                    <p className="text-slate-400 text-sm">{pricingPlans[1].aiCredits} AI credits included</p>
                   </div>
-                  <ul className="space-y-3 mb-8">
-                    <li className="flex items-center gap-3">
-                      <CheckCircle className="h-5 w-5 text-teal-400" />
-                      <span className="text-slate-300">Everything in Starter</span>
+                  <ul className="space-y-2 mb-6">
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-teal-400" />
+                      <span className="text-slate-300 text-sm">Everything in Starter</span>
                     </li>
-                    <li className="flex items-center gap-3">
-                      <CheckCircle className="h-5 w-5 text-teal-400" />
-                      <span className="text-slate-300">Advanced Competitor Analysis</span>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-teal-400" />
+                      <span className="text-slate-300 text-sm">Advanced AI Tools</span>
                     </li>
-                    <li className="flex items-center gap-3">
-                      <CheckCircle className="h-5 w-5 text-teal-400" />
-                      <span className="text-slate-300">Email Optimization Tools</span>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-teal-400" />
+                      <span className="text-slate-300 text-sm">Competitor Analysis</span>
                     </li>
-                    <li className="flex items-center gap-3">
-                      <CheckCircle className="h-5 w-5 text-teal-400" />
-                      <span className="text-slate-300">Priority Support</span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <CheckCircle className="h-5 w-5 text-teal-400" />
-                      <span className="text-slate-300">Monthly SEO Consultation</span>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-teal-400" />
+                      <span className="text-slate-300 text-sm">Priority Support</span>
                     </li>
                   </ul>
                   <div className="mb-3">
@@ -486,40 +548,87 @@ const SEOServices = () => {
                   </div>
                   <button 
                     onClick={() => handlePlanSelect('growth')}
-                    className="w-full bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300"
+                    className="w-full bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 text-white py-3 px-4 rounded-lg font-semibold transition-all duration-300 text-sm"
                   >
-                    Get Started - $99/month
+                    Get Started
+                  </button>
+                </div>
+
+                {/* Professional Plan */}
+                <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 hover:border-blue-500/50 transition-all duration-300">
+                  <div className="text-center mb-6">
+                    <h3 className="text-xl font-bold text-white mb-2">Professional</h3>
+                    <p className="text-slate-400 mb-4 text-sm">For established businesses</p>
+                    {billingCycle === 'yearly' && pricingPlans[2].originalPrice && (
+                      <div className="mb-2">
+                        <span className="text-slate-500 line-through text-lg">${pricingPlans[2].originalPrice}</span>
+                        <span className="ml-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-bold">20% OFF</span>
+                      </div>
+                    )}
+                    <div className="text-3xl font-bold text-blue-400 mb-2">${pricingPlans[2].price}<span className="text-lg text-slate-400">/{billingCycle === 'yearly' ? 'mo' : 'month'}</span></div>
+                    {billingCycle === 'yearly' && <p className="text-xs text-slate-500 mb-2">Billed annually</p>}
+                    <p className="text-slate-400 text-sm">{pricingPlans[2].aiCredits} AI credits included</p>
+                  </div>
+                  <ul className="space-y-2 mb-6">
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-blue-400" />
+                      <span className="text-slate-300 text-sm">Everything in Growth</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-blue-400" />
+                      <span className="text-slate-300 text-sm">Professional SEO Suite</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-blue-400" />
+                      <span className="text-slate-300 text-sm">Weekly Reporting</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-blue-400" />
+                      <span className="text-slate-300 text-sm">Advanced Analytics</span>
+                    </li>
+                  </ul>
+                  <div className="mb-3">
+                    <p className="text-xs text-center text-slate-400">Cancel anytime • No commitment</p>
+                  </div>
+                  <button 
+                    onClick={() => handlePlanSelect('professional')}
+                    className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white py-3 px-4 rounded-lg font-semibold transition-all duration-300 text-sm"
+                  >
+                    Get Started
                   </button>
                 </div>
 
                 {/* Enterprise Plan */}
-                <div className="bg-slate-800 rounded-xl p-8 border border-slate-700 hover:border-purple-500/50 transition-all duration-300">
+                <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 hover:border-purple-500/50 transition-all duration-300">
                   <div className="text-center mb-6">
-                    <h3 className="text-2xl font-bold text-white mb-2">Enterprise</h3>
-                    <p className="text-slate-400 mb-4">For large organizations</p>
-                    <div className="text-4xl font-bold text-purple-400 mb-2">${pricingPlans[2].price}<span className="text-xl text-slate-400">/month</span></div>
-                    <p className="text-slate-400">Unlimited AI credits</p>
+                    <h3 className="text-xl font-bold text-white mb-2">Enterprise</h3>
+                    <p className="text-slate-400 mb-4 text-sm">For large organizations</p>
+                    {billingCycle === 'yearly' && pricingPlans[3].originalPrice && (
+                      <div className="mb-2">
+                        <span className="text-slate-500 line-through text-lg">${pricingPlans[3].originalPrice}</span>
+                        <span className="ml-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-bold">20% OFF</span>
+                      </div>
+                    )}
+                    <div className="text-3xl font-bold text-purple-400 mb-2">${pricingPlans[3].price}<span className="text-lg text-slate-400">/{billingCycle === 'yearly' ? 'mo' : 'month'}</span></div>
+                    {billingCycle === 'yearly' && <p className="text-xs text-slate-500 mb-2">Billed annually</p>}
+                    <p className="text-slate-400 text-sm">Unlimited AI credits</p>
                   </div>
-                  <ul className="space-y-3 mb-8">
-                    <li className="flex items-center gap-3">
-                      <CheckCircle className="h-5 w-5 text-purple-400" />
-                      <span className="text-slate-300">Everything in Growth</span>
+                  <ul className="space-y-2 mb-6">
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-purple-400" />
+                      <span className="text-slate-300 text-sm">Everything in Professional</span>
                     </li>
-                    <li className="flex items-center gap-3">
-                      <CheckCircle className="h-5 w-5 text-purple-400" />
-                      <span className="text-slate-300">White-label Solutions</span>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-purple-400" />
+                      <span className="text-slate-300 text-sm">Unlimited AI Tools</span>
                     </li>
-                    <li className="flex items-center gap-3">
-                      <CheckCircle className="h-5 w-5 text-purple-400" />
-                      <span className="text-slate-300">API Access</span>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-purple-400" />
+                      <span className="text-slate-300 text-sm">Dedicated Manager</span>
                     </li>
-                    <li className="flex items-center gap-3">
-                      <CheckCircle className="h-5 w-5 text-purple-400" />
-                      <span className="text-slate-300">Dedicated Account Manager</span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <CheckCircle className="h-5 w-5 text-purple-400" />
-                      <span className="text-slate-300">Custom Integrations</span>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-purple-400" />
+                      <span className="text-slate-300 text-sm">White-label Platform</span>
                     </li>
                   </ul>
                   <div className="mb-3">
@@ -527,9 +636,9 @@ const SEOServices = () => {
                   </div>
                   <button 
                     onClick={() => handlePlanSelect('enterprise')}
-                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300"
+                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-3 px-4 rounded-lg font-semibold transition-all duration-300 text-sm"
                   >
-                    Get Started - $299/month
+                    Get Started
                   </button>
                 </div>
               </div>
