@@ -30,7 +30,7 @@ const About = () => {
       name: "Andrea Cozart-Lundin",
       position: "Co-Founder & CTO",
       company: "Cozyartz Media Group",
-      image: "/C3FE986E-EA23-4996-A5D2-8CEEF3C2C4FB_4_5005_c.jpeg",
+      image: "/Cozy1.png",
       description: "Andrea is a certified commercial drone pilot and creative technologist who leads Cozyartz's technical and production direction. With expertise in drone cinematography, web development, video editing, and graphic design, she fuses technology with storytelling to deliver high-impact visual content.",
       personalSite: "https://andreacozart.me",
       linkedin: "https://www.linkedin.com/in/andrea-cozart-lundin/",
