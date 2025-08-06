@@ -50,7 +50,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Start with false to prevent blocking
 
   // Define superadmin credentials
   const superAdminEmails = ['cozy2963@gmail.com', 'andrea@cozyartzmedia.com'];
@@ -73,36 +73,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     let mounted = true;
-    let timeoutId: NodeJS.Timeout;
+    let subscription: any = null;
 
-    // Timeout to prevent infinite loading
-    const authTimeout = setTimeout(() => {
-      if (mounted && loading) {
-        console.warn('⚠️ Auth initialization timeout, proceeding without authentication');
-        setLoading(false);
-      }
-    }, 5000); // 5 second timeout
-
-    // Get initial session
+    // Initialize auth in background, don't block UI
     const initializeAuth = async () => {
       try {
         console.log('🔐 Initializing authentication...');
         
-        // Quick session check with timeout
-        const sessionPromise = supabase.auth.getSession();
-        const timeoutPromise = new Promise((_, reject) => {
-          timeoutId = setTimeout(() => reject(new Error('Session check timeout')), 3000);
-        });
-        
-        const { data: { session }, error } = await Promise.race([sessionPromise, timeoutPromise]) as any;
-        
-        if (timeoutId) clearTimeout(timeoutId);
+        const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error('❌ Error getting session:', error);
-          if (mounted) {
-            setLoading(false);
-          }
+          console.warn('⚠️ Auth session error (non-blocking):', error);
           return;
         }
         
@@ -116,47 +97,52 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           console.log('ℹ️ No active session found');
         }
       } catch (error) {
-        console.error('❌ Error initializing auth:', error);
-        // Don't let auth errors break the app
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
+        console.warn('⚠️ Auth initialization failed (non-blocking):', error);
       }
     };
 
-    initializeAuth();
-
-    // Listen for auth changes with error handling
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('🔄 Auth state changed:', event, session?.user?.email);
-        
-        if (!mounted) return;
-        
-        try {
-          setSession(session);
-          setUser(session?.user ?? null);
-          
-          if (session?.user) {
-            // Load profile in background
-            loadUserProfile(session.user).catch(console.error);
-          } else {
-            setProfile(null);
+    // Set up auth listener in background
+    const setupAuthListener = async () => {
+      try {
+        const { data } = supabase.auth.onAuthStateChange(
+          async (event, session) => {
+            console.log('🔄 Auth state changed:', event);
+            
+            if (!mounted) return;
+            
+            try {
+              setSession(session);
+              setUser(session?.user ?? null);
+              
+              if (session?.user) {
+                loadUserProfile(session.user).catch(console.error);
+              } else {
+                setProfile(null);
+              }
+            } catch (error) {
+              console.warn('⚠️ Auth state change error (non-blocking):', error);
+            }
           }
-        } catch (error) {
-          console.error('❌ Error handling auth state change:', error);
-        } finally {
-          setLoading(false);
-        }
+        );
+        subscription = data.subscription;
+      } catch (error) {
+        console.warn('⚠️ Auth listener setup failed (non-blocking):', error);
       }
-    );
+    };
+
+    // Initialize both in background
+    initializeAuth();
+    setupAuthListener();
 
     return () => {
       mounted = false;
-      clearTimeout(authTimeout);
-      if (timeoutId) clearTimeout(timeoutId);
-      subscription.unsubscribe();
+      if (subscription) {
+        try {
+          subscription.unsubscribe();
+        } catch (error) {
+          console.warn('⚠️ Subscription cleanup warning:', error);
+        }
+      }
     };
   }, []);
 

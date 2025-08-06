@@ -23,9 +23,10 @@ import AIAssistant from './components/support/AIAssistant';
 function App() {
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <div className="min-h-screen">
-          <Routes>
+      <ErrorBoundary>
+        <AuthProvider>
+          <div className="min-h-screen">
+            <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/auth/callback" element={<AuthPage />} />
@@ -75,17 +76,18 @@ function App() {
             
             {/* 404 Not Found - Catch all unmatched routes */}
             <Route path="*" element={<NotFound />} />
-          </Routes>
-          
-          {/* Global AI Assistant - Available on all pages for lead capture */}
-          <ErrorBoundary>
-            <AIAssistant 
-              context="sales" 
-              enableLeadCapture={true}
-            />
-          </ErrorBoundary>
-        </div>
-      </AuthProvider>
+            </Routes>
+            
+            {/* Global AI Assistant - Available on all pages for lead capture */}
+            <ErrorBoundary>
+              <AIAssistant 
+                context="sales" 
+                enableLeadCapture={true}
+              />
+            </ErrorBoundary>
+          </div>
+        </AuthProvider>
+      </ErrorBoundary>
     </ErrorBoundary>
   );
 }
