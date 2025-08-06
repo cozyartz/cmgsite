@@ -56,7 +56,7 @@ const EnhancedAIAssistant: React.FC<EnhancedAIAssistantProps> = ({
   position = 'bottom-right'
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -450,8 +450,8 @@ const EnhancedAIAssistant: React.FC<EnhancedAIAssistantProps> = ({
     );
   }
 
-  const chatWidth = isExpanded ? 'w-[600px]' : 'w-96';
-  const chatHeight = isExpanded ? 'h-[700px]' : 'h-[500px]';
+  const chatWidth = isExpanded ? 'w-[750px]' : 'w-[500px]';
+  const chatHeight = isExpanded ? 'h-[750px]' : 'h-[600px]';
 
   return (
     <div className={`fixed ${getPositionClasses()} ${chatWidth} max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border border-gray-200 z-50 ${chatHeight} flex flex-col`}>
