@@ -48,7 +48,7 @@ const Pricing: React.FC = () => {
     {
       id: 'starter',
       name: 'Starter',
-      price: billingCycle === 'monthly' ? 2900 : 2784, // $29/$27.84 (4% yearly discount)
+      price: billingCycle === 'monthly' ? 5900 : 4720, // $59/$47.20 (20% yearly discount)
       aiCalls: 100,
       domainLimit: 3,
       features: [
@@ -64,7 +64,7 @@ const Pricing: React.FC = () => {
     {
       id: 'growth',
       name: 'Growth',
-      price: billingCycle === 'monthly' ? 9900 : 9504, // $99/$95.04 (4% yearly discount)
+      price: billingCycle === 'monthly' ? 9900 : 7920, // $99/$79.20 (20% yearly discount)
       aiCalls: 500,
       domainLimit: 10,
       features: [
@@ -83,7 +83,7 @@ const Pricing: React.FC = () => {
     {
       id: 'professional',
       name: 'Professional',
-      price: billingCycle === 'monthly' ? 19900 : 19104, // $199/$191.04 (4% yearly discount)
+      price: billingCycle === 'monthly' ? 19900 : 15920, // $199/$159.20 (20% yearly discount)
       aiCalls: 1000,
       domainLimit: 25,
       features: [
@@ -100,7 +100,7 @@ const Pricing: React.FC = () => {
     {
       id: 'enterprise',
       name: 'Enterprise',
-      price: billingCycle === 'monthly' ? 29900 : 28704, // $299/$287.04 (4% yearly discount)
+      price: billingCycle === 'monthly' ? 29900 : 23920, // $299/$239.20 (20% yearly discount)
       aiCalls: -1, // Unlimited
       domainLimit: -1, // Unlimited
       features: [
@@ -235,7 +235,7 @@ const Pricing: React.FC = () => {
               </span>
               {billingCycle === 'yearly' && (
                 <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                  Save 4%
+                  Save 20%
                 </span>
               )}
             </div>

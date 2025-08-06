@@ -9,8 +9,9 @@ import UserManagement from '../components/admin/UserManagement';
 import AdvancedExportTools from '../components/admin/AdvancedExportTools';
 import MaxHeadroomAI from '../components/admin/MaxHeadroomAI';
 import PowerTools from '../components/admin/PowerTools';
+import AIAnalyticsDashboard from '../components/admin/AIAnalyticsDashboard';
 
-type SuperAdminTab = 'overview' | 'users' | 'analytics' | 'revenue' | 'performance' | 'clientTools' | 'maxai' | 'settings' | 'powertools' | 'exports';
+type SuperAdminTab = 'overview' | 'users' | 'analytics' | 'revenue' | 'performance' | 'clientTools' | 'maxai' | 'ai-analytics' | 'settings' | 'powertools' | 'exports';
 
 // Utility functions for formatting data
 const formatCurrency = (cents: number): string => {
@@ -297,6 +298,7 @@ const SuperAdminDashboard: React.FC = () => {
     // REMOVED: Environment tab - Security risk exposing secrets
     { id: 'clientTools' as SuperAdminTab, label: 'Client Tools', icon: Activity },
     { id: 'maxai' as SuperAdminTab, label: 'MAX AI', icon: Bot },
+    { id: 'ai-analytics' as SuperAdminTab, label: 'AI Analytics', icon: BarChart3 },
     { id: 'settings' as SuperAdminTab, label: 'Settings', icon: Users }
   ];
 
@@ -1023,6 +1025,9 @@ const SuperAdminDashboard: React.FC = () => {
         );
 
 
+      case 'ai-analytics':
+        return <AIAnalyticsDashboard />;
+        
       case 'settings':
         return (
           <div className="space-y-6">

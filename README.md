@@ -15,13 +15,13 @@ CMGsite is a comprehensive client portal and business website built with React, 
 - **Cloudflare Turnstile** - Bot protection and security validation
 - **Session Management** - Persistent authentication across visits
 
-### 🤖 **AI Features**
-- **MAX AI Assistant** - Dual-mode AI chatbot:
-  - **Admin Version**: Full platform intelligence with business metrics
-  - **Client Version**: SEO-focused assistant with security restrictions
-- **Contextual Responses** - Role-aware AI responses based on user permissions
-- **Interactive Chat Interface** - Real-time AI assistance with quick actions
-- **Security Safeguards** - Prevents unauthorized access to system information
+### 🤖 **Enhanced AI Chatbot System** 
+- **Enterprise-Grade AI** - Powered by Cloudflare Workers AI (Llama 3.3 70B + 3.1 8B)
+- **Conversation Intelligence** - Intent classification, sentiment analysis, session memory
+- **Advanced Lead Qualification** - AI-powered scoring and automated CRM integration  
+- **Real-Time Analytics** - Live dashboard with AI performance metrics
+- **Business Automation** - 24/7 lead generation with intelligent conversation flows
+- **Multi-Modal AI** - Supports both MAX AI Assistant and public chatbot interfaces
 
 ### 🎯 **User Experience**
 - **Single Page Application** - Fast, seamless navigation
@@ -40,11 +40,13 @@ CMGsite is a comprehensive client portal and business website built with React, 
 
 ### 🛠️ **Technical Stack**
 - **Frontend:** React 18, TypeScript, Tailwind CSS
+- **AI Infrastructure:** Cloudflare Workers AI, KV Storage for conversation memory
 - **Authentication:** Supabase Auth with RLS
-- **Deployment:** Cloudflare Pages + Workers
-- **Database:** Supabase PostgreSQL
+- **Deployment:** Cloudflare for Platforms (Pages + Functions + AI)
+- **Database:** Cloudflare D1 (SQLite) + Supabase PostgreSQL
 - **Build Tool:** Vite
 - **Icons:** Lucide React
+- **Analytics:** Real-time AI metrics with MCP server integration
 
 ## 🚀 Quick Start
 
@@ -203,15 +205,22 @@ npm run test:maxai        # Test AI assistant responses
 
 ## 🌐 Deployment
 
-### **Cloudflare Pages + Workers**
+### **Cloudflare for Platforms (Pages + AI + Functions)**
+
+Using the latest Cloudflare for Platforms architecture. See: https://developers.cloudflare.com/cloudflare-for-platforms/
+
 ```bash
 # Full deployment (recommended)
 npm run deploy:production
 
-# Individual components
-npm run build:spa         # Build with routing config
-npm run deploy:worker     # Deploy Cloudflare Worker
-npm run deploy:pages      # Deploy to Cloudflare Pages
+# Individual components  
+npm run build             # Build production bundle
+wrangler pages deploy dist --project-name=cmgsite
+
+# AI Infrastructure Setup
+wrangler kv namespace create "AI_CONVERSATIONS"
+wrangler kv namespace create "AI_ANALYTICS" 
+wrangler d1 execute cmgsite-client-portal-db --file migrations/008_ai_analytics_tables.sql --remote
 ```
 
 ### **Environment-Specific Deployments**
@@ -231,8 +240,15 @@ npm run worker:dev        # Local worker development
 
 ### **Environment Variables:**
 - **Required:** Supabase URL, Anon Key, Turnstile Site Key
+- **AI Required:** CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID (for Workers AI)
 - **Optional:** Service API keys (PayPal, Google, etc.)
 - **Production:** Site URL, Callback URL
+
+### **AI Analytics & Business Intelligence:**
+- **SuperAdmin Dashboard:** New "AI Analytics" tab with comprehensive metrics
+- **MCP Server Integration:** Automatic sync to `/Users/cozart-lundin/code/cozyartz-mcp-hub/dashboard`
+- **Real-Time Metrics:** Conversation stats, lead conversion rates, AI costs
+- **Business Intelligence:** ROI analysis, performance optimization alerts
 
 ## 🔧 Troubleshooting
 

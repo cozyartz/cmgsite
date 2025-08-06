@@ -18,7 +18,7 @@ import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
-import AIAssistant from './components/support/AIAssistant';
+import EnhancedAIAssistant from './components/support/EnhancedAIAssistant';
 
 function App() {
   return (
@@ -78,11 +78,12 @@ function App() {
             <Route path="*" element={<NotFound />} />
             </Routes>
             
-            {/* Global AI Assistant - Available on all pages for lead capture */}
+            {/* Enhanced Global AI Assistant - Available on all pages for lead capture */}
             <ErrorBoundary>
-              <AIAssistant 
+              <EnhancedAIAssistant 
                 context="sales" 
                 enableLeadCapture={true}
+                position="bottom-right"
               />
             </ErrorBoundary>
           </div>
