@@ -59,8 +59,10 @@ const Checkout: React.FC = () => {
     setSelectedTier(tier);
     setBillingCycle(billing);
     setCouponCode(coupon);
-    
-    // Pre-fill client info if user is logged in
+  }, [searchParams]);
+
+  // Pre-fill client info if user is logged in
+  useEffect(() => {
     if (user) {
       setClientInfo(prev => ({
         ...prev,
@@ -68,7 +70,7 @@ const Checkout: React.FC = () => {
         email: user.email || ''
       }));
     }
-  }, [searchParams, user]);
+  }, [user]);
 
   const formatCurrency = (amountInCents: number): string => {
     return new Intl.NumberFormat('en-US', {
@@ -159,7 +161,7 @@ const Checkout: React.FC = () => {
     }
   ];
 
-  const selectedPlan = tiers.find(tier => tier.id === selectedTier);
+  const selectedPlan = tiers.find(tier => tier.id === selectedTier) || tiers.find(tier => tier.id === 'growth');
 
   const applyCoupon = () => {
     const validCoupons: {[key: string]: number} = {
