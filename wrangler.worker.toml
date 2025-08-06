@@ -1,0 +1,79 @@
+# Worker Configuration (for backend API)
+name = "cmgsite-saas"
+main = "worker.js" 
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# D1 Database bindings
+[[d1_databases]]
+binding = "DB"
+database_name = "cmgsite-main"
+database_id = "your-d1-database-id"
+
+# KV Storage bindings
+[[kv_namespaces]]
+binding = "SESSIONS"
+id = "your-sessions-kv-id"
+preview_id = "your-sessions-kv-preview-id"
+
+[[kv_namespaces]]
+binding = "CACHE"
+id = "your-cache-kv-id"
+preview_id = "your-cache-kv-preview-id"
+
+# R2 Storage bindings
+[[r2_buckets]]
+binding = "STORAGE"
+bucket_name = "cmgsite-assets"
+
+# Environment variables (non-sensitive)
+[vars]
+ENVIRONMENT = "production"
+COMPANY_NAME = "Cozyartz Media Group"
+COMPANY_EMAIL = "hello@cozyartzmedia.com"
+SUPPORT_EMAIL = "support@cozyartzmedia.com"
+JWT_ISSUER = "cmgsite-auth"
+BASE_URL = "https://cozyartzmedia.com"
+
+# Production environment
+[env.production]
+name = "cmgsite-client-portal"
+
+[env.production.vars]
+ENVIRONMENT = "production"
+API_BASE_URL = "https://cmgsite-client-portal.cozyartz-media-group.workers.dev"
+
+# Staging environment
+[env.staging]
+name = "cmgsite-client-portal-staging"
+
+[env.staging.vars]
+ENVIRONMENT = "staging"
+API_BASE_URL = "https://cmgsite-client-portal-staging.cozyartz-media-group.workers.dev"
+
+# Development environment
+[env.development]
+name = "cmgsite-client-portal-dev"
+
+[env.development.vars]
+ENVIRONMENT = "development"
+API_BASE_URL = "http://localhost:8787"
+
+# Sensitive environment variables (managed via Cloudflare secrets)
+# Set these using: wrangler secret put VARIABLE_NAME
+# 
+# Required secrets:
+# - VITE_SUPABASE_URL
+# - VITE_SUPABASE_ANON_KEY  
+# - SUPABASE_SERVICE_ROLE_KEY (for admin operations)
+# - GITHUB_CLIENT_ID
+# - GITHUB_CLIENT_SECRET
+# - GOOGLE_CLIENT_ID
+# - GOOGLE_CLIENT_SECRET
+# - TURNSTILE_SECRET_KEY
+# - JWT_SECRET
+# - PAYPAL_CLIENT_ID
+# - PAYPAL_CLIENT_SECRET
+# - SMTP_HOST
+# - SMTP_USER
+# - SMTP_PASS
