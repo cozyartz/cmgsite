@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { Search, TrendingUp, Target, Award, Globe, BarChart, CheckCircle, ArrowRight, Zap, Brain, Sparkles, Rocket, Users, FileText, Mail, RefreshCw, Bot, Shield, Star, Clock, DollarSign, X } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { Search, TrendingUp, Target, Award, Globe, BarChart, CheckCircle, ArrowRight, Zap, Brain, Sparkles, Rocket, Users, FileText, Mail, RefreshCw, Bot, Shield, Star, Clock, DollarSign } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import SEO from '../components/SEO';
 import LegalDisclaimer from '../components/legal/LegalDisclaimer';
-import PayPalPayment from '../components/payment/PayPalPayment';
 
 const SEOServices = () => {
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-  const [showPayment, setShowPayment] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -67,26 +66,8 @@ const SEOServices = () => {
   ];
 
   const handlePlanSelect = (planId: string) => {
-    setSelectedPlan(planId);
-    setShowPayment(true);
-  };
-
-
-  const handlePaymentSuccess = (paymentResult: any) => {
-    console.log('Payment successful:', paymentResult);
-    setShowPayment(false);
-    setSelectedPlan(null);
-    // Redirect to client portal or success page
-    window.location.href = '/client-portal';
-  };
-
-  const handlePaymentError = (error: any) => {
-    console.error('Payment failed:', error);
-    alert('Payment failed. Please try again.');
-  };
-
-  const getSelectedPlan = () => {
-    return pricingPlans.find(plan => plan.id === selectedPlan);
+    // Redirect to checkout page with selected plan
+    navigate(`/checkout?tier=${planId}&billing=monthly`);
   };
 
   return (
@@ -170,7 +151,7 @@ const SEOServices = () => {
                   className="bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center gap-2"
                 >
                   <Rocket className="h-5 w-5" />
-                  Get Started - $99/month
+                  Start Free Setup - $99/month
                 </button>
                 <button 
                   onClick={() => window.location.href = '/contact'}
@@ -763,7 +744,7 @@ const SEOServices = () => {
                   className="bg-white text-purple-600 hover:bg-slate-100 px-8 py-4 rounded-full font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center gap-2"
                 >
                   <Rocket className="h-5 w-5" />
-                  Get Started - $99/month
+                  Start Free Setup - $99/month
                 </button>
                 <button 
                   onClick={() => window.location.href = '/contact'}
@@ -803,52 +784,6 @@ const SEOServices = () => {
         </section>
       </div>
 
-      {/* PayPal Payment Modal */}
-      {showPayment && selectedPlan && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-md w-full max-h-screen overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">
-                  Complete Your Purchase
-                </h2>
-                <button
-                  onClick={() => setShowPayment(false)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <X className="h-6 w-6" />
-                </button>
-              </div>
-              
-              {getSelectedPlan() && (
-                <div className="mb-6">
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h3 className="font-semibold text-gray-900 mb-2">
-                      {getSelectedPlan()?.name} Plan
-                    </h3>
-                    <div className="text-sm text-gray-600 space-y-1">
-                      <p>AI Credits: {getSelectedPlan()?.aiCredits}</p>
-                      <p>Monthly billing</p>
-                      <p className="font-semibold text-lg text-gray-900">
-                        ${getSelectedPlan()?.price}/month
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              <PayPalPayment
-                amount={getSelectedPlan()?.priceInCents || 0}
-                description={`${getSelectedPlan()?.name} Plan - Monthly Subscription`}
-                onSuccess={handlePaymentSuccess}
-                onError={handlePaymentError}
-                subscriptionPlan={selectedPlan}
-                tier={selectedPlan}
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 };

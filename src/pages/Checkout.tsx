@@ -38,18 +38,37 @@ const Checkout: React.FC = () => {
   const [selectedTier, setSelectedTier] = useState<string>('');
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [couponCode, setCouponCode] = useState<string>('');
+  const [appliedCoupon, setAppliedCoupon] = useState<{code: string, discount: number} | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [clientInfo, setClientInfo] = useState({
+    fullName: '',
+    email: '',
+    company: '',
+    website: '',
+    phone: '',
+    goals: ''
+  });
 
   // Get parameters from URL
   useEffect(() => {
-    const tier = searchParams.get('tier') || 'professional';
+    const tier = searchParams.get('tier') || 'growth';
     const billing = searchParams.get('billing') as 'monthly' | 'yearly' || 'monthly';
     const coupon = searchParams.get('coupon') || '';
     
     setSelectedTier(tier);
     setBillingCycle(billing);
     setCouponCode(coupon);
-  }, [searchParams]);
+    
+    // Pre-fill client info if user is logged in
+    if (user) {
+      setClientInfo(prev => ({
+        ...prev,
+        fullName: user.user_metadata?.full_name || '',
+        email: user.email || ''
+      }));
+    }
+  }, [searchParams, user]);
 
   const formatCurrency = (amountInCents: number): string => {
     return new Intl.NumberFormat('en-US', {
@@ -142,8 +161,60 @@ const Checkout: React.FC = () => {
 
   const selectedPlan = tiers.find(tier => tier.id === selectedTier);
 
+  const applyCoupon = () => {
+    const validCoupons: {[key: string]: number} = {
+      'SAVE20': 20,
+      'WELCOME': 15,
+      'FIRSTMONTH': 50,
+      'NEWCLIENT': 25
+    };
+    
+    const discount = validCoupons[couponCode.toUpperCase()];
+    if (discount) {
+      setAppliedCoupon({ code: couponCode.toUpperCase(), discount });
+    } else {
+      alert('Invalid coupon code');
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode('');
+  };
+
+  const calculateFinalPrice = () => {
+    if (!selectedPlan) return 0;
+    let price = selectedPlan.price;
+    if (appliedCoupon) {
+      price = price - (price * appliedCoupon.discount / 100);
+    }
+    return Math.round(price);
+  };
+
+  const handleClientInfoChange = (field: string, value: string) => {
+    setClientInfo(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleTierChange = (tierId: string) => {
+    setSelectedTier(tierId);
+    // Update URL to reflect the change
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set('tier', tierId);
+    navigate(`/checkout?${newSearchParams.toString()}`, { replace: true });
+  };
+
+  const handleBillingCycleChange = () => {
+    const newCycle = billingCycle === 'monthly' ? 'yearly' : 'monthly';
+    setBillingCycle(newCycle);
+    // Update URL to reflect the change
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set('billing', newCycle);
+    navigate(`/checkout?${newSearchParams.toString()}`, { replace: true });
+  };
+
   const handlePaymentSuccess = async (paymentResult: any) => {
     console.log('Payment successful:', paymentResult);
+    console.log('Client setup info:', clientInfo);
     setIsProcessing(false);
     navigate('/client-portal/welcome');
   };
@@ -194,6 +265,190 @@ const Checkout: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Left Column - Order Summary */}
             <div className="space-y-8">
+              {/* Plan Selection */}
+              <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+                <h2 className="text-xl font-bold text-gray-900 mb-6">Choose Your Plan</h2>
+                <p className="text-gray-600 mb-6">Select the plan that best fits your business needs</p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {tiers.map((tier) => (
+                    <div
+                      key={tier.id}
+                      className={`relative cursor-pointer rounded-xl border-2 p-6 transition-all duration-200 hover:shadow-lg ${
+                        selectedTier === tier.id
+                          ? 'border-teal-500 bg-teal-50'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                      onClick={() => handleTierChange(tier.id)}
+                    >
+                      {tier.popular && (
+                        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                          <span className="bg-gradient-to-r from-teal-500 to-blue-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                            MOST POPULAR
+                          </span>
+                        </div>
+                      )}
+                      
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <h3 className="text-lg font-bold text-gray-900">{tier.name}</h3>
+                          <p className="text-sm text-gray-600">
+                            {tier.aiCalls === -1 ? 'Unlimited' : tier.aiCalls} AI credits/month
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold text-gray-900">
+                            {formatCurrency(tier.price)}
+                          </div>
+                          <div className="text-sm text-gray-600">/month</div>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <CheckCircle2 className="w-4 h-4 text-teal-500" />
+                          <span>{tier.domainLimit === -1 ? 'Unlimited' : `Up to ${tier.domainLimit}`} domains</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <CheckCircle2 className="w-4 h-4 text-teal-500" />
+                          <span>{tier.features[0]}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <CheckCircle2 className="w-4 h-4 text-teal-500" />
+                          <span>{tier.features[1]}</span>
+                        </div>
+                        {tier.features.length > 3 && (
+                          <div className="text-sm text-gray-500">
+                            +{tier.features.length - 2} more features
+                          </div>
+                        )}
+                      </div>
+                      
+                      {selectedTier === tier.id && (
+                        <div className="absolute top-4 right-4">
+                          <div className="w-6 h-6 bg-teal-500 rounded-full flex items-center justify-center">
+                            <Check className="w-4 h-4 text-white" />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Billing Cycle Toggle */}
+                <div className="mt-6 pt-6 border-t border-gray-100">
+                  <div className="flex items-center justify-center gap-4">
+                    <span className={`font-medium ${billingCycle === 'monthly' ? 'text-gray-900' : 'text-gray-500'}`}>
+                      Monthly
+                    </span>
+                    <button
+                      onClick={handleBillingCycleChange}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
+                        billingCycle === 'yearly' ? 'bg-teal-600' : 'bg-gray-200'
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          billingCycle === 'yearly' ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
+                    <span className={`font-medium ${billingCycle === 'yearly' ? 'text-gray-900' : 'text-gray-500'}`}>
+                      Yearly
+                      <span className="ml-1 text-sm text-green-600 font-semibold">(Save 4%)</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Client Setup Information */}
+              <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+                <h2 className="text-xl font-bold text-gray-900 mb-6">Client Setup Information</h2>
+                <p className="text-gray-600 mb-6">Help us set up your SEO account with the right information to get started.</p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      value={clientInfo.fullName}
+                      onChange={(e) => handleClientInfoChange('fullName', e.target.value)}
+                      required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      placeholder="Your full name"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      value={clientInfo.email}
+                      onChange={(e) => handleClientInfoChange('email', e.target.value)}
+                      required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      placeholder="your@email.com"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Company Name
+                    </label>
+                    <input
+                      type="text"
+                      value={clientInfo.company}
+                      onChange={(e) => handleClientInfoChange('company', e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      placeholder="Your company name"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Website URL *
+                    </label>
+                    <input
+                      type="url"
+                      value={clientInfo.website}
+                      onChange={(e) => handleClientInfoChange('website', e.target.value)}
+                      required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      placeholder="https://yourwebsite.com"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      value={clientInfo.phone}
+                      onChange={(e) => handleClientInfoChange('phone', e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      placeholder="(555) 123-4567"
+                    />
+                  </div>
+                  
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      SEO Goals & Priorities
+                    </label>
+                    <textarea
+                      value={clientInfo.goals}
+                      onChange={(e) => handleClientInfoChange('goals', e.target.value)}
+                      rows={4}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      placeholder="Tell us about your SEO goals, target keywords, or specific areas you'd like to focus on..."
+                    />
+                  </div>
+                </div>
+              </div>
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
                   Complete Your Order
@@ -203,7 +458,7 @@ const Checkout: React.FC = () => {
                 </p>
               </div>
 
-              {/* Plan Details Card */}
+              {/* Selected Plan Summary */}
               <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
                 {selectedPlan.recommended && (
                   <div className="bg-gradient-to-r from-teal-500 to-teal-600 text-white text-center py-3">
@@ -218,7 +473,7 @@ const Checkout: React.FC = () => {
                   <div className="flex items-center justify-between mb-6">
                     <div>
                       <h2 className="text-2xl font-bold text-gray-900">{selectedPlan.name}</h2>
-                      <p className="text-gray-600">Perfect for your business needs</p>
+                      <p className="text-gray-600">Selected plan details</p>
                     </div>
                     <div className="text-right">
                       <div className="flex items-baseline">
@@ -307,6 +562,44 @@ const Checkout: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Coupon Code */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Coupon Code (Optional)
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value)}
+                      placeholder="Enter coupon code"
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      disabled={!!appliedCoupon}
+                    />
+                    {appliedCoupon ? (
+                      <button
+                        onClick={removeCoupon}
+                        className="px-4 py-2 text-red-600 hover:text-red-700 font-medium"
+                      >
+                        Remove
+                      </button>
+                    ) : (
+                      <button
+                        onClick={applyCoupon}
+                        disabled={!couponCode.trim()}
+                        className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                      >
+                        Apply
+                      </button>
+                    )}
+                  </div>
+                  {appliedCoupon && (
+                    <p className="text-sm text-green-600 mt-1">
+                      ✓ Coupon "{appliedCoupon.code}" applied! {appliedCoupon.discount}% discount
+                    </p>
+                  )}
+                </div>
+
                 {/* Order Summary */}
                 <div className="bg-gray-50 rounded-xl p-6 mb-8">
                   <h3 className="font-semibold text-gray-900 mb-4">Order Summary</h3>
@@ -327,17 +620,25 @@ const Checkout: React.FC = () => {
                         </span>
                       </div>
                     )}
+                    {appliedCoupon && (
+                      <div className="flex justify-between items-center text-green-600">
+                        <span>Coupon Discount ({appliedCoupon.discount}%)</span>
+                        <span className="font-medium">
+                          -{formatCurrency(selectedPlan.price * appliedCoupon.discount / 100)}
+                        </span>
+                      </div>
+                    )}
                     <div className="border-t border-gray-200 pt-3">
                       <div className="flex justify-between items-center">
                         <span className="text-lg font-semibold text-gray-900">Total</span>
                         <span className="text-2xl font-bold text-gray-900">
-                          {formatCurrency(selectedPlan.price)}
+                          {formatCurrency(calculateFinalPrice())}
                           <span className="text-sm font-normal text-gray-600">/month</span>
                         </span>
                       </div>
                       {billingCycle === 'yearly' && (
                         <p className="text-sm text-green-600 text-right mt-1">
-                          {formatCurrency(selectedPlan.price * 12)} billed annually
+                          {formatCurrency(calculateFinalPrice() * 12)} billed annually
                         </p>
                       )}
                     </div>
@@ -355,13 +656,50 @@ const Checkout: React.FC = () => {
                     </div>
                   )}
                   
-                  <PayPalPayment
-                    amount={selectedPlan.price}
-                    description={`${selectedPlan.name} Plan - ${billingCycle === 'yearly' ? 'Annual' : 'Monthly'} Subscription`}
-                    onSuccess={handlePaymentSuccess}
-                    onError={handlePaymentError}
-                    subscriptionPlan={selectedTier}
-                  />
+                  {/* Terms and Conditions */}
+                  <div className="mb-6">
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="terms"
+                        checked={termsAccepted}
+                        onChange={(e) => setTermsAccepted(e.target.checked)}
+                        className="mt-1 w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+                        required
+                      />
+                      <label htmlFor="terms" className="text-sm text-gray-700">
+                        I agree to the{' '}
+                        <a href="/terms-of-service" target="_blank" className="text-teal-600 hover:text-teal-700 underline">
+                          Terms of Service
+                        </a>{' '}
+                        and{' '}
+                        <a href="/privacy-policy" target="_blank" className="text-teal-600 hover:text-teal-700 underline">
+                          Privacy Policy
+                        </a>
+                        . I understand that this is a recurring subscription that will automatically renew each {billingCycle === 'yearly' ? 'year' : 'month'} until cancelled.
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Payment Button - Only show if terms accepted and required fields filled */}
+                  {(!termsAccepted || !clientInfo.fullName || !clientInfo.email || !clientInfo.website) ? (
+                    <div className="text-center py-8">
+                      <p className="text-gray-500 mb-4">
+                        Please fill in all required fields and accept the terms to continue
+                      </p>
+                      <div className="bg-gray-100 text-gray-400 py-3 px-6 rounded-lg">
+                        Complete Setup to Continue
+                      </div>
+                    </div>
+                  ) : (
+                    <PayPalPayment
+                      amount={calculateFinalPrice()}
+                      description={`${selectedPlan.name} Plan - ${billingCycle === 'yearly' ? 'Annual' : 'Monthly'} Subscription`}
+                      onSuccess={handlePaymentSuccess}
+                      onError={handlePaymentError}
+                      subscriptionPlan={selectedTier}
+                    />
+                  )}
                 </div>
 
                 {/* Payment Methods Accepted */}
