@@ -85,15 +85,15 @@ const Checkout: React.FC = () => {
     {
       id: 'starter',
       name: 'Starter',
-      price: billingCycle === 'monthly' ? 2900 : 2784,
-      originalPrice: billingCycle === 'yearly' ? 2900 : undefined,
-      aiCalls: 100,
+      price: billingCycle === 'monthly' ? 5900 : 4720,
+      originalPrice: billingCycle === 'yearly' ? 5900 : undefined,
+      aiCalls: 250,
       domainLimit: 3,
       features: [
         'Basic SEO audit tools',
         'Monthly performance reports',
         'Email support',
-        '100 AI-powered insights/month',
+        '250 AI-powered insights/month',
         'Up to 3 domains',
         'Core keyword tracking',
         'Basic competitor analysis'
@@ -102,16 +102,16 @@ const Checkout: React.FC = () => {
     {
       id: 'growth',
       name: 'Growth',
-      price: billingCycle === 'monthly' ? 9900 : 9504,
+      price: billingCycle === 'monthly' ? 9900 : 7920,
       originalPrice: billingCycle === 'yearly' ? 9900 : undefined,
-      aiCalls: 500,
+      aiCalls: 750,
       domainLimit: 10,
       features: [
         'Everything in Starter',
         'Advanced SEO tools',
         'Bi-weekly reporting',
         'Priority support',
-        '500 AI-powered insights/month',
+        '750 AI-powered insights/month',
         'Up to 10 domains',
         'Competitor analysis',
         'API access'
@@ -122,16 +122,16 @@ const Checkout: React.FC = () => {
     {
       id: 'professional',
       name: 'Professional',
-      price: billingCycle === 'monthly' ? 19900 : 19104,
+      price: billingCycle === 'monthly' ? 19900 : 15920,
       originalPrice: billingCycle === 'yearly' ? 19900 : undefined,
-      aiCalls: 1000,
+      aiCalls: 1500,
       domainLimit: 25,
       features: [
         'Everything in Growth',
         'Professional SEO suite',
         'Weekly reporting',
         'Priority support',
-        '1000 AI-powered insights/month',
+        '1500 AI-powered insights/month',
         'Up to 25 domains',
         'Advanced analytics',
         'White-label reporting'
@@ -140,7 +140,7 @@ const Checkout: React.FC = () => {
     {
       id: 'enterprise',
       name: 'Enterprise',
-      price: billingCycle === 'monthly' ? 29900 : 28704,
+      price: billingCycle === 'monthly' ? 29900 : 23920,
       originalPrice: billingCycle === 'yearly' ? 29900 : undefined,
       aiCalls: -1,
       domainLimit: -1,

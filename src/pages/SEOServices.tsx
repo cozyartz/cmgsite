@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Search, TrendingUp, Target, Award, Globe, BarChart, CheckCircle, ArrowRight, Zap, Brain, Sparkles, Rocket, Users, FileText, Mail, RefreshCw, Bot, Shield, Star, Clock, DollarSign } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import SEO from '../components/SEO';
+import Header from '../components/Header';
 import LegalDisclaimer from '../components/legal/LegalDisclaimer';
 
 const SEOServices = () => {
@@ -15,9 +16,9 @@ const SEOServices = () => {
     {
       id: 'starter',
       name: 'Starter',
-      price: 29,
-      priceInCents: 2900,
-      aiCredits: 100,
+      price: 59,
+      priceInCents: 5900,
+      aiCredits: 250,
       features: [
         'AI Content Generator',
         'Basic Keyword Research', 
@@ -33,7 +34,7 @@ const SEOServices = () => {
       name: 'Growth',
       price: 99,
       priceInCents: 9900,
-      aiCredits: 500,
+      aiCredits: 750,
       features: [
         'Everything in Starter',
         'Advanced AI Tools',
@@ -104,6 +105,8 @@ const SEOServices = () => {
         ]}
         foundingDate="2016"
       />
+      
+      <Header />
       
       <div className="min-h-screen bg-slate-900">
         {/* Hero Section */}
@@ -441,7 +444,7 @@ const SEOServices = () => {
                     onClick={() => handlePlanSelect('starter')}
                     className="w-full bg-teal-500 hover:bg-teal-600 text-white py-3 px-6 rounded-lg font-semibold transition-colors"
                   >
-                    Get Started - $29/month
+                    Get Started - $59/month
                   </button>
                 </div>
 
