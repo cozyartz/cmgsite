@@ -10,12 +10,13 @@ const PricingPreview: React.FC = () => {
       price: 1500,
       description: 'Most popular for growing businesses',
       features: [
-        'Advanced SEO tools',
-        'Bi-weekly reporting',
-        'Priority support',
-        '250 AI calls/month',
-        '5 domains',
-        'Competitor analysis'
+        'Advanced SEO tools & AI analysis',
+        'Monthly strategy sessions (2 hours)',
+        'Bi-weekly performance reports',
+        'Priority email & phone support',
+        '250 AI insights/month',
+        'Up to 5 domains managed',
+        'Competitor tracking & analysis'
       ],
       popular: true
     },
@@ -25,12 +26,13 @@ const PricingPreview: React.FC = () => {
       price: 2500,
       description: 'Complete solution for large organizations',
       features: [
-        'Full SEO suite',
-        'Weekly reporting',
+        'Complete SEO & AI automation suite',
+        'Weekly strategy calls (1 hour)',
         'Dedicated account manager',
-        '500 AI calls/month',
-        '25 domains',
-        'White-label options'
+        'Custom quarterly business reviews',
+        '500 AI insights/month',
+        'Up to 25 domains managed',
+        'White-label reporting options'
       ]
     }
   ];
@@ -40,11 +42,11 @@ const PricingPreview: React.FC = () => {
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-white mb-4">
-            Enterprise-Grade SEO & AI Services
+            Professional SEO & AI Services
           </h2>
           <p className="text-xl text-slate-300 max-w-3xl mx-auto">
-            Professional SEO and AI-powered solutions designed for businesses ready to scale. 
-            Starting at $1,000/month with advanced features and dedicated support.
+            Comprehensive SEO and AI-powered solutions with strategic consulting and hands-on support. 
+            Includes regular strategy meetings, dedicated account management, and custom reporting.
           </p>
         </div>
 
