@@ -1,6 +1,6 @@
 import React, { ReactNode, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/SupabaseAuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { AlertTriangle, Shield, Home } from 'lucide-react';
 
 interface SuperAdminGuardProps {

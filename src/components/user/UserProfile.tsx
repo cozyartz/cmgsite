@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { User, Camera, Save, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
-import { useAuth } from '../../contexts/SupabaseAuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 import LinkedIdentities from './LinkedIdentities';
 
 interface UserProfileProps {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../contexts/SupabaseAuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { AnalyticsService } from '../../lib/analytics';
 import { TierService } from '../../lib/tiers';
 import { 

@@ -16,7 +16,7 @@ import BookConsultation from './pages/BookConsultation';
 import BookConsultationTest from './pages/BookConsultationTest';
 import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
-import { AuthProvider } from './contexts/SupabaseAuthContext';
+import { AuthProvider } from './contexts/AuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import AIAssistant from './components/support/AIAssistant';
 

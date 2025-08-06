@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../contexts/SupabaseAuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { TierService } from '../../lib/tiers';
 import { AnalyticsService } from '../../lib/analytics';
 import { Lock, Crown, Zap, ArrowRight } from 'lucide-react';

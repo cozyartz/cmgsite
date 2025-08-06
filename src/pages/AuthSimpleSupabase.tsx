@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/SupabaseAuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { Github, Mail, AlertCircle, CheckCircle, ShieldCheck, Zap } from 'lucide-react';
 import TurnstileWidget from '../components/auth/TurnstileWidget';
 import MagicLinkAuth from '../components/auth/MagicLinkAuth';

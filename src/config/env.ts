@@ -14,7 +14,7 @@ const optionalEnvVars = {
   VITE_ENVIRONMENT: 'production',
 } as const;
 
-// Validate required environment variables
+// Validate required environment variables (non-blocking)
 function validateRequiredEnvVars(): void {
   const missing: string[] = [];
   
@@ -25,19 +25,23 @@ function validateRequiredEnvVars(): void {
   }
   
   if (missing.length > 0) {
-    throw new Error(
-      `Missing required environment variables:\n${missing.map(v => `  - ${v}`).join('\n')}\n\n` +
-      `Please check your .env file and ensure all required variables are set.`
+    console.warn(
+      `⚠️ Missing required environment variables (app will continue with limited functionality):\n${missing.map(v => `  - ${v}`).join('\n')}\n\n` +
+      `Please check your .env file and ensure all required variables are set for full functionality.`
     );
   }
 }
 
-// Get environment variable with validation
+// Get environment variable with validation (non-blocking)
 function getEnvVar(key: string, required = false): string {
   const value = import.meta.env[key];
   
   if (required && !value) {
-    throw new Error(`Missing required environment variable: ${key}`);
+    console.warn(`⚠️ Missing required environment variable: ${key} (using fallback)`);
+    // Return a safe fallback
+    if (key === 'VITE_SUPABASE_URL') return 'https://placeholder.supabase.co';
+    if (key === 'VITE_SUPABASE_ANON_KEY') return 'placeholder-key';
+    return '';
   }
   
   return value || '';
@@ -74,7 +78,7 @@ export const env = {
 // Type for environment configuration
 export type EnvConfig = typeof env;
 
-// Security: Validate environment URLs
+// Security: Validate environment URLs (non-blocking)
 function validateUrls() {
   const urls = [env.siteUrl, env.callbackUrl, env.supabaseUrl].filter(Boolean);
   
@@ -82,19 +86,24 @@ function validateUrls() {
     try {
       const parsed = new URL(url);
       if (!['https:', 'http:'].includes(parsed.protocol)) {
-        throw new Error(`Invalid URL protocol: ${url}`);
+        console.warn(`⚠️ Invalid URL protocol: ${url} (continuing with limited functionality)`);
+        continue;
       }
       if (env.isProduction && parsed.protocol !== 'https:') {
         console.warn(`⚠️ Non-HTTPS URL in production: ${url}`);
       }
     } catch (error) {
-      throw new Error(`Invalid URL format: ${url}`);
+      console.warn(`⚠️ Invalid URL format: ${url} (continuing with limited functionality)`);
     }
   }
 }
 
-// Validate URLs on initialization
-validateUrls();
+// Validate URLs on initialization (non-blocking)
+try {
+  validateUrls();
+} catch (error) {
+  console.warn('⚠️ URL validation failed:', error);
+}
 
 // Development helper - show config in development only
 if (env.isDevelopment) {

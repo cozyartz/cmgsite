@@ -12,7 +12,7 @@ import {
   Clock,
   CheckCircle2
 } from 'lucide-react';
-import { useAuth } from '../contexts/SupabaseAuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import SEO from '../components/SEO';

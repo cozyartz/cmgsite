@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../contexts/SupabaseAuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 import PayPalPayment from './PayPalPayment';
 import { apiService } from '../../lib/api';
 import { 

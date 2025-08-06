@@ -1,32 +1,57 @@
 import { createClient } from '@supabase/supabase-js';
 import { env } from '../config/env';
 
-// Create Supabase client with validated environment configuration
-export const supabase = createClient(env.supabaseUrl, env.supabaseAnonKey, {
-  auth: {
-    // Auto refresh tokens
-    autoRefreshToken: true,
-    // Persist session in localStorage
-    persistSession: true,
-    // Detect session in URL hash/search params
-    detectSessionInUrl: true,
-    // Use PKCE flow for better security
-    flowType: 'pkce',
-    // Storage key for session persistence
-    storageKey: 'cmgsite-auth-token',
-  },
-  global: {
-    headers: {
-      'X-Client-Info': 'supabase-js-web',
-      'X-Site-URL': env.siteUrl,
-    },
-  },
-});
+// Create Supabase client with error handling and fallbacks
+let supabase: any;
+
+try {
+  // Only create client if we have valid environment variables
+  if (env.supabaseUrl && env.supabaseAnonKey && !env.supabaseUrl.includes('placeholder')) {
+    supabase = createClient(env.supabaseUrl, env.supabaseAnonKey, {
+      auth: {
+        // Auto refresh tokens
+        autoRefreshToken: true,
+        // Persist session in localStorage
+        persistSession: true,
+        // Detect session in URL hash/search params
+        detectSessionInUrl: true,
+        // Use PKCE flow for better security
+        flowType: 'pkce',
+        // Storage key for session persistence
+        storageKey: 'cmgsite-auth-token',
+      },
+      global: {
+        headers: {
+          'X-Client-Info': 'supabase-js-web',
+          'X-Site-URL': env.siteUrl,
+        },
+      },
+    });
+    console.log('✅ Supabase client initialized successfully');
+  } else {
+    console.warn('⚠️ Supabase client not initialized - missing or invalid configuration');
+    supabase = null;
+  }
+} catch (error) {
+  console.warn('⚠️ Failed to initialize Supabase client:', error);
+  supabase = null;
+}
+
+export { supabase };
+
+// Helper function to check if supabase is available
+const ensureSupabaseAvailable = () => {
+  if (!supabase) {
+    throw new Error('Authentication service unavailable - Supabase client not initialized');
+  }
+  return supabase;
+};
 
 // Enhanced auth service with magic links and security features
 export const authService = {
   // Magic Link Authentication (Primary method)
   signInWithMagicLink: async (email: string) => {
+    const client = ensureSupabaseAvailable();
     console.log('✨ Sending magic link to:', email);
     
     // Basic email validation
@@ -35,7 +60,7 @@ export const authService = {
       throw new Error('Invalid email address format');
     }
     
-    const { data, error } = await supabase.auth.signInWithOtp({
+    const { data, error } = await client.auth.signInWithOtp({
       email: email.toLowerCase().trim(),
       options: {
         emailRedirectTo: env.callbackUrl,
@@ -69,8 +94,9 @@ export const authService = {
 
   // Magic Link Signup (for new users)
   signUpWithMagicLink: async (email: string, metadata?: any) => {
+    const client = ensureSupabaseAvailable();
     console.log('🆕 Sending signup magic link to:', email, metadata);
-    const { data, error } = await supabase.auth.signInWithOtp({
+    const { data, error } = await client.auth.signInWithOtp({
       email,
       options: {
         emailRedirectTo: env.callbackUrl,
@@ -95,8 +121,9 @@ export const authService = {
 
   // OAuth with enhanced security
   signInWithOAuth: async (provider: 'github' | 'google') => {
+    const client = ensureSupabaseAvailable();
     console.log('🔗 Starting OAuth with provider:', provider);
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    const { data, error } = await client.auth.signInWithOAuth({
       provider,
       options: {
         redirectTo: env.callbackUrl,
@@ -118,8 +145,9 @@ export const authService = {
 
   // Traditional email/password (fallback)
   signInWithEmail: async (email: string, password: string) => {
+    const client = ensureSupabaseAvailable();
     console.log('📧 Signing in with email/password:', email);
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await client.auth.signInWithPassword({
       email,
       password,
     });
@@ -135,8 +163,9 @@ export const authService = {
 
   // Secure email/password signup
   signUpWithEmail: async (email: string, password: string, metadata?: any) => {
+    const client = ensureSupabaseAvailable();
     console.log('📝 Signing up with email/password:', email);
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await client.auth.signUp({
       email,
       password,
       options: {
@@ -161,7 +190,8 @@ export const authService = {
 
   // Secure password reset
   resetPassword: async (email: string) => {
-    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+    const client = ensureSupabaseAvailable();
+    const { data, error } = await client.auth.resetPasswordForEmail(email, {
       redirectTo: `${env.callbackUrl}?type=recovery`,
     });
     return { data, error };
@@ -169,7 +199,8 @@ export const authService = {
 
   // Update password with session validation
   updatePassword: async (newPassword: string) => {
-    const { data, error } = await supabase.auth.updateUser({
+    const client = ensureSupabaseAvailable();
+    const { data, error } = await client.auth.updateUser({
       password: newPassword
     });
     return { data, error };
@@ -177,14 +208,16 @@ export const authService = {
 
   // Update user metadata
   updateUser: async (updates: any) => {
-    const { data, error } = await supabase.auth.updateUser(updates);
+    const client = ensureSupabaseAvailable();
+    const { data, error } = await client.auth.updateUser(updates);
     return { data, error };
   },
 
   // Sign out
   signOut: async () => {
+    const client = ensureSupabaseAvailable();
     console.log('👋 Signing out...');
-    const { error } = await supabase.auth.signOut();
+    const { error } = await client.auth.signOut();
     if (error) {
       console.error('❌ Signout error:', error);
     } else {
@@ -195,19 +228,22 @@ export const authService = {
 
   // Get current session
   getSession: async () => {
-    const { data: { session }, error } = await supabase.auth.getSession();
+    const client = ensureSupabaseAvailable();
+    const { data: { session }, error } = await client.auth.getSession();
     return { session, error };
   },
 
   // Get current user
   getUser: async () => {
-    const { data: { user }, error } = await supabase.auth.getUser();
+    const client = ensureSupabaseAvailable();
+    const { data: { user }, error } = await client.auth.getUser();
     return { user, error };
   },
 
   // Listen to auth changes
   onAuthStateChange: (callback: (event: string, session: any) => void) => {
-    return supabase.auth.onAuthStateChange(callback);
+    const client = ensureSupabaseAvailable();
+    return client.auth.onAuthStateChange(callback);
   },
 };
 
@@ -215,8 +251,9 @@ export const authService = {
 export const dbService = {
   // Get or create user profile
   getUserProfile: async (userId: string) => {
+    const client = ensureSupabaseAvailable();
     console.log('👤 Getting user profile for:', userId);
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from('profiles')
       .select('*')
       .eq('id', userId)
@@ -233,8 +270,9 @@ export const dbService = {
 
   // Update user profile
   updateUserProfile: async (userId: string, updates: any) => {
+    const client = ensureSupabaseAvailable();
     console.log('📝 Updating user profile for:', userId, updates);
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from('profiles')
       .update(updates)
       .eq('id', userId)
@@ -252,8 +290,9 @@ export const dbService = {
 
   // Create user profile
   createUserProfile: async (profile: any) => {
+    const client = ensureSupabaseAvailable();
     console.log('🆕 Creating user profile:', profile.email);
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from('profiles')
       .insert([profile])
       .select()
@@ -277,7 +316,8 @@ export const storageService = {
     const fileName = `${userId}-${Math.random()}.${fileExt}`;
     const filePath = `avatars/${fileName}`;
 
-    const { data, error } = await supabase.storage
+    const client = ensureSupabaseAvailable();
+    const { data, error } = await client.storage
       .from('user-content')
       .upload(filePath, file, {
         cacheControl: '3600',
@@ -287,7 +327,7 @@ export const storageService = {
     if (error) return { data: null, error };
 
     // Get public URL
-    const { data: { publicUrl } } = supabase.storage
+    const { data: { publicUrl } } = client.storage
       .from('user-content')
       .getPublicUrl(filePath);
 
@@ -296,7 +336,8 @@ export const storageService = {
 
   // Delete file
   deleteFile: async (path: string) => {
-    const { data, error } = await supabase.storage
+    const client = ensureSupabaseAvailable();
+    const { data, error } = await client.storage
       .from('user-content')
       .remove([path]);
     return { data, error };
@@ -304,7 +345,8 @@ export const storageService = {
 
   // Get public URL
   getPublicUrl: (path: string) => {
-    const { data } = supabase.storage
+    const client = ensureSupabaseAvailable();
+    const { data } = client.storage
       .from('user-content')
       .getPublicUrl(path);
     return data.publicUrl;

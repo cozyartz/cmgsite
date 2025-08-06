@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAuth } from '../../contexts/SupabaseAuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { User, Shield, Mail, Github, AlertCircle, CheckCircle } from 'lucide-react';
 
 const AuthDebug: React.FC = () => {

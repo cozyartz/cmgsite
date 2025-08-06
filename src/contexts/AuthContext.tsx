@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '../lib/supabase';
+import { authService, User, AuthSession } from '../lib/auth';
 
 interface UserProfile {
   id: string;
@@ -17,13 +16,15 @@ interface UserProfile {
 interface AuthContextType {
   user: User | null;
   profile: UserProfile | null;
-  session: Session | null;
+  session: AuthSession | null;
   loading: boolean;
   isAuthenticated: boolean;
   isAdmin: boolean;
   isSuperAdmin: boolean;
+  signInWithMagicLink: (email: string, tenantDomain?: string) => Promise<{ success: boolean; message: string }>;
   signInWithOAuth: (provider: 'github' | 'google') => Promise<void>;
   signOut: () => Promise<void>;
+  apiRequest: (endpoint: string, options?: RequestInit) => Promise<Response>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -43,7 +44,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] = useState<AuthSession | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Define superadmin credentials
@@ -53,11 +54,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Check if user is superadmin
   const checkSuperAdminStatus = (user: User): boolean => {
     const email = user.email;
-    const githubUsername = user.user_metadata?.user_name;
     
     return (
       (email && superAdminEmails.includes(email)) ||
-      (githubUsername && superAdminGithubUsernames.includes(githubUsername))
+      user.role === 'super_admin'
     );
   };
 
@@ -72,20 +72,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Get initial session
     const initializeAuth = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('Error getting session:', error);
-          return;
-        }
+        const currentSession = authService.getSession();
         
         if (mounted) {
-          setSession(session);
-          setUser(session?.user ?? null);
+          setSession(currentSession);
+          setUser(currentSession?.user ?? null);
           
-          if (session?.user) {
-            // Load profile in background, don't block UI
-            loadUserProfile(session.user).catch(console.error);
+          if (currentSession?.user) {
+            // Create profile from user data
+            loadUserProfile(currentSession.user).catch(console.error);
           }
         }
       } catch (error) {
@@ -99,33 +94,102 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     initializeAuth();
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (!mounted) return;
+    // Listen for auth changes (across tabs)
+    const unsubscribe = authService.onSessionChange(async (newSession) => {
+      if (!mounted) return;
+      
+      try {
+        setSession(newSession);
+        setUser(newSession?.user ?? null);
         
-        try {
-          setSession(session);
-          setUser(session?.user ?? null);
-          
-          if (session?.user) {
-            loadUserProfile(session.user).catch(console.error);
-          } else {
-            setProfile(null);
-          }
-        } catch (error) {
-          console.error('Error handling auth state change:', error);
-        } finally {
-          setLoading(false);
+        if (newSession?.user) {
+          loadUserProfile(newSession.user).catch(console.error);
+        } else {
+          setProfile(null);
         }
+      } catch (error) {
+        console.error('Error handling session change:', error);
       }
-    );
+    });
+
+    // Check for auth callback
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionKey = urlParams.get('session');
+    const magicToken = urlParams.get('token');
+
+    if (sessionKey) {
+      // Handle OAuth callback
+      handleOAuthCallback(sessionKey);
+    } else if (magicToken) {
+      // Handle magic link callback
+      handleMagicLinkCallback(magicToken);
+    }
 
     return () => {
       mounted = false;
-      subscription.unsubscribe();
+      unsubscribe();
     };
   }, []);
+
+  const handleOAuthCallback = async (sessionKey: string) => {
+    try {
+      const response = await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ session_key: sessionKey }),
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        // Session is handled by authService
+        const newSession = authService.getSession();
+        setSession(newSession);
+        setUser(newSession?.user || null);
+
+        if (newSession?.user) {
+          loadUserProfile(newSession.user);
+        }
+
+        // Clean up URL
+        const url = new URL(window.location.href);
+        url.searchParams.delete('session');
+        window.history.replaceState({}, '', url.toString());
+      } else {
+        console.error('OAuth callback failed:', result.error);
+      }
+    } catch (error) {
+      console.error('OAuth callback error:', error);
+    }
+  };
+
+  const handleMagicLinkCallback = async (token: string) => {
+    try {
+      const result = await authService.handleMagicLinkCallback(token);
+      
+      if (result.success) {
+        // Session is already saved by handleMagicLinkCallback
+        const newSession = authService.getSession();
+        setSession(newSession);
+        setUser(newSession?.user || null);
+
+        if (newSession?.user) {
+          loadUserProfile(newSession.user);
+        }
+
+        // Clean up URL
+        const url = new URL(window.location.href);
+        url.searchParams.delete('token');
+        window.history.replaceState({}, '', url.toString());
+      } else {
+        console.error('Magic link callback failed:', result.error);
+      }
+    } catch (error) {
+      console.error('Magic link callback error:', error);
+    }
+  };
 
   const loadUserProfile = async (user: User) => {
     try {
@@ -134,12 +198,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const minimalProfile: UserProfile = {
         id: user.id,
         email: user.email || '',
-        full_name: user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'User',
-        avatar_url: user.user_metadata?.avatar_url || null,
-        provider: user.app_metadata?.provider || 'email',
-        github_username: user.user_metadata?.user_name || null,
+        full_name: user.name || user.email?.split('@')[0] || 'User',
+        avatar_url: user.avatar_url || null,
+        provider: user.provider || 'email',
+        github_username: user.provider === 'github' ? user.name : null,
         role: isSuperAdmin ? 'admin' : 'user',
-        created_at: new Date().toISOString(),
+        created_at: user.created_at || new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
       
@@ -149,18 +213,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const signInWithMagicLink = async (email: string, tenantDomain?: string) => {
+    return authService.signInWithMagicLink(email, tenantDomain);
+  };
+
   const signInWithOAuth = async (provider: 'github' | 'google') => {
     try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
-      
-      if (error) {
-        throw error;
-      }
+      await authService.signInWithOAuth(provider);
     } catch (error) {
       console.error('OAuth error:', error);
       throw error;
@@ -169,15 +228,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        throw error;
-      }
-      // Auth state change will handle clearing user/profile
+      await authService.signOut();
+      setSession(null);
+      setUser(null);
+      setProfile(null);
     } catch (error) {
       console.error('Signout error:', error);
       throw error;
     }
+  };
+
+  const apiRequest = async (endpoint: string, options?: RequestInit) => {
+    return authService.apiRequest(endpoint, options);
   };
 
   const value: AuthContextType = {
@@ -188,8 +250,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isAuthenticated,
     isAdmin,
     isSuperAdmin,
+    signInWithMagicLink,
     signInWithOAuth,
     signOut,
+    apiRequest,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

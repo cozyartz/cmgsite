@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { useAuth } from '../contexts/SupabaseAuthContext';
+import { useAuth } from '../contexts/AuthContext';
 
 const TestAuth: React.FC = () => {
   const { user, profile, loading, isAdmin, isSuperAdmin, signInWithOAuth, signOut } = useAuth();

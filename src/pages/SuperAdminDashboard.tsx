@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/SupabaseAuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { Crown, Users, TrendingUp, DollarSign, Activity, CheckCircle, ArrowUp, Bot, Zap, Download, Calendar, BarChart3, PieChart, LineChart, AlertTriangle, Clock, RefreshCw, MessageCircle } from 'lucide-react';
 import { AnalyticsService } from '../lib/analytics';
 import SuperAdminNavigation from '../components/SuperAdminNavigation';

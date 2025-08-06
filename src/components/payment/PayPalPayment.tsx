@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { PayPalScriptProvider, PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
-import { useAuth } from '../../contexts/SupabaseAuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { apiService } from '../../lib/api';
 import { CreditCard, Shield, Lock, CheckCircle, Loader2 } from 'lucide-react';
 

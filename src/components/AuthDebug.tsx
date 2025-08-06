@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAuth } from '../contexts/SupabaseAuthContext';
+import { useAuth } from '../contexts/AuthContext';
 
 const AuthDebugComponent: React.FC = () => {
   const { user, profile, loading, isAdmin, isSuperAdmin } = useAuth();
