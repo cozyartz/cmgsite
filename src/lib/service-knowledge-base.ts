@@ -381,7 +381,44 @@ export const restrictedTopics = [
   "internal tools",
   "competitor pricing details",
   "proprietary algorithms",
-  "client confidential information"
+  "client confidential information",
+  "cloudflare configuration",
+  "wrangler secrets",
+  "environment variables",
+  "production credentials",
+  "admin passwords",
+  "system architecture",
+  "deployment keys",
+  "worker bindings",
+  "kv namespace ids",
+  "d1 database ids",
+  "internal apis",
+  "security tokens",
+  "webhook secrets",
+  "oauth secrets",
+  "internal dashboards",
+  "admin interfaces",
+  "system logs",
+  "error messages",
+  "debug information",
+  "technical specifications",
+  "infrastructure details",
+  "source code",
+  "git repositories",
+  "development environments",
+  "staging systems",
+  "internal processes",
+  "business strategies",
+  "financial information",
+  "legal matters",
+  "employee information",
+  "contractor details",
+  "vendor relationships",
+  "partnership agreements",
+  "competitive intelligence",
+  "market research",
+  "internal communications",
+  "strategic planning"
 ];
 
 // Safe topics that can be discussed
@@ -418,6 +455,106 @@ export function getRelevantServices(query: string): ServiceInfo[] {
 export function containsRestrictedContent(query: string): boolean {
   const lowerQuery = query.toLowerCase();
   return restrictedTopics.some(topic => lowerQuery.includes(topic));
+}
+
+/**
+ * Sanitize user input to prevent prompt injection attacks
+ */
+export function sanitizeUserInput(input: string): string {
+  // Remove potential prompt injection patterns
+  const dangerousPatterns = [
+    /ignore\s+(previous|all)\s+(instructions?|prompts?|context)/gi,
+    /system\s*[:=]\s*["']?[^"'\n]*["']?/gi,
+    /assistant\s*[:=]\s*["']?[^"'\n]*["']?/gi,
+    /\[SYSTEM\]/gi,
+    /\[\/SYSTEM\]/gi,
+    /\[ASSISTANT\]/gi,
+    /\[\/ASSISTANT\]/gi,
+    /\[USER\]/gi,
+    /\[\/USER\]/gi,
+    /<\s*system\s*>/gi,
+    /<\/\s*system\s*>/gi,
+    /roleplay\s+as/gi,
+    /pretend\s+(you\s+are|to\s+be)/gi,
+    /act\s+as\s+(if\s+you\s+are|a)/gi,
+    /forget\s+(everything|all|previous)/gi,
+    /new\s+(instructions?|prompts?|context)/gi
+  ];
+
+  let sanitized = input;
+  dangerousPatterns.forEach(pattern => {
+    sanitized = sanitized.replace(pattern, '[FILTERED]');
+  });
+
+  // Remove excessive repetition (potential DoS)
+  sanitized = sanitized.replace(/(.)\1{50,}/g, '$1[REPETITION_FILTERED]');
+  
+  // Limit input length
+  if (sanitized.length > 2000) {
+    sanitized = sanitized.substring(0, 2000) + '[TRUNCATED]';
+  }
+
+  return sanitized;
+}
+
+/**
+ * Validate AI response for security compliance
+ */
+export function validateAIResponse(response: string): { isValid: boolean; sanitized: string; issues: string[] } {
+  const issues: string[] = [];
+  let sanitized = response;
+
+  // Check for restricted content in response
+  if (containsRestrictedContent(response)) {
+    issues.push('Contains restricted technical information');
+    // Replace sensitive patterns with generic responses
+    restrictedTopics.forEach(topic => {
+      const pattern = new RegExp(topic, 'gi');
+      sanitized = sanitized.replace(pattern, '[INFORMATION NOT AVAILABLE]');
+    });
+  }
+
+  // Check for potential data leaks
+  const sensitivePatterns = [
+    /[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}/gi, // UUIDs
+    /[A-Za-z0-9]{64}/g, // Long tokens/keys
+    /sk-[A-Za-z0-9]{32,}/gi, // API keys
+    /pk_[A-Za-z0-9]{32,}/gi, // Public keys
+    /ey[A-Za-z0-9]{10,}\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+/g, // JWTs
+    /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g, // Email addresses (except public ones)
+  ];
+
+  sensitivePatterns.forEach(pattern => {
+    if (pattern.test(sanitized)) {
+      issues.push('Contains potentially sensitive data patterns');
+      sanitized = sanitized.replace(pattern, '[REDACTED]');
+    }
+  });
+
+  // Ensure response stays on topic
+  const businessKeywords = ['service', 'website', 'seo', 'design', 'marketing', 'consultation', 'cozyartz'];
+  const hasBusinessContext = businessKeywords.some(keyword => 
+    sanitized.toLowerCase().includes(keyword)
+  );
+
+  if (!hasBusinessContext && sanitized.length > 100) {
+    issues.push('Response may be off-topic for business inquiries');
+  }
+
+  return {
+    isValid: issues.length === 0,
+    sanitized,
+    issues
+  };
+}
+
+/**
+ * Rate limiting check for API abuse prevention
+ */
+export function checkRateLimit(userIdentifier: string, requestsPerMinute: number = 10): boolean {
+  // This would be implemented with actual storage in production
+  // For now, return true (allow) but structure is ready for KV storage
+  return true;
 }
 
 /**

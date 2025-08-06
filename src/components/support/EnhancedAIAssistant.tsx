@@ -463,8 +463,23 @@ const EnhancedAIAssistant: React.FC<EnhancedAIAssistantProps> = ({
             <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white"></div>
           </div>
           <div>
-            <h3 className="font-bold text-lg">AI Assistant</h3>
-            <p className="text-xs text-teal-100">Powered by Cloudflare AI • {companyInfo.name}</p>
+            <h3 className="font-bold text-lg flex items-center gap-1">
+              🤖 AI Assistant
+              <span className="text-xs bg-blue-500/30 text-blue-100 px-1.5 py-0.5 rounded font-normal">
+                AI
+              </span>
+            </h3>
+            <p className="text-xs text-teal-100">
+              Powered by Cloudflare AI • {companyInfo.name}
+            </p>
+            <p className="text-xs text-blue-200 bg-blue-500/20 px-2 py-1 rounded mt-1">
+              💡 AI-powered chat. Need human help? <button 
+                className="underline hover:text-white" 
+                onClick={() => window.open('mailto:hello@cozyartzmedia.com', '_blank')}
+              >
+                Contact us
+              </button>
+            </p>
           </div>
           <div className="flex items-center gap-2">
             {enableLeadCapture && leadScore > 0 && (

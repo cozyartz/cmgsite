@@ -49,6 +49,77 @@ interface ConversationMemory {
   lastActive: string;
 }
 
+// Security and validation functions
+function containsRestrictedContent(query: string): boolean {
+  const restrictedTopics = [
+    "server configuration", "database schemas", "API keys", "authentication tokens", "code repositories",
+    "development workflows", "internal tools", "competitor pricing details", "proprietary algorithms",
+    "client confidential information", "cloudflare configuration", "wrangler secrets", "environment variables",
+    "production credentials", "admin passwords", "system architecture", "deployment keys", "worker bindings",
+    "kv namespace ids", "d1 database ids", "internal apis", "security tokens", "webhook secrets",
+    "oauth secrets", "internal dashboards", "admin interfaces", "system logs", "error messages",
+    "debug information", "technical specifications", "infrastructure details", "source code",
+    "git repositories", "development environments", "staging systems", "internal processes",
+    "business strategies", "financial information", "legal matters", "employee information",
+    "contractor details", "vendor relationships", "partnership agreements", "competitive intelligence",
+    "market research", "internal communications", "strategic planning"
+  ];
+  
+  const lowerQuery = query.toLowerCase();
+  return restrictedTopics.some(topic => lowerQuery.includes(topic));
+}
+
+function sanitizeUserInput(input: string): string {
+  const dangerousPatterns = [
+    /ignore\s+(previous|all)\s+(instructions?|prompts?|context)/gi,
+    /system\s*[:=]\s*["']?[^"'\n]*["']?/gi,
+    /assistant\s*[:=]\s*["']?[^"'\n]*["']?/gi,
+    /\[SYSTEM\]/gi, /\[\/SYSTEM\]/gi, /\[ASSISTANT\]/gi, /\[\/ASSISTANT\]/gi,
+    /\[USER\]/gi, /\[\/USER\]/gi, /<\s*system\s*>/gi, /<\/\s*system\s*>/gi,
+    /roleplay\s+as/gi, /pretend\s+(you\s+are|to\s+be)/gi, /act\s+as\s+(if\s+you\s+are|a)/gi,
+    /forget\s+(everything|all|previous)/gi, /new\s+(instructions?|prompts?|context)/gi
+  ];
+
+  let sanitized = input;
+  dangerousPatterns.forEach(pattern => {
+    sanitized = sanitized.replace(pattern, '[FILTERED]');
+  });
+
+  sanitized = sanitized.replace(/(.)\1{50,}/g, '$1[REPETITION_FILTERED]');
+  
+  if (sanitized.length > 2000) {
+    sanitized = sanitized.substring(0, 2000) + '[TRUNCATED]';
+  }
+
+  return sanitized;
+}
+
+function validateAIResponse(response: string): { isValid: boolean; sanitized: string; issues: string[] } {
+  const issues: string[] = [];
+  let sanitized = response;
+
+  if (containsRestrictedContent(response)) {
+    issues.push('Contains restricted technical information');
+    sanitized = sanitized.replace(/\b(server|database|api|key|token|config|admin|internal)\b/gi, '[REDACTED]');
+  }
+
+  const sensitivePatterns = [
+    /[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}/gi,
+    /[A-Za-z0-9]{64}/g, /sk-[A-Za-z0-9]{32,}/gi, /pk_[A-Za-z0-9]{32,}/gi,
+    /ey[A-Za-z0-9]{10,}\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+/g,
+    /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g
+  ];
+
+  sensitivePatterns.forEach(pattern => {
+    if (pattern.test(sanitized)) {
+      issues.push('Contains potentially sensitive data patterns');
+      sanitized = sanitized.replace(pattern, '[REDACTED]');
+    }
+  });
+
+  return { isValid: issues.length === 0, sanitized, issues };
+}
+
 export async function onRequestPost(context: EventContext<{}, any, {}>) {
   const { request, env } = context;
 
@@ -70,6 +141,23 @@ export async function onRequestPost(context: EventContext<{}, any, {}>) {
         error: 'Message is required'
       }), {
         status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 🔒 SECURITY: Sanitize input to prevent prompt injection
+    const sanitizedMessage = sanitizeUserInput(message);
+    
+    // 🔒 SECURITY: Check for restricted content
+    if (containsRestrictedContent(sanitizedMessage)) {
+      return new Response(JSON.stringify({
+        success: true,
+        response: "I can only provide information about our public services and how we can help your business grow. For technical discussions, I'd be happy to connect you with our technical team. Would you like me to help you book a consultation?",
+        leadScore: leadScore,
+        intent: 'restricted',
+        sentiment: 'neutral',
+        suggestions: ['Tell me about your services', 'See pricing information', 'Book a consultation', 'Contact your team']
+      }), {
         headers: { 'Content-Type': 'application/json' }
       });
     }
@@ -145,6 +233,19 @@ export async function onRequestPost(context: EventContext<{}, any, {}>) {
       throw new Error(aiResponse.error || 'AI service failed');
     }
 
+    // 🔒 SECURITY: Validate AI response for compliance
+    const responseValidation = validateAIResponse(aiResponse.response);
+    let finalResponse = responseValidation.sanitized;
+    
+    if (!responseValidation.isValid) {
+      console.warn('AI response validation issues:', responseValidation.issues);
+      
+      // If response contains restricted content, provide safe fallback
+      if (responseValidation.issues.includes('Contains restricted technical information')) {
+        finalResponse = "I can only provide information about our public services and how we can help your business grow. For detailed technical discussions, I'd be happy to connect you with our technical team. Would you like me to help you book a consultation?";
+      }
+    }
+
     // Generate contextual suggestions
     const suggestions = await aiService.generateSuggestions({
       ...conversationContext,
@@ -166,7 +267,7 @@ export async function onRequestPost(context: EventContext<{}, any, {}>) {
         },
         {
           role: 'assistant', 
-          content: aiResponse.response,
+          content: finalResponse,
           timestamp: new Date().toISOString()
         }
       ],
@@ -205,7 +306,7 @@ export async function onRequestPost(context: EventContext<{}, any, {}>) {
 
     return new Response(JSON.stringify({
       success: true,
-      response: aiResponse.response,
+      response: finalResponse,
       suggestions,
       sessionId,
       leadScore: updatedLeadScore,
